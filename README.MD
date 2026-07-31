@@ -5,6 +5,9 @@ those differences are about skill and which are about institutional position.
 Built on O*NET 30.2 (894 detailed occupations) joined to wages, union coverage,
 occupational prestige, separation rates and self-employment.
 
+**[Paper draft](paper_draft.md)** · **[Interactive figures](index.html)**
+(on GitHub, the figures need Pages enabled; locally, open `index.html`.)
+
 Everything reads and writes through `output/`. Run from the project root, the
 folder containing `data_raw/`.
 
@@ -19,16 +22,16 @@ python pca_rotated.py           # 4. main result: three rotated axes
 python pca_skills.py            # 5. skill-only axes (needed by pca_ete.py)
 python pca_ete.py               # 6. structure of the education/training block
 python check_orthogonality.py   # 7. which external variables skills can predict
-python plot_axes.py             # 8. figures
+python validate_axes.py         # 8. do the axis names hold up?
+python plot_axes.py             # 9. figures
 ```
 
 Steps 1 and 2 run in that order; every analysis afterwards reads
 `output/master_clean.xlsx`. `pca_ete.py` needs `output/skills_axes.csv`, so
 `pca_skills.py` comes first. Nothing else has dependencies.
 
-`scan_quality.py`, `check_external.py`, `mfa_analysis.py`, `pca_mixed.py` and
-`wage_regression.py` are run as needed rather than as part of the sequence; see
-below.
+`scan_quality.py`, `check_external.py`, `mfa_analysis.py` and `pca_mixed.py`
+are run as needed rather than as part of the sequence; see below.
 
 ## Three layers of data
 
@@ -67,16 +70,23 @@ median.
 
 ## Results
 
-**`cluster_onet.py`** → `cluster_silhouette.png`, `cluster_assignments.csv`
+**`cluster_onet.py`** → `cluster_occupations.png`,
+`cluster_skill_similarity.png`, `cluster_assignments.csv`
 
-Whether occupations form clusters at all, and whether the clustering reported in
-earlier work survives the removal of one step. Holds the data fixed and varies
-only the representation — published ratings versus the same ratings binarised at
-RCA > 1 — then compares silhouette scores. If separation appears only after
-thresholding, the clusters belong to the method rather than to the labour
-market, and continuous axes are the appropriate description.
+Whether the polarization reported in earlier work is a property of skills or of
+the way the skill matrix is built. Part A asks whether occupations themselves
+fall into groups under continuous or binarised ratings — they do not, which is
+what licenses describing them with continuous axes. Part B goes after the
+published claim directly, which is about skills rather than occupations:
+skill-skill similarity is rebuilt both by the published route (binarise at
+RCA > 1, then take the minimum conditional co-occurrence probability) and
+straightforwardly by correlating the published ratings across occupations, and
+the two are compared on how bimodal the resulting edge weights are and how
+separable the skill clusters are. The published network is also thresholded
+before its communities are read off, so the script reports how much of the data
+that step removes.
 
-**`pca_rotated.py`** → `rotated_axes.csv`, `rotated_scree.png`
+**`pca_rotated.py`** → `rotated_axes.csv`, `rotated_loadings.csv`, `rotated_scree.png`
 
 The main analysis. Wages enter as two columns, a log level and a p90/p10
 dispersion, so that nine collinear wage measures cannot capture an axis by
@@ -105,6 +115,20 @@ account for in total — this gives the direction: which axis a variable points
 along, and therefore what it means substantively. Complementary tests, not
 duplicate ones; a variable can correlate weakly with every single axis and still
 be well predicted by a combination of them.
+
+**`validate_axes.py`** → terminal
+
+Whether the three axes are what they are called. The names came from reading
+loadings, which is a judgement, and every substantive claim rests on them — the
+data would be unchanged if a name were wrong, the argument would not survive.
+Three checks, each using something the analysis did not see: O*NET's own expert
+grouping of elements into cognitive, psychomotor, physical and sensory abilities
+and into information input, mental processes, work output and interaction;
+whether the off-diagonal cells of the R1 × R2 plane are populated, since the
+claim that load and medium are separate requires occupations that are physical
+and demanding, and abstract and routine, to exist; and the occupations at each
+extreme. The quadrant medians also show directly whether pay follows cognitive
+load or the manual/mental divide.
 
 **`pca_ete.py`** → `ete_axes.csv`
 
@@ -161,12 +185,6 @@ A further one-off check established that BLS occupational openings is a size
 proxy (r = 0.89 with employment), that the "typical education needed" threshold
 is redundant with the ETE distributions (R² = 0.82), and that "work experience
 needed" is 85% missing. All three were excluded on that basis.
-
-## Not part of the study
-
-**`wage_regression.py`** → `wage_residuals.csv` — what predicts pay, and which
-occupations are paid above or below what their skills predict. Personal
-exploration; no result from it enters the paper.
 
 ## Conventions
 

@@ -12,6 +12,7 @@
 !.gitignore
 !README.md
 !paper_draft.md
+!index.html
 !*.py
 
 # 4. raw data: never committed -- large, and all of it is publicly downloadable.
@@ -28,6 +29,7 @@ output/*
 !output/fig_3d_space.html
 !output/fig_panels.html
 !output/master_wide.xlsx
+
 
 # 6. junk
 __pycache__/
