@@ -5,8 +5,7 @@ those differences are about skill and which are about institutional position.
 Built on O*NET 30.2 (894 detailed occupations) joined to wages, union coverage,
 occupational prestige, separation rates and self-employment.
 
-**[Paper draft](paper_draft.md)** · **[Interactive figures](index.html)**
-(on GitHub, the figures need Pages enabled; locally, open `index.html`.)
+**[Paper draft](paper_draft.md)** · **[Interactive figures](https://github.com/AliceBobCharlie/AI_and_employment/deployments/github-pages)**
 
 Everything reads and writes through `output/`. Run from the project root, the
 folder containing `data_raw/`.
