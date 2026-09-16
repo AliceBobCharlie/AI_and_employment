@@ -10,8 +10,7 @@
 
 # 3. scripts and documents
 !.gitignore
-!README.md
-!paper_draft.md
+!*.md
 !index.html
 !*.py
 

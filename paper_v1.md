@@ -11,57 +11,41 @@ We try to answer the questions "what jobs are under greatest AI exposure" and "W
 ---
 
 ## 1. Introduction
+Existing research on which occupations artificial intelligence might replace has generally not treated the question as a multidimensional one. Many studies examine a range of underlying data and then collapse their results into a single index, representing how exposed a given occupation is to AI relative to others. (A note on terminology: this paper avoids the term "exposure", which leaves unresolved whether what is being measured is substitution or human–AI collaboration. "Substitution" is used throughout.)
 
-### 1.1 Two strategies, two gaps
+Such an approach overlooks the fact that whether AI can substitute for human labour in a given occupation is determined by several factors at once, and that these factors need not point in the same direction. Software engineering illustrates the difficulty. Parts of the work are highly structured and can be handled by current systems without scaffolding, which makes them readily substitutable. Other parts are context-rich and require planning, and continue to depend on experienced engineers. Whether any particular piece of software engineering work is replaced by AI therefore depends on the balance between two conflicting influences. Reducing the substitutability of software engineers to a single index cannot easily represent this, and studies frequently arrive at opposing conclusions when they are in fact capturing different factors. This is one reason why research on AI substitution remains contested and difficult to reconcile, even where individual measures fit observed data well.
 
-Research on which jobs artificial intelligence will displace has organised itself around two strategies. The first constructs an occupation-level measure of exposure and ranks occupations along it. The second declines to measure AI and regresses labour-market outcomes on exposure or adoption directly.
+This paper attempts to identify the full set of factors bearing on whether an occupation is substitutable by AI, and to characterise them comprehensively. Against this, the advantage of a one-dimensional index is that it is intuitive, whereas complex models involving many variables are often hard to interpret. To address the first problem while preserving that intuitive quality, the paper seeks to derive a low-dimensional subspace of occupational characteristics, in which an occupation's position along each axis determines where it sits within that space. Two- and three-dimensional slices of this space can then be visualised, so that decision-makers in economic policy can continue to read off the relative position of each occupation directly while also recognising the complexity of the question.
 
-Each leaves a gap that the other does not close. An index is a single line, so an occupation whose components point in opposite directions — routine work that AI performs well, alongside judgement that it does not — receives one number that describes neither. And a regression on employment cannot separate what AI is able to do from what employers are permitted to do, since union coverage, policy and firms' willingness to displace all intervene between capability and job loss.
-
-### 1.2 The literature
-
-**Exposure measures.** Work at METR on the length of tasks AI agents can complete establishes that the capability exists and is growing, but is not designed to say which occupations it reaches first. The AI Occupational Exposure index of Felten, Raj and Seamans (2021) was among the earliest occupation-level answers and remains widely used; it weights O\*NET ability ratings by scores describing progress in AI applications, with the link between the two assigned by crowd-sourced matching rather than measured. Eloundou et al. (2024) improved on this by having trained annotators and GPT-4 apply a common rubric to O\*NET task statements and aggregating with importance weights, though the result remains a judgement about tasks rather than a measurement of performance on them, and such ratings are sensitive to which model performs them. More recent measures show the difficulty is structural: the SAFI index of *The AI Skills Shift* is carefully defined but scored by its authors, and the Pew Research Center's analysis introduces institutional and demographic variables of exactly the kind we argue are missing while assigning exposure by the same subjective route. Across this line of work the measurement of the occupation is careful and the measurement of AI is a judgement call.
-
-**Direct regressions.** Brynjolfsson, Chandar and Chen (2025) find a relative employment decline of roughly 16 percent among workers aged 22–25 in the most exposed occupations, concentrated where AI substitutes rather than augments. The counter-evidence is substantial: national studies in Denmark and the United States find no discernible relationship, Humlum and Vestergaard (2025) find essentially zero effect on earnings or hours, and Hartley et al. (2026) report widespread adoption alongside small positive wage effects. Iscenko and Millet (2026) note that exposed occupations are concentrated in interest-rate-sensitive sectors and that postings in them fell before the release of ChatGPT, suggesting part of the decline is macroeconomic. Two years of data is not long enough to separate a trend from a fluctuation, and employment is determined by much besides technology.
-
-### 1.3 What the two gaps cost
-
-**A single number cannot represent an occupation pulled in two directions.** Programmers are the standing example. The repetitive component of the work, and the success of AI at code generation, push the score up; the complex judgement required of senior engineers resists substitution, and demand for it has if anything risen. On one line an occupation must be either exposed or not — it cannot be both — and so the same occupations are argued over indefinitely. We suspect this is part of why exposure measures, despite fitting the available outcome data reasonably well, have not been broadly accepted as descriptions of what is happening.
-
-**Capability is not displacement.** Whether a technically feasible substitution is carried out depends on things unrelated to capability: union coverage and collective bargaining, employers' willingness to displace, and policy. The literature on labour-market power argues that it is the imbalance of power, rather than technology as such, that makes technology threatening to workers, and work on unions and AI documents cases in which collective agreements have shaped what employers may do with the technology. These variables sit between capability and job loss, they vary sharply across occupations, and which occupations currently carry strong external protection is a policy question in its own right. It is not currently answered.
-
-### 1.4 This paper
-
-We approach both gaps from upstream. We do not measure AI. What we analyse is the structure of occupational requirements — the skill side, not the AI side — for reasons set out in Section 2: measuring capability against work requires experimental resources we do not have, and assigning weights by judgement is the practice we are trying to avoid. What remains, and what has not been done, is to establish the structure that every exposure measure is a projection of.
-
-Two commitments follow.
-
-**We assume the impact of AI on an occupation is not one factor but several, occupying a space of more than one dimension, and we try to recover that space rather than impose it.** No variables are selected to represent a concept; the full set of published requirement ratings is used, pruned only on measurable grounds, and the covariance structure determines what the dimensions are. How many there are is settled empirically, by testing which components a random half of the occupations reproduces. The space is then read through its two-dimensional sections, which is what makes a multi-dimensional description usable rather than merely more accurate.
-
-**We collect variables that are not properties of the work — wages, union coverage, prestige, employment, turnover, self-employment — and test which are independent of the skill structure and which are projections of it.** The purpose is not to explain them but to establish which carry information that no description of the work contains, since those are the variables a regression on employment must control for and that policy can act on.
+The paper further seeks to identify external variables, beyond the characteristics of the work itself, that may impede substitution, such as union density and occupational mobility. These are intended to help address the question of substitution versus collaboration, to account for the gap between measures of substitutability and observed employment outcomes, and to provide a basis for policymakers concerned with employment stability.
 
 The result is a three-axis description of occupational structure — physical intensity, cognitive load, and person-facing work — together with an institutional dimension orthogonal to all three. We offer it as a model in a specific sense: a coordinate system in which occupations, and the exposure measures built on them, can be located. Its axes are established, their stability tested and their meanings validated against an external classification; what it does not supply is the function by which a position in the space translates into displacement risk. Displacement is some function of the three axes and of institutional protection, and this paper fixes the arguments of that function rather than its coefficients. That is a weaker claim than an exposure index makes, and one that does not expire when the next model is released.
+## 2 Method
+The most direct way to identify the factors governing whether AI can substitute for human labour in an occupation would be to measure AI performance on tasks representative of that occupation, and to combine those measurements with data on the occupation itself. The most advanced work of this kind is GDPval (Patwardhan et al., 2025), in which practitioners drawn from the occupations concerned both set the tasks and graded the results.
 
----
+Where such measurement is not available, two practices are common. One is to score AI performance directly on a rating scale; the other is to ask a generative model which tasks it could perform. Both yield occupation-level numbers at low cost, but neither produces a quantity that can readily be verified against an external standard, and results of this kind have been shown to vary with the model performing the rating and with the phrasing of the prompt. We have neither the resources to commission expert assessment on the scale GDPval required, nor any wish to introduce judgements of our own in its place.
 
-## 2. Method
+We therefore restrict the analysis to the demand side. We take the occupational requirement data published in O*NET, together with a set of external variables attached to occupations, and recover from them the principal factors along which occupations differ. No measurement of AI enters at any point.
 
-### 2.1 Why the occupation is the unit
+Two consequences follow, and we state them plainly.
 
-Displacement attaches to occupations. A worker is laid off from a job, not from a task and not from a skill; unemployment statistics are collected by occupation; and — decisively for our second question — the institutions that determine whether displacement is permitted attach to occupations as well. Unions organise electricians and actors, licences are issued to physicians and lawyers, professional associations defend the boundaries of an occupation. There is no unit at the task level to which collective bargaining could attach.
+The first is that this paper contains no evidence about what AI can or cannot do. What it offers is a framework — an account of which variables bear on the question and of the space those variables form — rather than an estimate of substitution risk for any occupation. The function mapping a position in that space to a probability of displacement is not estimated here; the paper fixes the arguments of that function and tests direction in which each axis bears on substitution is and leaves its coefficients to work that can measure capability.
 
-This is why we do not work at the task level, as exposure measures built on O\*NET task statements do. Task-level analysis is the finer instrument for technical feasibility and we make no claim against it. But it has no carrier for the institutional dimension, which is half of our question.
+The second consequence is a compensating one. Capability estimates have a short shelf life and must be revised as systems improve, whereas the structure of occupational requirements changes far more slowly, and the axes along which occupations differ are likely to remain interpretable across successive revisions of any capability measure. A framework specified on the demand side can therefore accommodate new capability evidence without being rebuilt. We would not claim that occupational requirements are fixed — they are themselves reshaped by technology, and O*NET revises its ratings accordingly — only that they move on a slower timescale than the capabilities being measured against them.
 
-It is also why we do not work in skill space. Prior analysis of this data has treated skills as the objects and studied their relations to one another (Section 2.4). That is informative about the structure of skills, and we use it. But no one is made unemployed from a skill, so a description that lives in skill space cannot be brought into contact with the outcome that motivates the question.
+The cost is equally plain. An analysis conducted on this side of the problem cannot say which occupations are most substitutable at any given moment, and cannot be updated to track a changing frontier. What it can do is establish the terms in which such a judgement would have to be expressed.
 
-### 2.2 Why upstream
+A further limitation runs deeper than the absence of capability measurement. The requirements an occupation places on a human worker are not necessarily the requirements it places on an AI system. Capabilities that are distinct for people may be a single capability for a model — O*NET treats law, medicine and marketing as separate knowledge elements because each is acquired through separate and lengthy human training, whereas for a model trained on a broad corpus these are closer to one capability applied at differing densities of training data. While work that makes almost no demand of a person, such as playing through a game to test it, may lie beyond what current systems can do. There is no reason to expect the dimensions along which human requirements vary to coincide with the dimensions along which machine difficulty varies, and a space recovered from human requirements may therefore organise capability evidence only loosely once such evidence is introduced.
 
-Two routes to an exposure measure are available and neither is open to us. The first is to test AI systems against the work — to construct tasks representative of an occupation and measure performance on them. This is the only route that measures rather than judges, and it requires resources we do not have. The second is to assign weights linking capabilities to requirements, which is available to anyone and is the practice whose arbitrariness motivates this paper.
+We note that this difficulty is not specific to the present paper. No study to date has recovered the structure of AI capability empirically in the way that occupational requirements have been recovered here; capability is generally represented either by a single index or by a set of domains specified in advance. Until the capability side has a measured structure of its own, the correspondence between the two spaces cannot be assessed in either direction. We record this as a limitation of the approach and as an open question for the field, rather than as one this paper resolves.
 
-We therefore take neither, and analyse instead what lies upstream of both: the structure of the requirements themselves. This is a real limitation and we state it plainly — **we do not measure exposure to AI, and no result below is evidence about what AI can do.** What the analysis establishes is the space in which any such measurement must be expressed. If two published exposure indices disagree about an occupation, the disagreement can be located in this space; if an index turns out to be a projection onto a single axis, that fact is visible here and not in the index itself.
+The starting assumption of this paper is that the effect of AI on an occupation is not a single factor but several, and that these occupy a space of more than one dimension. The analytical problem is therefore to recover that space from the data rather than to impose it in advance.
 
-### 2.3 Data
+A considerable body of work has already established that occupational requirements are multidimensional, and much of the method used here is inherited from it. That work has generally proceeded, however, with a dimensional structure specified before the analysis: the number of dimensions fixed by the theory being tested or by the external data the result was to be matched against, their identity fixed by marker variables chosen for their correspondence to concepts of prior interest, and the input data in some cases transformed so that a hypothesised structure could be examined. These are appropriate choices when the object is to estimate a model whose form is known, and they have produced results that this paper relies on. They do mean that the resulting dimensions carry the prior as well as the data, and that the question of what structure the data would yield on its own has been left largely unaddressed.
 
+## 3. Literature
+## 4. Data and Experiment
+### 4.1 Data
 **Occupational requirements.** O\*NET release 30.2, restricted to occupations with published ratings, giving 894 detailed occupations. Pruning is by measurement, not preference:
 
 - *Importance ratings only.* Skills, Abilities, Knowledge and Work Activities each carry an importance and a level rating. Across elements these correlate at a median of 0.94, and the level matrix is recoverable from the importance matrix at R² ≈ 0.90. Keeping both doubles the column count while adding roughly a tenth of the information, and dilutes every other variable in the matrix in proportion. Level ratings also carry O\*NET's "not relevant" flags, so dropping them removes that missingness. Handel (2009) argues that level is the conceptually richer construct, and we note the disagreement.
@@ -75,7 +59,7 @@ This leaves **216 requirement ratings** and the **37 education, training and exp
 
 **Imputation.** Wage gaps are filled by cause. OEWS suppresses annual wages above $239,200; where a high percentile is missing while a low one is present the true value lies above the cap and is filled there, since filling at the median would place a surgeon below their own tenth percentile. Occupations absent from OEWS entirely have no anchor and take the column median. Ratios are recomputed from filled levels. All imputation is confined to one step so that every analysis reads the same numbers.
 
-### 2.4 Prior structure in skill space
+### 4.2 Prior structure in skill space
 
 Alabdulkareem et al. (2018) analysed the same database with the skills as objects rather than the occupations. They normalised the occupation-by-skill matrix by revealed comparative advantage and binarised it, defined the complementarity of two skills as the minimum of the conditional probabilities that an occupation using one also uses the other, thresholded the resulting network, and found that it separates into two communities — one social and cognitive, one sensory and physical — with occupations then characterised by which community they draw on.
 
@@ -83,7 +67,7 @@ We follow that analysis in taking O\*NET as the description of work and in seeki
 
 The closest methodological precedent is Benzell et al. (2019), who applied principal-component factoring with varimax rotation to O\*NET importance ratings and report eight factors. Their procedure differs from ours in two ways that matter for what is found. Their variable set omits Knowledge and Work Context, and they prune iteratively, discarding any item that loads below a threshold on all factors or above one on more than one factor, until every retained item loads cleanly on a single factor. They observe that routineness does not appear among their factors. An item measuring how demanding work is would load across several requirement domains, and is therefore precisely the kind of item that a simple-structure criterion removes.
 
-### 2.5 Recovering the dimensions
+### 4.3 Recovering the dimensions
 
 Variables are standardised and reduced by principal component analysis. Wages enter as two columns — a log level and a p90/p10 dispersion — rather than nine collinear percentiles, which would let a single construct claim a component by weight of numbers.
 
@@ -96,12 +80,8 @@ Variables are standardised and reduced by principal component analysis. Wages en
 **Orthogonality of the external variables.** For each external variable we ask how much of it the requirement data can predict, by ridge regression with cross-validated R². This is reported alongside the variable's loadings on the rotated axes, since the two answer different questions: the loadings say which direction a variable points, the regression says how much of it the work explains in total. A variable can correlate weakly with every individual axis and still be well predicted by a combination of them.
 
 ---
-
-## 3. Results
-
-*(running account; to be tightened)*
-
-### 3.1 Occupations are continuous; skills are grouped
+## 5. Results
+### 5.1 Occupations are continuous; skills are grouped
 
 Clustering the 894 occupations gives a best silhouette of 0.238 at k = 2, rising only to 0.316 in the leading principal subspace, far below the 0.5 that indicates separated groups. The same is true of the RCA-binarised matrix (0.234). Occupations do not fall into types under either representation.
 
@@ -109,7 +89,7 @@ Clustering the 161 skill elements does give structure: silhouette 0.456 on the p
 
 The two findings are consistent, and their conjunction is the more useful statement: skills come in two families, but occupations draw on them in continuously varying proportions. A dichotomy among skills appears as a continuous axis among occupations, and that axis is the first one we recover.
 
-### 3.2 Three stable dimensions
+### 5.2 Three stable dimensions
 
 Of eight candidate components, three survive resampling:
 
@@ -130,7 +110,7 @@ The three account for 47.5 percent of variance. Three things bear on that. The s
 
 **R3, person-facing.** Positive: correctional officer supervisors, police officers, flight attendants, emergency physicians, recreational therapists. Negative: electronics engineers, software developers, mathematicians, computer programmers. The positive pole is not care in the emotional-labour sense; loadings include dealing with angry or aggressive people and with conflict. What is present is direct public contact with responsibility attached.
 
-### 3.3 The names hold against an external classification
+### 5.3 The names hold against an external classification
 
 Mean loadings by O\*NET's own expert categories:
 
@@ -149,7 +129,7 @@ Mean loadings by O\*NET's own expert categories:
 
 The decisive row is cognitive abilities: 0.61 on R2, −0.06 on R1. Cognition is essentially absent from the physical axis. R1 separates work by medium, R2 by difficulty, and the two are empirically independent — established here by a classification that took no part in the analysis.
 
-### 3.4 Pay tracks cognitive load, not medium
+### 5.4 Pay tracks cognitive load, not medium
 
 Splitting at the median of both axes:
 
@@ -166,7 +146,7 @@ The medium is not irrelevant — among cognitively demanding occupations, physic
 
 This describes an association across occupations. It is not a return to individual ability, and not a causal claim.
 
-### 3.5 Which external variables are dimensions
+### 5.5 Which external variables are dimensions
 
 Ridge regressions of each external variable on the requirement data (cross-validated R²):
 
@@ -194,13 +174,13 @@ Two variables are largely independent of the requirement data, for different rea
 
 Union coverage nonetheless does not organise the occupational space, because in U.S. data it has too little variance to: most occupations have low coverage. Independence and discriminating power are separate properties and union coverage has the first without the second. This is a fact about American labour institutions rather than a measurement failure, and the same variable in a country with broader coverage might behave differently.
 
-### 3.6 Preparation
+### 5.6 Preparation
 
 The education, training and experience distributions have exactly one stable internal dimension (split-half 0.935; the second reaches 0.862 and is not retained). It runs from low thresholds — no credential, no prior experience, brief training — to high, and moves together across all four scales: schooling, prior experience, on-the-job and in-plant training rise and fall as one. There are no distinguishable routes into an occupation in this data, only more or less preparation.
 
 The dimension correlates with the skill axes at a maximum of 0.54: substantially related to what the work demands, not reducible to it. The residual — a threshold higher or lower than the difficulty of the work would require — is where credentialing and licensing would appear, and is the natural next variable for the institutional side of the question.
 
-### 3.7 Robustness
+### 5.7 Robustness
 
 Refitting the whole procedure under three variable sets and comparing loadings by Tucker congruence: with wages as two columns, with all nine raw wage columns, and with every economic variable removed. Congruence with the reported axes is 1.000 / 1.000 / 0.999 and 1.000 / 1.000 / 0.998. The axes are a property of the requirement data; no decision about wages produced them.
 
@@ -209,6 +189,7 @@ Occupations are weighted equally rather than by employment, since the object of 
 *To add: refit using level ratings in place of importance, addressing Handel's argument; refit on occupations with above-median O\*NET sample size; oblique rotation as a check on the orthogonality assumption; parallel analysis alongside the stability criterion.*
 
 ---
+###
 
 ## 4. Discussion
 
