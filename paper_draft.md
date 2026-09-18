@@ -1,7 +1,5 @@
 # The dimensional structure of occupational space: a coordinate system for AI substitution measures
 
-*Draft v2. Sections 1 and 2 are the author's text, carried over with only the
-edits noted at the end. Section 3 is a stub. Sections 4 to 7 revised.*
 
 ---
 
@@ -15,14 +13,14 @@ distributions — joined to wages, union coverage, occupational prestige,
 employment, turnover and self-employment, we apply principal component analysis
 with varimax rotation and determine dimensionality by resampling rather than by
 variance explained. Three components are stable and no more: **physical
-intensity, cognitive load, and person-facing work**. Their interpretations are
+intensity, Judgement, and person-facing work**. Their interpretations are
 confirmed against O\*NET's own expert taxonomy; they are unchanged when every
 economic variable is removed from the analysis; and they remain almost
 uncorrelated when the orthogonality constraint is lifted. We propose these three
 axes, together with union coverage as an orthogonal institutional dimension, as
 a coordinate system in which occupations can be located and substitution
-measures compared. Two results follow. Pay tracks cognitive load rather than the
-manual/mental divide — a median wage gap of $38,520 along cognitive load against
+measures compared. Two results follow. Pay tracks Judgement rather than the
+manual/mental divide — a median wage gap of $38,520 along Judgement against
 $8,940 along physical intensity — and prestige and turnover load on the same
 axis, so that pay, status and retention are one dimension rather than three.
 Union coverage, by contrast, is orthogonal to all three axes and to the
@@ -44,7 +42,7 @@ This paper attempts to identify the full set of factors bearing on whether an oc
 
 The paper further seeks to identify external variables, beyond the characteristics of the work itself, that may impede substitution, such as union density and occupational mobility. These are intended to help address the question of substitution versus collaboration, to account for the gap between measures of substitutability and observed employment outcomes, and to provide a basis for policymakers concerned with employment stability.
 
-The result is a three-axis description of occupational structure — physical intensity, cognitive load, and person-facing work — together with an institutional dimension orthogonal to all three. We offer it as a model in a specific sense: a coordinate system in which occupations, and the substitution measures built on them, can be located. Its axes are established, their stability tested and their meanings validated against an external classification; what it does not supply is the function by which a position in the space translates into displacement risk. Displacement is some function of the three axes and of institutional protection, and this paper fixes the arguments of that function rather than its coefficients. That is a weaker claim than a substitution index makes, and one that does not expire when the next model is released.
+The result is a three-axis description of occupational structure — physical intensity, judgement, and person-facing work — together with an institutional dimension orthogonal to all three. We offer it as a model in a specific sense: a coordinate system in which occupations, and the substitution measures built on them, can be located. Its axes are established, their stability tested and their meanings validated against an external classification; what it does not supply is the function by which a position in the space translates into displacement risk. Displacement is some function of the three axes and of institutional protection, and this paper fixes the arguments of that function rather than its coefficients. That is a weaker claim than a substitution index makes, and one that does not expire when the next model is released.
 
 ## 2. Method
 
@@ -110,14 +108,7 @@ al.'s tests whether the reported components are reproducible on an independent
 subset of occupations.
 
 ## 4. Data
-# Section 4. Data
-
-*Draft. This section only.*
-
----
-
-## 4.1 What O\*NET contains, and what bears on the question
-
+### 4.1 O*NET Occupational features
 O\*NET describes each occupation through several blocks of descriptors, collected
 from different sources and on different scales. Not all of them bear on whether
 AI can substitute for the work, and not all of them are observations of the
@@ -147,8 +138,42 @@ records Work Styles as AI/Expert and Interests as Machine Learning/Expert, so
 both are model outputs rather than measurements of the occupation, and including
 them would put a model's judgement inside a matrix intended to hold only
 measured requirements. Two are excluded on evidence, given below.
+### 4.2 External variables
 
-## 4.2 The Importance–Level decision, and other adjustments
+O\*NET describes what an occupation requires. It does not describe the
+occupation's position in the labour market, and the question of whether a
+technically feasible substitution is actually carried out is partly a question
+about that position. We attach six kinds of variable from outside, with a
+rationale for each.
+
+**Table 4.5 — External variables**
+
+| variable | source | why it might bear on substitution |
+|---|---|---|
+| union coverage rate | CPS 2024, via the BLS National Employment Matrix crosswalk | collective agreements can constrain what an employer may do with a technology irrespective of what it can do |
+| median, mean and percentile wages; wage dispersion | OEWS national, May 2024 | the price of the labour being replaced sets the return to replacing it; dispersion within an occupation indicates whether it is one job or several |
+| employment | OEWS national, May 2024 | the scale of any displacement, and a control: a measure correlated with occupation size may be measuring size |
+| occupational prestige | Occupational Prestige Ratings project | social standing may protect an occupation independently of its technical content; it also serves as a check on whether an axis is a status measure |
+| labour-force exit rate; occupational transfer rate | BLS Employment Projections, table 1.10 | how readily workers leave an occupation indicates how easily it sheds labour without dismissals, which is where displacement has been observed first |
+| self-employment share | BLS Employment Projections, table 1.2 | the self-employed have no employer to make the substitution decision, so the mechanism differs |
+
+Three further candidates were examined and excluded, each on a measurement
+rather than a judgement.
+
+**Occupational openings** correlates 0.89 with employment. It is a size proxy,
+and including it would give occupation size two votes.
+
+**Typical education needed for entry**, published by BLS as a categorical
+threshold, is recoverable from the ETE distributions at R² = 0.82. The ETE
+distributions are finer, so the threshold adds little.
+
+**Work experience needed** is missing for 85 percent of occupations — the field
+is populated for 116 of 894 — and cannot support an analysis.
+
+Projections to 2034 were excluded on a different ground. A forecast of an
+occupation's growth may already embed a judgement about automation, so relating
+it to a structure intended to inform such judgements would be circular.
+### 4.3 Variable Screening
 
 Four of the blocks — Skills, Abilities, Knowledge and Work Activities — are
 published on two scales at once. Importance records how consequential a
@@ -208,7 +233,7 @@ rows recommended for suppression and 10.2 percent marked not relevant. Both
 concentrate on Level rows. Once Level is dropped the problem largely goes with
 it, and Knowledge becomes as complete as the other three.
 
-## 4.3 Missing values in the requirement data
+### 4.4 Missing values in the occupational features
 
 Missingness has to be described before it is handled, because the treatment
 depends on what caused it. We inspected it as an occupation-by-variable matrix
@@ -298,7 +323,7 @@ Incumbent for Knowledge, Work Activities, Work Context and ETE. None of the
 retained blocks is model-generated, which was the basis for excluding Work
 Styles and Interests in Section 4.1.
 
-## 4.4 The final matrix, and whether it is too wide
+### 4.4 The final matrix, and whether it is too wide
 
 **Table 4.4 — Final requirement matrix**
 
@@ -345,43 +370,8 @@ values, because it fits the training folds exactly and generalises arbitrarily.
 Those regressions therefore use ridge, whose penalty is what makes the estimate
 meaningful in this shape, with the scaler fitted inside each fold.
 
-## 4.5 Variables from outside O\*NET
 
-O\*NET describes what an occupation requires. It does not describe the
-occupation's position in the labour market, and the question of whether a
-technically feasible substitution is actually carried out is partly a question
-about that position. We attach six kinds of variable from outside, with a
-rationale for each.
-
-**Table 4.5 — External variables**
-
-| variable | source | why it might bear on substitution |
-|---|---|---|
-| union coverage rate | CPS 2024, via the BLS National Employment Matrix crosswalk | collective agreements can constrain what an employer may do with a technology irrespective of what it can do |
-| median, mean and percentile wages; wage dispersion | OEWS national, May 2024 | the price of the labour being replaced sets the return to replacing it; dispersion within an occupation indicates whether it is one job or several |
-| employment | OEWS national, May 2024 | the scale of any displacement, and a control: a measure correlated with occupation size may be measuring size |
-| occupational prestige | Occupational Prestige Ratings project | social standing may protect an occupation independently of its technical content; it also serves as a check on whether an axis is a status measure |
-| labour-force exit rate; occupational transfer rate | BLS Employment Projections, table 1.10 | how readily workers leave an occupation indicates how easily it sheds labour without dismissals, which is where displacement has been observed first |
-| self-employment share | BLS Employment Projections, table 1.2 | the self-employed have no employer to make the substitution decision, so the mechanism differs |
-
-Three further candidates were examined and excluded, each on a measurement
-rather than a judgement.
-
-**Occupational openings** correlates 0.89 with employment. It is a size proxy,
-and including it would give occupation size two votes.
-
-**Typical education needed for entry**, published by BLS as a categorical
-threshold, is recoverable from the ETE distributions at R² = 0.82. The ETE
-distributions are finer, so the threshold adds little.
-
-**Work experience needed** is missing for 85 percent of occupations — the field
-is populated for 116 of 894 — and cannot support an analysis.
-
-Projections to 2034 were excluded on a different ground. A forecast of an
-occupation's growth may already embed a judgement about automation, so relating
-it to a structure intended to inform such judgements would be circular.
-
-## 4.6 Alignment, coverage and imputation of the external variables
+### 4.6 Alignment, coverage and imputation of the external variables
 
 The external sources use three coding systems and were collected at different
 dates, so their attachment to the 894 occupations is of uneven quality. We set
@@ -486,11 +476,6 @@ of Section 5.5 fit their scaler within training folds only, and storing
 standardised values would carry test-fold information into the training set.
 
 # 5. Analysis and results
-
-*Draft. This section only. Discussion becomes Section 6, Limitations 7.*
-
----
-
 ## 5.1 Standardisation
 
 Every variable is centred and scaled to unit variance before entering any
@@ -518,7 +503,7 @@ of the median as a level, the ninetieth-to-tenth percentile ratio as a
 dispersion — because nine near-collinear measurements of one quantity would give
 that quantity nine votes against one for every other variable.
 
-## 5.2 Whether occupations form groups
+## 5.2 Attemps of Clustering - Do occupations form groups?
 
 Describing occupations by position on continuous axes presumes they do not
 instead fall into kinds. We test that rather than assume it, clustering by
@@ -556,7 +541,7 @@ statement: **skills come in two families, but occupations draw on them in
 continuously varying proportions.** A dichotomy among skills appears as a
 continuous axis among occupations. That axis is the first one recovered below.
 
-## 5.3 Principal components and how many are real
+## 5.3 The principal components of occupational feature space
 
 The standardised matrix — 894 occupations by 260 variables, of which 253 are
 requirement columns and seven economic and institutional — is decomposed by
@@ -596,7 +581,7 @@ sample of occupations has not generally been asked.
 The three retained components account for 47.5 percent of variance after
 rotation.
 
-## 5.4 What the other half of the variance contains
+## 5.4 The residue
 
 That three axes leave over half the variance unaccounted for invites the
 objection that a fourth dimension is being missed. The stability test answers it
@@ -686,6 +671,17 @@ care in the emotional-labour sense — conflict handling loads as heavily as
 caring. What its occupations share is direct public contact with responsibility
 attached.
 
+**Relation to the task framework.** The two leading axes correspond to the
+distinctions Autor, Levy and Murnane (2003) crossed to organise the task
+literature: manual against cognitive, routine against non-routine. We recover
+them without assuming them, which supports the framework and supports the method
+— an unsupervised procedure reproducing a theoretically motivated structure is
+doing something other than fitting noise. Where we depart is in the weighting.
+In the task literature the manual/cognitive distinction carries much of the
+explanatory load; our wage results place the action almost entirely on the
+routine/non-routine axis. If that holds, framing substitution in terms of manual
+versus cognitive work measures the less consequential of the two dimensions.
+
 **Is the orthogonality real or imposed?** Varimax constrains the axes to remain
 uncorrelated, and the claim that they measure different things would be circular
 if that constraint were doing the work. We therefore refit with promax, an
@@ -701,8 +697,8 @@ factor correlation of 0.5, which it recovered as 0.48. The signs are themselves
 mildly informative: physically intensive work is slightly lower on both other
 axes, while those two move slightly together.
 
-**On the name.** We call this axis judgment rather than cognitive load, which
-was our first label and which we think misleading in two ways. "Cognitive load"
+**On the name.** We call this axis judgment rather than Judgement, which
+was our first label and which we think misleading in two ways. "Judgement"
 has an established meaning in psychology — the burden on working memory during a
 task — which is not what the axis measures: a high-speed assembly job is
 demanding in that sense and sits at the negative pole here. And "cognitive"
@@ -921,16 +917,6 @@ alongside the stability criterion.
 
 ## 6. Discussion
 
-**Relation to the task framework.** The two leading axes correspond to the
-distinctions Autor, Levy and Murnane (2003) crossed to organise the task
-literature: manual against cognitive, routine against non-routine. We recover
-them without assuming them, which supports the framework and supports the method
-— an unsupervised procedure reproducing a theoretically motivated structure is
-doing something other than fitting noise. Where we depart is in the weighting.
-In the task literature the manual/cognitive distinction carries much of the
-explanatory load; our wage results place the action almost entirely on the
-routine/non-routine axis. If that holds, framing substitution in terms of manual
-versus cognitive work measures the less consequential of the two dimensions.
 
 **Published substitution measures point in different directions here.** The
 coordinate system can be used to compare measures that disagree with one
@@ -950,7 +936,7 @@ with the axes, unweighted and employment-weighted:
 | OECD total (sign reversed) | 0.123 / −0.176 | **−0.601** / −0.722 | −0.406 / −0.434 |
 
 The two agree that substitutability rises towards the symbolic pole of R1. On
-cognitive load they point in opposite directions, and the measures themselves
+Judgement they point in opposite directions, and the measures themselves
 correlate −0.211 with one another. The disagreement is not about magnitude: one
 instrument places substitutability where difficulty is high, the other where it
 is low.
@@ -979,7 +965,9 @@ independent evidence on R3. Establishing the mapping from position to
 substitution risk requires capability measurement of the kind described in
 Section 2, and is not attempted here.
 
-**Why we do not validate against employment outcomes.** The natural test would
+If we assume.... the occupational space will look like...
+
+**Validate against employment outcomes.** The natural test would
 be to ask whether occupations at one end of an axis have shed workers. Following
 Brynjolfsson et al. (2025), who find the effect of generative AI first in
 reduced hiring of young workers rather than in layoffs, we examined the change
@@ -1003,7 +991,7 @@ elsewhere to look different.
 
 ---
 
-## 7. Limitations
+## 7. Conclusions
 
 **We do not measure AI.** No result here is evidence about what AI can or cannot
 do. The contribution is the structure such evidence would have to be expressed
