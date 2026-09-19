@@ -5,29 +5,29 @@
 
 ## Abstract
 
-We ask which occupational characteristics bear on whether AI can substitute for
-human labour, and what other variables stand between substitutability and
+We ask which characteristics of an occupation bear on whether AI can substitute
+for human labour, and what other variables stand between substitutability and
 observed displacement. Using O\*NET release 30.2 — 894 detailed occupations
-described by 216 requirement ratings and 37 education, training and experience
+described by 216 feature ratings and 37 education, training and experience
 distributions — joined to wages, union coverage, occupational prestige,
 employment, turnover and self-employment, we apply principal component analysis
 with varimax rotation and determine dimensionality by resampling rather than by
 variance explained. Three components are stable and no more: **physical
-intensity, Judgement, and person-facing work**. Their interpretations are
+intensity, judgement and person-facing work**. Their interpretations are
 confirmed against O\*NET's own expert taxonomy; they are unchanged when every
 economic variable is removed from the analysis; and they remain almost
 uncorrelated when the orthogonality constraint is lifted. We propose these three
 axes, together with union coverage as an orthogonal institutional dimension, as
 a coordinate system in which occupations can be located and substitution
-measures compared. Two results follow. Pay tracks Judgement rather than the
-manual/mental divide — a median wage gap of $38,520 along Judgement against
+measures compared. Two results follow. Pay tracks judgement rather than the
+manual/mental divide — a median wage gap of $38,520 along judgement against
 $8,940 along physical intensity — and prestige and turnover load on the same
 axis, so that pay, status and retention are one dimension rather than three.
 Union coverage, by contrast, is orthogonal to all three axes and to the
-requirement data generally: an occupation's institutional protection cannot be
+feature data generally: an occupation's institutional protection cannot be
 recovered from any description of its work. Applying the coordinate system to
 two published substitution measures shows them pointing in opposite directions
-along the cognitive-load axis, which accounts for their disagreement without
+along the judgement axis, which accounts for their disagreement without
 adjudicating between them.
 
 ---
@@ -50,25 +50,23 @@ The most direct way to identify the factors governing whether AI can substitute 
 
 Where such measurement is not available, two practices are common. One is to score AI performance directly on a rating scale; the other is to ask a generative model which tasks it could perform. Both yield occupation-level numbers at low cost, but neither produces a quantity that can readily be verified against an external standard, and results of this kind have been shown to vary with the model performing the rating and with the phrasing of the prompt. We have neither the resources to commission expert assessment on the scale GDPval required, nor any wish to introduce judgements of our own in its place.
 
-We therefore restrict the analysis to the demand side. We take the occupational requirement data published in O\*NET, together with a set of external variables attached to occupations, and recover from them the principal factors along which occupations differ. No measurement of AI enters at any point.
+We therefore restrict the analysis to the demand side. We take the occupational feature data published in O\*NET, together with a set of external variables attached to occupations, and recover from them the principal factors along which occupations differ. No measurement of AI enters at any point.
 
 Two consequences follow, and we state them plainly.
 
 The first is that this paper contains no evidence about what AI can or cannot do. What it offers is a framework — an account of which variables bear on the question and of the space those variables form — rather than an estimate of substitution risk for any occupation. The function mapping a position in that space to a probability of displacement is not estimated here; the paper fixes the arguments of that function and leaves its coefficients to work that can measure capability.
 
-The second consequence is a compensating one. Capability estimates have a short shelf life and must be revised as systems improve, whereas the structure of occupational requirements changes far more slowly, and the axes along which occupations differ are likely to remain interpretable across successive revisions of any capability measure. A framework specified on the demand side can therefore accommodate new capability evidence without being rebuilt. We would not claim that occupational requirements are fixed — they are themselves reshaped by technology, and O\*NET revises its ratings accordingly — only that they move on a slower timescale than the capabilities being measured against them.
+The second consequence is a compensating one. Capability estimates have a short shelf life and must be revised as systems improve, whereas the structure of occupational features changes far more slowly, and the axes along which occupations differ are likely to remain interpretable across successive revisions of any capability measure. A framework specified on the demand side can therefore accommodate new capability evidence without being rebuilt. We would not claim that occupational requirements are fixed — they are themselves reshaped by technology, and O\*NET revises its ratings accordingly — only that they move on a slower timescale than the capabilities being measured against them.
 
 The cost is equally plain. An analysis conducted on this side of the problem cannot say which occupations are most substitutable at any given moment, and cannot be updated to track a changing frontier. What it can do is establish the terms in which such a judgement would have to be expressed.
 
 A further limitation runs deeper than the absence of capability measurement. The requirements an occupation places on a human worker are not necessarily the requirements it places on an AI system. Capabilities that are distinct for people may be a single capability for a model — O\*NET treats law, medicine and marketing as separate knowledge elements because each is acquired through separate and lengthy human training, whereas for a model trained on a broad corpus these are closer to one capability applied at differing densities of training data. While work that makes almost no demand of a person, such as playing through a game to test it, may lie beyond what current systems can do. There is no reason to expect the dimensions along which human requirements vary to coincide with the dimensions along which machine difficulty varies, and a space recovered from human requirements may therefore organise capability evidence only loosely once such evidence is introduced.
 
-We note that this difficulty is not specific to the present paper. No study to date has recovered the structure of AI capability empirically in the way that occupational requirements have been recovered here; capability is generally represented either by a single index or by a set of domains specified in advance. Until the capability side has a measured structure of its own, the correspondence between the two spaces cannot be assessed in either direction. We record this as a limitation of the approach and as an open question for the field, rather than as one this paper resolves.
-
-The starting assumption of this paper is that the effect of AI on an occupation is not a single factor but several, and that these occupy a space of more than one dimension. The analytical problem is therefore to recover that space from the data rather than to impose it in advance.
+We note that this difficulty is not specific to the present paper. No study to date has recovered the structure of AI capability empirically in the way that occupational features have been recovered here; capability is generally represented either by a single index or by a set of domains specified in advance. Until the capability side has a measured structure of its own, the correspondence between the two spaces cannot be assessed in either direction. We record this as a limitation of the approach and as an open question for the field, rather than as one this paper resolves.
 
 A considerable body of work has examined the structure of the O\*NET occupational space. However, that work all rely on some prior assumptions. Some have fixed the number of dimensions in advance, according to an economic theory to be tested or to the external data the result was to be matched against; the theory is then confirmed, but the structure of the data itself is left unexamined. Some transform the input before analysis — binarising continuous ratings, for instance — which may sharpen or weaken the structure that emerges and introduces a particular bias, even where the validity of the final result is unaffected. Others build weighted aggregates in which the weights are heuristic and cannot be verified against anything, although the resulting indicator may still point in broadly the right direction.
 
-We take an alternative approach. We apply unsupervised analysis, specifically clustering and PCA directly to the published requirement ratings, without a prior to be confirmed, in order to recover the structure of the space itself; the analysis that follows is then conducted on the structure so obtained.
+We take an alternative approach. We apply unsupervised analysis, specifically clustering and PCA directly to the published feature ratings, without a prior to be confirmed, in order to recover the structure of the space itself; the analysis that follows is then conducted on the structure so obtained.
 
 ## 3. Literature
 
@@ -102,7 +100,7 @@ and they prune iteratively, discarding any item that loads below a threshold on
 all factors or above one on more than one factor, until every retained item
 loads cleanly on a single factor. They observe that routineness does not appear
 among their factors. An item measuring how demanding work is would load across
-several requirement domains, and is therefore precisely the kind of item that a
+several feature domains, and is therefore precisely the kind of item that a
 simple-structure criterion removes. Neither their analysis nor Alabdulkareem et
 al.'s tests whether the reported components are reproducible on an independent
 subset of occupations.
@@ -137,7 +135,7 @@ because they are not observations: in release 30.2 the Domain Source field
 records Work Styles as AI/Expert and Interests as Machine Learning/Expert, so
 both are model outputs rather than measurements of the occupation, and including
 them would put a model's judgement inside a matrix intended to hold only
-measured requirements. Two are excluded on evidence, given below.
+measured features. Two are excluded on evidence, given below.
 ### 4.2 External variables
 
 O\*NET describes what an occupation requires. It does not describe the
@@ -210,14 +208,14 @@ roughly a tenth of the information they already contain, and bring a
 missingness problem attached to precisely the least informative cells. It would
 also dilute every other variable in the matrix in proportion to the duplication
 — a consideration that matters here, since the institutional and economic
-variables number fifteen against a requirement matrix in the hundreds. We drop
+variables number fifteen against a feature matrix in the hundreds. We drop
 Level and record that Handel (2009) argues it is the conceptually richer
 construct, which we do not dispute; the case above is empirical rather than
 conceptual.
 
 Four further adjustments are smaller in consequence and are set out together.
 
-**Table 4.2 — Other adjustments to the requirement matrix**
+**Table 4.2 — Other adjustments to the feature matrix**
 
 | adjustment | evidence | effect |
 |---|---|---|
@@ -241,7 +239,7 @@ rather than as column totals, which distinguishes two patterns that column
 totals would merge.
 
 **Whole-row absence.** O\*NET release 30.2 lists 1,016 O\*NET-SOC codes but
-publishes requirement ratings for only some of them. For 122 codes there are no
+publishes feature ratings for only some of them. For 122 codes there are no
 ratings in any block: the row is empty across every descriptor, not sparse. The
 composition of those 122 is not arbitrary, and the SOC coding system itself
 identifies most of it.
@@ -258,8 +256,8 @@ cases are individual — legislators, for instance, being elected rather than
 employed. Dropping these is not a judgement about which occupations matter but
 the absence of anything to measure.
 
-The remaining 26 are ordinary detailed occupations, and their common feature is
-temporal rather than structural: they are codes created or split by the 2018 SOC
+The remaining 26 are ordinary detailed occupations, and what they have in common
+is temporal rather than structural: they are codes created or split by the 2018 SOC
 revision, for which O\*NET's rolling survey has not yet reached an independent
 collection. The 2018 revision separated Data Scientists from the former Computer
 Occupations, divided Financial Analysts into Financial and Investment Analysts
@@ -272,7 +270,7 @@ because collection has not caught up, not because the occupations are marginal.
 The data is, in principle, on its way. In practice it has not arrived: these
 rows remain empty in release 30.3 as well, so waiting is not an option for the
 present analysis, and we exclude them rather than impute values across an entire
-requirement profile.
+feature profile.
 
 This exclusion is the one that carries a cost worth stating plainly, and it is
 not a cost of size. Twenty-six occupations out of 920 would barely move the
@@ -288,18 +286,18 @@ individually. We record the exclusion here and again among the limitations.
 
 **894 detailed occupations remain, and this is the analysis set throughout.**
 
-**Scattered absence.** Among the 894, the requirement data is close to complete.
-After the Importance-only restriction of Section 4.2, the five requirement
+**Scattered absence.** Among the 894, the feature data is close to complete.
+After the Importance-only restriction of Section 4.2, the five feature
 blocks — Abilities, Skills, Knowledge, Work Activities and Work Context — have
 **no missing cells at all** for any of the 894 occupations. The only gap is in
 Education, Training and Experience, where 16 occupations have no rows in any of
 the four ETE scales, giving 1.8 percent of cells in that block. Across the whole
-253-column requirement matrix that is 592 cells out of 226,182, or 0.26 percent.
+253-column feature matrix that is 592 cells out of 226,182, or 0.26 percent.
 
 The quality of what remains is therefore high in a specific sense: the analysis
-does not rest on imputed requirement values. The sixteen ETE gaps are filled at
+does not rest on imputed feature values. The sixteen ETE gaps are filled at
 the column median, which affects 1.8 percent of occupations on 37 of 253
-columns; no other requirement cell is imputed.
+columns; no other feature cell is imputed.
 
 This completeness is a consequence of the Importance-only decision rather than a
 property of O\*NET as published. Had Level been retained and its "not relevant"
@@ -325,7 +323,7 @@ Styles and Interests in Section 4.1.
 
 ### 4.4 The final matrix, and whether it is too wide
 
-**Table 4.4 — Final requirement matrix**
+**Table 4.4 — Final feature matrix**
 
 | block | columns |
 |---|---|
@@ -344,10 +342,10 @@ is 894 occupations by 260 variables.
 The ratio of observations to variables is about 3.4, which is low for a
 regression but not for a principal component analysis, where the estimand is the
 covariance structure and the relevant quantity is whether that structure is
-stable rather than whether coefficients are identified. Three features of the
+stable rather than whether coefficients are identified. Three properties of the
 data and the design bear on it.
 
-The requirement ratings are **heavily collinear**, so the effective
+The feature ratings are **heavily collinear**, so the effective
 dimensionality is far below 260: 76 components are needed to reach 90 percent of
 variance, but the first three account for 47.5 percent and the leading structure
 is concentrated. Collinearity is a problem for regression coefficients and an
@@ -363,7 +361,7 @@ the concern that a wide matrix invites, rather than an assumption that it has
 been avoided.
 
 Where the width does bite is in the regressions used to ask how much of an
-external variable the requirement data can predict. There, 253 predictors
+external variable the feature data can predict. There, 253 predictors
 against 894 observations is genuinely adverse: ordinary least squares does not
 merely lose precision but fails, returning large negative cross-validated R²
 values, because it fits the training folds exactly and generalises arbitrarily.
@@ -406,7 +404,7 @@ cross-sectional and treats all of this as one period, which is an approximation.
 
 ### Coverage
 
-Unlike the requirement data, the external variables have substantial gaps, and
+Unlike the feature data, the external variables have substantial gaps, and
 the occupation-by-variable matrix shows them to be structural rather than
 scattered: they arrive in whole rows or whole blocks. Of the 894 occupations,
 121 are missing at least one external variable, none is missing almost all of
@@ -479,7 +477,7 @@ standardised values would carry test-fold information into the training set.
 ## 5.1 Standardisation
 
 Every variable is centred and scaled to unit variance before entering any
-decomposition. The requirement ratings share a scale within a block but not
+decomposition. The feature ratings share a scale within a block but not
 across blocks — a five-point importance rating and a percentage of respondents
 in an education category are not commensurable — and the economic variables
 range from a proportion to a count in the millions. Without this the leading
@@ -544,7 +542,7 @@ continuous axis among occupations. That axis is the first one recovered below.
 ## 5.3 The principal components of occupational feature space
 
 The standardised matrix — 894 occupations by 260 variables, of which 253 are
-requirement columns and seven economic and institutional — is decomposed by
+feature columns and seven economic and institutional — is decomposed by
 principal component analysis. The unrotated solution places 28.3 percent of
 variance in the first component and requires 76 components to reach 90 percent,
 which is what heavy collinearity looks like: a great deal of variance, little of
@@ -647,10 +645,10 @@ side as poets, not because dishwashing is symbolic but because it makes few
 demands on reaction time, depth perception or multilimb coordination. Reading R1
 as a medium rather than an intensity would misplace them.
 
-**R2 (18.8 percent): judgment.** The axis runs from judgment-intensive work to
+**R2 (18.8 percent): judgement.** The axis runs from judgement-intensive work to
 procedure-following work. The positive pole loads on complex problem solving
 (0.87), deductive reasoning (0.86), critical thinking (0.86), systems analysis
-(0.86), systems evaluation (0.85), judgment and decision making (0.83) and
+(0.86), systems evaluation (0.85), judgement and decision making (0.83) and
 analysing data or information (0.79); its extremes are chief executives,
 robotics engineers, nuclear engineers and biochemists. The negative pole loads on
 the labour-force exit rate (−0.66), the two lowest education categories (−0.62,
@@ -697,20 +695,30 @@ factor correlation of 0.5, which it recovered as 0.48. The signs are themselves
 mildly informative: physically intensive work is slightly lower on both other
 axes, while those two move slightly together.
 
-**On the name.** We call this axis judgment rather than Judgement, which
-was our first label and which we think misleading in two ways. "Judgement"
-has an established meaning in psychology — the burden on working memory during a
-task — which is not what the axis measures: a high-speed assembly job is
-demanding in that sense and sits at the negative pole here. And "cognitive"
+**On the name.** We call this axis judgement rather than cognitive load, which
+was our first label and which we now think misleading in two ways. "Cognitive
+load" has an established meaning in psychology — the burden on working memory
+during a task — which is not what the axis measures: a high-speed assembly job
+is demanding in that sense and sits at the negative pole here. And "cognitive"
 invites reading the axis as knowledge or intelligence, which the loadings do not
 support. Among O\*NET's own expert categories, process-oriented basic skills load
 at 0.75 and content-oriented basic skills at 0.68, while the knowledge domains
-reach only 0.27 to 0.38. What separates the two poles is not how much must be
-known but how much the work requires deciding what to do: at one end complex
-problem solving, systems evaluation and judgment and decision making; at the
-other repetitive motions, the lowest education thresholds and high turnover —
-work whose procedure is given. The poles are therefore judgment-intensive and
-procedure-following.
+reach only 0.27 to 0.38. Structured knowledge is not what the positive pole is
+made of, and much of the work that draws on the most structured knowledge is
+also the most procedural.
+
+What separates the two poles is not how much must be known but how much of the
+work the worker has to decide: at one end complex problem solving, systems
+evaluation and judgement and decision making; at the other repetitive motions,
+the lowest education thresholds and high turnover — work whose procedure is
+given. The poles are therefore judgement-intensive and procedure-following.
+
+This is also what makes the axis worth naming carefully rather than folding into
+the manual/mental contrast, because the two cut across each other. Physical work
+that calls for continual on-the-spot decisions sits at the positive pole and is
+paid accordingly; symbolic work performed to a given procedure sits at the
+negative pole and is not. The wage results of Section 5.6 are a statement about
+this axis and not about the medium of the work.
 
 ## 5.6 Whether the names are right
 
@@ -757,9 +765,9 @@ the median of both:
 
 | | n | median wage |
 |---|---|---|
-| physically intensive, judgment-intensive | 202 | 77,730 |
+| physically intensive, judgement-intensive | 202 | 77,730 |
 | physically intensive, routine | 245 | 48,310 |
-| physically light, judgment-intensive | 245 | 95,770 |
+| physically light, judgement-intensive | 245 | 95,770 |
 | physically light, routine | 202 | 48,150 |
 
 The off-diagonal cells are fully populated — millwrights, electricians and
@@ -768,9 +776,9 @@ axes are separable in fact and not only in construction.
 
 The wage figures fall out of the same table and are reported here rather than
 held back. The median wage gap along R2 is **$38,520**; along R1, **$8,940**. A
-physically demanding but judgment-intensive occupation pays 61 percent more
+physically demanding but judgement-intensive occupation pays 61 percent more
 than a physically light but routine one. The medium is not irrelevant — among
-judgment-intensive occupations, the physically light ones pay about $18,000 more — but it
+judgement-intensive occupations, the physically light ones pay about $18,000 more — but it
 is second order. This is an association across occupations weighted equally, not
 a return to individual ability and not a causal claim.
 
@@ -783,38 +791,38 @@ qualification about R1's negative pole recorded above.
 
 The institutional and economic variables are not requirements of the work but
 properties of the occupation's position in the labour market, and the question
-is whether they carry information the requirement data does not.
+is whether they carry information the features do not.
 
 A decomposition of the pooled matrix cannot answer this. Principal components
-are directions of maximum variance, and with 253 requirement columns against
+are directions of maximum variance, and with 253 feature columns against
 fifteen external ones, heavily correlated among themselves, the leading
 components are determined almost entirely by the former; an external variable
-can appear only by riding on a requirement axis. We confirmed that this is a
+can appear only by riding on a feature axis. We confirmed that this is a
 property of column counts rather than of the variables, by re-running the same
-decomposition with the requirement side deliberately widened and narrowed:
-whether an external variable appears to emerge changes with how many requirement
+decomposition with the feature side deliberately widened and narrowed:
+whether an external variable appears to emerge changes with how many feature
 columns are present while nothing about the variable has changed. Multiple
 factor analysis, which normalises each group of variables by its own first
 singular value so that no group dominates by size, improves on this but does not
 resolve it, because it equalises what a group can contribute without giving a
 low-variance variable influence within its group. Both methods answer "does this
 variable account for a large share of the joint variation" when the question is
-"does this variable carry information the requirements do not contain", and for
+"does this variable carry information the features do not contain", and for
 a variable with small variance and an independent direction those have different
 answers. This is the situation Section 5.4 anticipated.
 
 The question is therefore put directly by regression. For each external variable
-we ask how much of it the requirement data predicts, estimating by ridge with
+we ask how much of it the feature data predicts, estimating by ridge with
 five-fold cross-validation, the penalty chosen within each training fold and the
 scaler fitted on training folds only. Ordinary least squares is not usable at 253
 predictors against 894 observations: it fits each training fold exactly and
 generalises arbitrarily, returning large negative cross-validated R², which we
 confirmed before adopting the penalised estimator. This quantity depends on
-neither the variable's variance nor the number of requirement columns.
+neither the variable's variance nor the number of feature columns.
 
 | variable | cross-validated R² | reading |
 |---|---|---|
-| occupational prestige | 0.86 | a restatement of the requirement data |
+| occupational prestige | 0.86 | a restatement of the feature data |
 | median wage | 0.77 | largely predictable |
 | union coverage | 0.38 | largely independent |
 | log employment | 0.25 | largely independent |
@@ -838,18 +846,18 @@ themselves evidence of independence.
 
 **Pay, status and retention are one dimension, not three.** Wages, prestige and
 both separation rates load on R2 in consistent directions: occupations demanding
-more judgment pay more, rank higher and lose fewer of their workers each year to
+more judgement pay more, rank higher and lose fewer of their workers each year to
 either exit or transfer. This is visible only because the axes were derived
 without reference to any of these variables; had wages helped form them, the
 finding would be built in.
 
-**Two variables are independent of the requirement data, for different reasons.**
+**Two variables are independent of the feature data, for different reasons.**
 Employment size is independent trivially — how many people hold an occupation is
 a fact about the market rather than about the work. Union coverage is
 independent non-trivially: one might expect protection to follow the character
 of the work, since hazardous and physical occupations have historically been
 easier to organise, and it does not. Its largest loading on any axis is 0.24, no
-requirement block predicts it well, and the full requirement matrix reaches only
+feature block predicts it well, and the full feature matrix reaches only
 R² = 0.38. An occupation's institutional protection cannot be recovered from any
 description of what it requires.
 
@@ -884,7 +892,7 @@ percent of the axis, on-the-job training 23.2, required education 19.9 and
 in-plant training 19.4. There are no distinguishable routes into an occupation
 in this data, only more or less preparation.
 
-That single dimension correlates with the requirement axes at a maximum of
+That single dimension correlates with the feature axes at a maximum of
 **0.54**: substantially related to what the work demands, and not reducible to
 it. The residual — a threshold higher or lower than the difficulty of the work
 would require — is where credentialing and licensing would act, and is the
@@ -892,10 +900,10 @@ natural next variable for the institutional side of the question.
 
 ## 5.9 Robustness
 
-**The axes are a property of the requirement data.** The whole procedure was
+**The axes are a property of the feature data.** The whole procedure was
 refitted with wages as two columns (the reported specification), with all nine
 raw percentiles, and with every economic variable removed so that only
-requirement data remains. Congruence with the reported axes is 1.000 / 1.000 /
+feature data remains. Congruence with the reported axes is 1.000 / 1.000 /
 1.000, 1.000 / 1.000 / 0.998 and 1.000 / 1.000 / 0.999. No decision about wages
 produced the axes, and removing the economic variables entirely does not change
 them.
@@ -916,116 +924,287 @@ alongside the stability criterion.
 ---
 
 ## 6. Discussion
+### 6.1 Which part of the occupational space is most substitutable
 
+The analysis returns three axes: physical intensity, judgement, and
+person-facing work. The number was not chosen. It follows from the resampling
+criterion of Section 4.4, which retains a component only where an independent
+half of the occupations reproduces it, and the fourth candidate component fails
+that test by a wide margin. That the answer happens to be three is convenient
+rather than designed: three dimensions can be drawn, and every occupation in the
+dataset can be placed in a single figure and located by eye.
 
-**Published substitution measures point in different directions here.** The
-coordinate system can be used to compare measures that disagree with one
-another, without adjudicating between them. We project two.
+**[Figure 6.1 — the 894 occupations in the three-axis space, rotatable, coloured
+by union coverage.]**
 
-Eloundou et al. (2024) label O\*NET task statements by whether access to a large
-language model would halve the time required, and aggregate to occupations. The
-OECD (2026) AI Capability Gap Index compares nine capability domains demanded by
-an occupation against what current systems can do, and sums the domain gaps;
-a small gap means high substitutability, so we reverse its sign. Correlations
-with the axes, unweighted and employment-weighted:
+The first thing the figure shows is what the clustering analysis of Section 5.1
+established numerically: the distribution is continuous. Occupations fill the
+space rather than gathering into groups, there is no region of concentration,
+and no partition of them into types is supported by the data. This matters for
+how the rest of the discussion should be read. Any boundary drawn in this space
+— including the quadrants used below — is a device for description, not a
+division that exists in the labour market.
 
-| measure | R1 | R2 | R3 |
+#### What we cannot establish
+
+The question the figure invites is which direction corresponds to greater
+substitutability. We are not able to answer it from data, and it is worth being
+precise about why.
+
+Brynjolfsson, Chandar and Chen (2025) find that the employment effects of
+generative AI appear first not in dismissals of existing workers but in reduced
+hiring of new entrants, and that within firms the employment of workers aged 22
+to 25 in the most affected occupations declined relative to that of their older
+colleagues. This pattern is itself relevant to the institutional argument of
+Section 6.3: an employer who will not dismiss an incumbent may simply not
+replace one who leaves, and the constraint that produces this asymmetry is
+contractual and reputational rather than technical.
+
+Following that logic, we examined the change in the share of workers aged 22 to
+25 within occupations in the American Community Survey between 2022 and 2024.
+About 60 percent of the cross-occupational variance in that change is real
+rather than sampling noise, so the measure is not simply too noisy to carry any
+signal. But its correlations with all three axes are below 0.2 in absolute
+value, they change sign between the unweighted and employment-weighted
+specifications, and the occupations at the extremes are not coherent: the
+largest declines include exercise trainers, social workers and bakers, which no
+account of language-model capability would place at the front of the queue.
+
+**[Figure 6.2 — change in the young-worker share, 2022–2024, against each axis.]**
+
+Three things stand between the data and an answer. The alignment between survey
+occupation codes and O\*NET is imperfect, and the aggregated codes in the survey
+broadcast one value across several occupations. Employment responds to a great
+deal besides technology — industrial policy, interest rates, trade, and the
+post-pandemic reallocation of labour — and none of these is orthogonal to
+position in the occupational space, since the sectors they act on are
+themselves concentrated in parts of it. And the period since GPT-4 became
+available in 2023 is short: two annual observations cannot distinguish a trend
+from a fluctuation. We report the null rather than a weak positive reading of
+it, and regard the question as not yet answerable with public data.
+
+#### Our conjecture
+
+What follows is a conjecture assembled from the capability literature. It is not
+a result of this paper, and we set it out as a hypothesis the coordinate system
+makes precise enough to test once suitable data exists.
+
+**Physical intensity.** Progress in robotics has lagged progress in language
+models, and the OECD's capability assessment places the largest remaining gaps
+between current systems and occupational requirements in manipulation and
+robotic intelligence, describing these as the domains likely to prove most
+stubborn. Deployment compounds the gap: a language model reaches a worker
+through software that is already installed, whereas a robot requires physical
+installation, reconfiguration of the workplace and capital expenditure per site.
+In the short term this should make physically intensive occupations less
+substitutable than symbolic ones. In the longer term the argument depends
+entirely on the trajectory of robotics, on which we take no position.
+
+**Judgement.** The structured and procedural end of this axis should be more
+exposed than the end requiring autonomous judgement, which is the standard
+reading of the task literature. But the margin is narrowing. Capability
+evaluations on unstructured, long-horizon work report rapid improvement —
+GDPval finds frontier model performance on real occupational deliverables
+improving roughly linearly over time and approaching expert quality on some
+tasks — so an advantage that rests on judgement being hard is an advantage with
+a shrinking half-life.
+
+**Person-facing work.** Occupations involving direct engagement with people
+should be less substitutable than purely technical ones, and the OECD assessment
+again finds social interaction among the largest remaining gaps. We would add a
+distinction the capability framing does not make: what resists substitution at
+this pole is not only the difficulty of the interaction but the requirement that
+a person be present and accountable for it, which a capability measure does not
+register.
+
+If this conjecture holds — that is, if the positive pole of each axis is the
+less substitutable one — then the least substitutable occupations are those
+positive on all three, and the most substitutable are those negative on all
+three.
+
+**[Table 6.1 — the ten occupations furthest into each of the two corners, with
+their coordinates.]**
+
+#### The occupations the corners do not describe
+
+Most occupations are not in a corner, and the interesting ones are those whose
+coordinates point in different directions. These are the cases a single index
+cannot represent, and they are the reason for building a coordinate system
+rather than another index.
+
+The example raised in Section 1 can now be answered. Software engineering sits
+near the symbolic pole of physical intensity — almost nothing in the work
+requires a body — and on the technical side of the person-facing axis. Both
+place it among the more substitutable occupations. But on judgement it is
+internally divided in a way its single position on the axis conceals: the work
+contains procedural components, such as implementing well-specified
+functionality, that sit near the structured pole, and components requiring
+autonomous judgement about architecture and trade-offs that sit near the other.
+An occupational average places software engineering in the middle of an axis
+along which its constituent work is spread from one end to the other.
+
+The plausible consequence is not that the occupation is replaced or spared, but
+that it separates. Work at the procedural end is substitutable on all three
+axes at once and has no institutional protection; work at the judgement end
+retains a defence on one axis. Entry-level positions, which are composed
+disproportionately of the former, would be absorbed first, while senior
+positions persist and may become more valuable as the scarce complement to an
+abundant capability — the mechanism Autor and Thompson (2025) describe, in which
+automation raises wages where it removes the less expert part of a job and
+lowers them where it removes the expert part. The outcome is a widening gap
+within a single occupational title rather than the disappearance of the title.
+
+This reasoning generalises. Wherever an occupation's internal dispersion along an
+axis is large relative to its position on that axis, the occupational average is
+a poor description, and the effect of substitution will be to separate the
+occupation rather than to move it.
+
+#### Reading the two-dimensional sections
+
+Any two axes can be plotted against each other, giving three planes, and any
+subset of occupations can be shown in them. Each plane admits a reading of its
+quadrants. We give one as an illustration, and it is the plane on which the
+conjecture above has the most to say.
+
+**[Figure 6.3 — physical intensity × judgement, all 894 occupations.]**
+
+**Low physical intensity, low judgement — exposed on both counts.** Work that
+demands little of the body and little in the way of decisions has a defence on
+neither axis. Under the conjecture this is the most substitutable region of the
+space, and it is where routine clerical and data-handling work sits.
+
+**High physical intensity, low judgement — reprieved rather than protected.**
+The work is procedural, which offers no defence, but it requires physical
+capability that current systems do not have and that would need installed
+hardware to supply. The protection is real but contingent: it rests entirely on
+the state of robotics and on the capital cost of deployment, and it expires if
+either changes. Assemblers, material movers and machine operators sit here.
+
+**Low physical intensity, high judgement — protected on one axis, and unevenly.**
+Symbolic work requiring autonomous judgement has a defence, but only on the
+judgement axis, and that defence is not distributed evenly within an occupation.
+This is the software engineering case set out above: the occupation's position
+on the judgement axis is an average over work spread along most of it, and
+substitution acts on the lower end first. The expected pattern is not the
+removal of the occupation but the erosion of its entry-level positions and a
+concentration of employment in the roles where judgement is genuinely required.
+
+**High physical intensity, high judgement — protected on both counts.** Work
+that requires both a capable body and autonomous decisions is defended on two
+axes at once, and under the conjecture this is the most secure region.
+Electricians, aircraft mechanics, millwrights and firefighters sit here. It is
+worth noting how poorly this region is described by the conventional contrast
+between manual and cognitive work, which would place these occupations on the
+manual side and infer exposure from that alone.
+
+One caution about reading any single plane. A two-dimensional section is a
+projection, and it merges occupations that the third axis separates. The exposed
+quadrant of this plane, in particular, contains two kinds of work that the plane
+cannot distinguish: symbolic routine work such as data entry, and low-skill
+in-person service such as dishwashing or food preparation. Both make small
+demands of physical capability — the latter requires a body to be present but
+not a capable one — and both are procedural. They are nevertheless exposed to
+different technologies on different timescales, and what separates them is
+position on the person-facing axis. The three planes should be read together
+rather than any one taken as the summary.
+
+## 6.2 The relation to published substitution measures
+
+A coordinate system is useful if measures built independently of it can be
+located within it. We projected two published measures onto the axes. They
+disagree with one another — their occupational scores correlate −0.211 — and the
+disagreement resolves into a statement about which axis each is tracking.
+
+Eloundou et al. (2024) label O\*NET task statements according to whether access
+to a large language model would halve the time required, and aggregate to
+occupations. The OECD (2026) AI Capability Gap Index compares nine capability
+domains demanded by an occupation against what current systems can do, and sums
+the nine gaps; a small gap denotes high substitutability, so we reverse its sign
+for comparability.
+
+**Table 6.2 — Correlations with the axes (unweighted / employment-weighted)**
+
+| measure | physical intensity | judgement | person-facing |
 |---|---|---|---|
 | Eloundou, human annotators | −0.583 / −0.549 | **+0.318** / +0.214 | 0.041 / −0.002 |
 | Eloundou, GPT-4 annotations | −0.388 / −0.345 | 0.012 / 0.023 | −0.183 / −0.352 |
-| OECD total (sign reversed) | 0.123 / −0.176 | **−0.601** / −0.722 | −0.406 / −0.434 |
+| OECD total, sign reversed | 0.123 / −0.176 | **−0.601** / −0.722 | −0.406 / −0.434 |
 
-The two agree that substitutability rises towards the symbolic pole of R1. On
-Judgement they point in opposite directions, and the measures themselves
-correlate −0.211 with one another. The disagreement is not about magnitude: one
-instrument places substitutability where difficulty is high, the other where it
-is low.
+The two agree that substitutability rises towards the symbolic pole of physical
+intensity. On judgement they point in opposite directions: Eloundou's measure
+makes the more demanding occupations more substitutable, the OECD's makes them
+less. The conflict is not one of magnitude to be split by taking an average of
+the two; the instruments are not estimating the same quantity.
 
-The OECD domain gaps show where this comes from. Six domains — language, social
-interaction, problem solving, creativity, metacognition, and knowledge —
-correlate positively with R1 (0.31 to 0.56) and negatively with R2 (−0.05 to
-−0.76). Three — vision, manipulation and robotic intelligence — do the reverse
-(−0.43 to −0.64 on R1, 0.11 to 0.33 on R2). Summing them cancels the first axis:
-the total index correlates 0.12 with R1, against −0.60 with R2. A measure
-constructed as multidimensional is, after aggregation, close to a single
-statement about cognitive demand, with its physical dimension arithmetically
-removed. This is the same failure a one-dimensional index makes, arrived at by
-summation rather than by design, and it is the concrete argument for reporting
-positions rather than totals.
+### Where the OECD index loses a dimension
 
-We draw no conclusion about which measure is right. What the coordinate system
-supplies is the observation that they are not estimating the same quantity.
+The OECD measure is constructed multidimensionally, and in that respect its
+design resembles ours: nine capability domains, each assessed separately against
+occupational requirements. It is only at the final step that the nine are summed
+into a total. That step is where the dimensionality is lost, and the loss is
+visible in our coordinates.
 
-**The conjecture about the positive poles.** The sign convention makes the
-positive pole physical, complex and person-facing. It is natural to read these
-as the poles less amenable to substitution, and we have used that reading
-informally, but the projections above do not support it uniformly: the two
-published measures disagree about the direction of R2, and we have no
-independent evidence on R3. Establishing the mapping from position to
-substitution risk requires capability measurement of the kind described in
-Section 2, and is not attempted here.
+Six of the nine domains — language, social interaction, problem solving,
+creativity, metacognition, and knowledge, learning and memory — correlate
+positively with physical intensity, between 0.31 and 0.56. The remaining three —
+vision, manipulation and robotic intelligence — correlate negatively, between
+−0.43 and −0.64. Summing them cancels the axis: the total index correlates 0.12
+with physical intensity unweighted and −0.18 weighted, against domain-level
+correlations three to five times larger in absolute value. What survives
+aggregation is the judgement axis, on which six domains agree in sign. A measure
+built as multidimensional therefore arrives, after summation, at close to a
+single statement about cognitive demand, with its physical dimension
+arithmetically removed.
 
-If we assume.... the occupational space will look like...
+The asymmetry that produces this is a property of the domain list rather than of
+the labour market. Six of nine domains concern cognitive capability and three
+concern embodied capability, so an unweighted sum gives the cognitive side twice
+the representation. The consequence is not that the physical domains are scored
+wrongly but that their contribution is outvoted before it reaches the total.
 
-**Validate against employment outcomes.** The natural test would
-be to ask whether occupations at one end of an axis have shed workers. Following
-Brynjolfsson et al. (2025), who find the effect of generative AI first in
-reduced hiring of young workers rather than in layoffs, we examined the change
-in the share of workers aged 22 to 25 within occupations between 2022 and 2024
-in the American Community Survey. Roughly 60 percent of the cross-occupational
-variance in that change is real rather than sampling noise, but its correlations
-with all three axes are below 0.2 and change sign between specifications. Two
-years of annual survey data, without firm-level controls, cannot separate AI
-from the business cycle, from interest-rate-sensitive hiring, or from cohort
-size. We report the null rather than a weak positive reading of it, and regard
-the question as not yet answerable with public data.
+The nine domains are also less independent than their number suggests. Applied
+to the 879 occupations they cover, their own principal components place 55
+percent of variance in the first and 22 percent in the second; the participation
+ratio gives an effective dimensionality of 2.7. The correlation matrix shows
+why: the six cognitive domains correlate with one another between 0.69 and 0.94
+— problem solving and metacognition at 0.94 are nearly the same variable — and
+the three embodied domains between 0.62 and 0.80, with the two groups negatively
+related. Nine domains carry between two and three independent directions. A sum
+over nine correlated quantities weights those directions by how many domains
+happen to represent each, which is a decision about the taxonomy rather than a
+measurement of the occupation.
 
-**The institutional dimension.** Of everything examined, union coverage is the
-variable that no description of the work recovers. If institutional protection
-is what determines whether a feasible substitution is carried out, then the
-quantity that matters most for that question is precisely the one that cannot be
-read off the work — and in the United States it varies too little across
-occupations to carry much weight in any statistical model. That is itself a
-finding about the American case, and a reason to expect the same analysis
-elsewhere to look different.
+### A limitation the two measures share with ours
+
+The OECD domains are defined against human capability — the measure is described
+as grounded in human abilities, and its domains are drawn from a structured
+framework of human cognitive, social and physical capacities. This is the same
+assumption we identified in Section 2 as a limitation of our own approach: there
+is no guarantee that the dimensions along which human requirements vary are the
+dimensions along which machine difficulty varies. Our framework and the OECD's
+are exposed to it equally. We note it here not as a criticism of theirs but to
+be clear that locating their measure in our space does not resolve the problem
+for either.
+
+### Why these two and not others
+
+Two further measures were considered and not used. The GDPval task-level results
+are the most direct capability measurement available, but the published release
+covers 44 occupations of the 894 and the per-occupation scores are not released
+as data. The Anthropic Economic Index records actual usage rather than judgement
+and carries an automation-versus-augmentation distinction that is otherwise
+scarce, but it is keyed to tasks rather than occupations: in our matching, the
+median occupation had a single task in common with it, and occupation-level
+ratios computed from one or two tasks degenerate towards zero or one. Results
+from it move substantially depending on how tasks are aggregated and how
+thinly-covered occupations are handled, which is not a defect of the source but
+a limit on what it can support at the occupational level.
 
 ---
 
-## 7. Conclusions
+## 6.3 How do the institutional variables act
 
-**We do not measure AI.** No result here is evidence about what AI can or cannot
-do. The contribution is the structure such evidence would have to be expressed
-in.
-
-**O\*NET ratings.** Importance scale points are not defined against an external
-standard, and the National Academies review concluded that they support
-comparison between occupations but not statements about absolute requirements;
-our use is comparative, which is the licensed use. Evaluations have found rating
-scales biased toward placing behaviours in professional domains high regardless
-of difficulty, which would make R2 partly a status measure and the wage result
-partly circular. That finding concerns the behaviourally anchored Level scales,
-which we do not use, but a weaker form cannot be excluded. Sample sizes per
-occupation are modest and the blocks are revised on a rotating schedule, so
-ratings for different occupations are of different vintages.
-
-**The negative pole of R1 is heterogeneous.** Its extreme is symbolic and verbal
-work, but the lower half of the distribution also contains light service work;
-dishwashers sit on the same side as poets. R1 is better read as physical
-intensity than as an abstract/embodied contrast, and quadrant interpretations
-should use extreme groups rather than a median split.
-
-**Union coverage is broadcast.** The CPS occupational classification is coarser
-than the SOC, so groups of occupations share one value. This attenuates any
-correlation involving it and limits what can be concluded about individual
-occupations.
-
-**Cross-sectional.** Everything describes one moment. Nothing identifies a
-mechanism or a change over time.
-
-**Exploratory sequence.** The pruning decisions were made in response to
-diagnostics computed on the same data. Each is documented with the statistic
-that motivated it, and the axes are unchanged under the main alternatives, but
-the sequence was exploratory and is reported as such.
+*[Author's text to follow.]*
 
 ---
 
