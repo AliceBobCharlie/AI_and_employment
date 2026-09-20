@@ -182,24 +182,16 @@ def check_endpoints(S):
             print(f"     {r[a]:+.2f}  {r['title'][:58]}")
 
 
-def congruence(a, b):
-    """Tucker's phi: how nearly two loading vectors point the same way."""
-    den = np.sqrt((a @ a) * (b @ b))
-    return abs(a @ b) / den if den > 0 else 0.0
+# varimax and the congruence measure live in pca_rotated.py, so that the
+# rotation recipe has one definition rather than three that can drift apart.
+import sys, os
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from pca_rotated import varimax as _varimax, congruence
 
 
 def varimax(Phi, q=100, tol=1e-6):
-    p, k = Phi.shape
-    R = np.eye(k); d = 0
-    for _ in range(q):
-        d_old = d
-        Lm = Phi @ R
-        u, sv, vt = np.linalg.svd(
-            Phi.T @ (Lm**3 - (1.0 / p) * Lm @ np.diag(np.diag(Lm.T @ Lm))))
-        R = u @ vt; d = np.sum(sv)
-        if d_old != 0 and d / d_old < 1 + tol:
-            break
-    return Phi @ R
+    L, _ = _varimax(Phi, q=q, tol=tol)
+    return L
 
 
 def rotated_loadings(X, cols, k):

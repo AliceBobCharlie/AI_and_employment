@@ -123,6 +123,23 @@ def stability(X, ref, k):
 
 
 # ------------------------- varimax ---------------------------------------- #
+def promax(A, m=4):
+    """Oblique rotation of an already varimax-rotated loading matrix A.
+    Returns the pattern matrix and the factor correlation matrix.
+    Follows the standard Hendrickson-White construction."""
+    Q = A * np.abs(A) ** (m - 1)          # sharpened target
+    U = np.linalg.lstsq(A, Q, rcond=None)[0]
+    d = np.diag(np.linalg.inv(U.T @ U))
+    U = U @ np.diag(np.sqrt(d))
+    pattern = A @ U
+    Uinv = np.linalg.inv(U)
+    Phi = Uinv @ Uinv.T
+    dg = np.sqrt(np.diag(Phi))
+    Phi = Phi / np.outer(dg, dg)          # to correlation form
+    return pattern, Phi
+
+
+
 def varimax(Phi, gamma=1.0, q=100, tol=1e-6):
     """Kaiser varimax rotation of a loading matrix Phi (p x k)."""
     p, k = Phi.shape
@@ -247,11 +264,42 @@ def main():
         r = np.corrcoef(prestige, S[:, j])[0, 1]
         print(f"  R{j+1}: r = {r:+.3f}")
 
+    # ---- robustness: does the data prefer orthogonal axes, or does varimax
+    # impose them? Promax starts from this solution and lets the axes tilt.
+    Lp, Phi = promax(Lr)
+    for j in range(k):
+        if np.dot(Lr[:, j], Lp[:, j]) < 0:
+            Lp[:, j] *= -1
+            Phi[j, :] *= -1; Phi[:, j] *= -1
+    np.fill_diagonal(Phi, 1.0)
+    print("\n" + "=" * 66)
+    print("OBLIQUE ROTATION CHECK (promax): are the axes orthogonal by")
+    print("preference of the data, or only by constraint?")
+    print("=" * 66)
+    names = [f"R{j+1}" for j in range(k)]
+    print("\nfactor correlations:")
+    print(pd.DataFrame(Phi, index=names, columns=names).round(3).to_string())
+    off = max(abs(Phi[i, j]) for i in range(k) for j in range(k) if i < j)
+    print(f"\nlargest |correlation| between axes: {off:.3f}")
+    print("congruence with the varimax solution:")
+    for j in range(k):
+        c = congruence(Lr[:, j], Lp[:, j])
+        print(f"  R{j+1}: {c:.3f}  {'same axis' if c >= 0.95 else 'DIFFERS - inspect'}")
+    if off < 0.20:
+        print("\n-> the data places the axes close to orthogonal on its own.")
+    elif off < 0.35:
+        print("\n-> mild correlation; orthogonality is a simplification, not a")
+        print("   distortion. Report these correlations.")
+    else:
+        print("\n-> substantial correlation; report the oblique solution instead.")
+    pd.DataFrame(Lp, index=feats, columns=names).to_csv(
+        OUTDIR / "oblique_pattern.csv")
+
     out = pd.DataFrame(S, columns=[f"R{j+1}" for j in range(k)], index=title.index)
     out.insert(0, "title", title.values)
     out.to_csv(OUTDIR / "rotated_axes.csv")
     Ld.to_csv(OUTDIR / "rotated_loadings.csv")
-    print(f"\n[ok] wrote rotated_axes.csv, rotated_loadings.csv")
+    print(f"\n[ok] wrote rotated_axes.csv, rotated_loadings.csv, oblique_pattern.csv")
 
 
 if __name__ == "__main__":

@@ -1,7 +1,8 @@
 # Occupational structure and exposure to automation
 
-Occupation-level analysis of what separates jobs from one another, and which of
-those differences are about skill and which are about institutional position.
+Occupation-level analysis of the occupational feature space: what separates
+jobs from one another, and which of those differences are about skill and which
+are about institutional position.
 Built on O*NET 30.2 (894 detailed occupations) joined to wages, union coverage,
 occupational prestige, separation rates and self-employment.
 
@@ -124,10 +125,11 @@ Three checks, each using something the analysis did not see: O*NET's own expert
 grouping of elements into cognitive, psychomotor, physical and sensory abilities
 and into information input, mental processes, work output and interaction;
 whether the off-diagonal cells of the R1 × R2 plane are populated, since the
-claim that load and medium are separate requires occupations that are physical
-and demanding, and abstract and routine, to exist; and the occupations at each
-extreme. The quadrant medians also show directly whether pay follows cognitive
-load or the manual/mental divide.
+claim that judgement and physical intensity are separate requires occupations
+that are physically demanding and judgement-intensive, and physically light and
+procedure-following, to exist; and the occupations at each extreme. The quadrant
+medians also show directly whether pay follows judgement or the manual/mental
+divide.
 
 **`pca_ete.py`** → `ete_axes.csv`
 
@@ -142,6 +144,12 @@ Interactive figures: the three axes in 3-D, drawn as free coordinate axes and
 coloured by union coverage, and the six pairwise 2-D sections on one page, any
 of which enlarges on click. Marker size is log employment; hovering names the
 occupation.
+Locating other measures in the space
+A coordinate system earns its keep if measures built independently of it can be placed inside it. These two scripts do that, and they are also where the negative results live.
+project_measures.py → measure_projection.csv
+Projects published substitution measures onto the three axes: Eloundou et al. (2024), under both their human and GPT-4 annotations; the OECD AI Capability Gap Index, both its total and its nine capability domains, with the sign reversed so that higher always means more substitutable; and, where the files are present, the Anthropic Economic Index. The domain-level projection is the sharper test of the OECD measure, since summing nine correlated domains is what cancels one of the axes. The AEI results carry a caveat the output makes explicit: the median occupation matches a single task, so its automation ratio is reported only where at least ten tasks match.
+acs_young_share.py → acs_young_share.csv
+Builds occupation-level young-worker shares from an IPUMS ACS extract — employed, wage and salary, 35 hours or more, non-military, aged 22 to 25 — and projects the 2022–2024 change onto the axes. The build step is skipped when the aggregate already exists. The result is a null: about 60 percent of the cross-occupational variance in the change is real rather than sampling noise, but correlations with all three axes are below 0.2 and change sign between specifications. It is retained because the null is reported in the paper.
 
 ## Supporting analyses
 
@@ -186,13 +194,19 @@ is redundant with the ETE distributions (R² = 0.82), and that "work experience
 needed" is 85% missing. All three were excluded on that basis.
 
 ## Conventions
-
-- All three rotated axes are signed so that **+ = harder to automate**:
-  `+` embodiment (physical rather than symbolic work medium), `+` cognitive
-  load (complex reasoning rather than routine execution), `+` interpersonal
-  (care and people rather than technical systems).
+ 
+- The three rotated axes are signed by marker variables so that positive means
+  physically intensive, judgement-intensive and person-facing respectively. The
+  first is a level of physical capability demanded, not a contrast between
+  embodied and symbolic work: its negative pole is low physical demand, which in
+  this data covers both verbal work and light service work. Whether the positive
+  pole is also the pole less amenable to substitution is a conjecture and is
+  treated as one.
+- `varimax` and `congruence` are defined once, in `pca_rotated.py`; the other
+  scripts import them rather than carrying their own copies.
 - Seeds are fixed (`SEED = 0`) and axis signs are anchored to marker variables,
   so results reproduce across runs and stay stable if the dataset is rebuilt.
 - Wage top-coding: OEWS suppresses annual wages above $239,200. Where a high
   percentile is missing but a low one is present the value is filled at that
   cap, because the true value is known to lie above it.
+ 

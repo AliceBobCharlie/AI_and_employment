@@ -38,9 +38,15 @@ N_SPLIT = 50
 STABLE_THRESH = 0.90
 
 
-def congruence(a, b):
-    den = np.sqrt((a @ a) * (b @ b))
-    return np.abs(a @ b) / den if den > 0 else 0.0
+# varimax and congruence are defined once, in pca_rotated.py
+import sys, os
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from pca_rotated import congruence, varimax as _varimax
+
+
+def varimax(Phi, gamma=1.0, q=100, tol=1e-6):
+    L, _ = _varimax(Phi, gamma=gamma, q=q, tol=tol)
+    return L
 
 
 def best_match(ref, cand):
@@ -50,20 +56,6 @@ def best_match(ref, cand):
 
 def pca_load(M, k):
     return PCA(n_components=k, random_state=SEED).fit(M).components_
-
-
-def varimax(Phi, gamma=1.0, q=100, tol=1e-6):
-    p, k = Phi.shape
-    R = np.eye(k); d = 0
-    for _ in range(q):
-        d_old = d
-        L = Phi @ R
-        u, s, vt = np.linalg.svd(
-            Phi.T @ (L**3 - (gamma / p) * L @ np.diag(np.diag(L.T @ L))))
-        R = u @ vt; d = np.sum(s)
-        if d_old != 0 and d / d_old < 1 + tol:
-            break
-    return Phi @ R
 
 
 def ete_scale(col):
