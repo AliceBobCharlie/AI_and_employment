@@ -15,7 +15,7 @@ with varimax rotation and determine dimensionality by resampling rather than by
 variance explained. Three components are stable and no more: **physical
 intensity, judgement and person-facing work**. Their interpretations are
 confirmed against O\*NET's own expert taxonomy; they are unchanged when every
-economic variable is removed from the analysis; and they remain almost
+labour-market variable is removed from the analysis; and they remain almost
 uncorrelated when the orthogonality constraint is lifted. We propose these three
 axes, together with union coverage as an orthogonal institutional dimension, as
 a coordinate system in which occupations can be located and substitution
@@ -40,7 +40,7 @@ Such an approach overlooks the fact that whether AI can substitute for human lab
 
 This paper attempts to identify the full set of factors bearing on whether an occupation is substitutable by AI, and to characterise them comprehensively. Against this, the advantage of a one-dimensional index is that it is intuitive, whereas complex models involving many variables are often hard to interpret. To address the first problem while preserving that intuitive quality, the paper seeks to derive a low-dimensional subspace of occupational characteristics, in which an occupation's position along each axis determines where it sits within that space. Two- and three-dimensional slices of this space can then be visualised, so that decision-makers in economic policy can continue to read off the relative position of each occupation directly while also recognising the complexity of the question.
 
-The paper further seeks to identify external variables, beyond the characteristics of the work itself, that may impede substitution, such as union density and occupational mobility. These are intended to help address the question of substitution versus collaboration, to account for the gap between measures of substitutability and observed employment outcomes, and to provide a basis for policymakers concerned with employment stability.
+The paper further seeks to identify labour-market variables beyond the characteristics of the work itself, that may impede substitution, such as union density and occupational mobility. These are intended to help address the question of substitution versus collaboration, to account for the gap between measures of substitutability and observed employment outcomes, and to provide a basis for policymakers concerned with employment stability.
 
 The result is a three-axis description of occupational structure — physical intensity, judgement, and person-facing work — together with an institutional dimension orthogonal to all three. We offer it as a model in a specific sense: a coordinate system in which occupations, and the substitution measures built on them, can be located. Its axes are established, their stability tested and their meanings validated against an external classification; what it does not supply is the function by which a position in the space translates into displacement risk. Displacement is some function of the three axes and of institutional protection, and this paper fixes the arguments of that function rather than its coefficients. That is a weaker claim than a substitution index makes, and one that does not expire when the next model is released.
 
@@ -50,7 +50,7 @@ The most direct way to identify the factors governing whether AI can substitute 
 
 Where such measurement is not available, two practices are common. One is to score AI performance directly on a rating scale; the other is to ask a generative model which tasks it could perform. Both yield occupation-level numbers at low cost, but neither produces a quantity that can readily be verified against an external standard, and results of this kind have been shown to vary with the model performing the rating and with the phrasing of the prompt. We have neither the resources to commission expert assessment on the scale GDPval required, nor any wish to introduce judgements of our own in its place.
 
-We therefore restrict the analysis to the demand side. We take the occupational feature data published in O\*NET, together with a set of external variables attached to occupations, and recover from them the principal factors along which occupations differ. No measurement of AI enters at any point.
+We therefore restrict the analysis to the demand side. We take the occupational feature data published in O\*NET, together with a set of labour-market variables attached to occupations, and recover from them the principal factors along which occupations differ. No measurement of AI enters at any point.
 
 Two consequences follow, and we state them plainly.
 
@@ -86,7 +86,7 @@ work in taking O\*NET as the description of work and in seeking structure rather
 than imposing it, and depart from it in two respects. We do not binarise:
 thresholding at RCA > 1 discards the intermediate values that distinguish
 occupations differing by degree, and whether the reported structure depends on
-that step is answerable (Section 5.1). And we take occupations rather than
+that step is answerable (Section 5.2). And we take occupations rather than
 skills as the objects, because displacement attaches to occupations: a worker is
 laid off from a job, not from a skill, and the institutions that determine
 whether displacement is permitted — unions, licences, professional associations
@@ -106,7 +106,9 @@ al.'s tests whether the reported components are reproducible on an independent
 subset of occupations.
 
 ## 4. Data
-### 4.1 O*NET Occupational features
+
+### 4.1 O\*NET occupational features
+
 O\*NET describes each occupation through several blocks of descriptors, collected
 from different sources and on different scales. Not all of them bear on whether
 AI can substitute for the work, and not all of them are observations of the
@@ -136,7 +138,8 @@ records Work Styles as AI/Expert and Interests as Machine Learning/Expert, so
 both are model outputs rather than measurements of the occupation, and including
 them would put a model's judgement inside a matrix intended to hold only
 measured features. Two are excluded on evidence, given below.
-### 4.2 External variables
+
+### 4.2 Labour-market variables
 
 O\*NET describes what an occupation requires. It does not describe the
 occupation's position in the labour market, and the question of whether a
@@ -144,7 +147,7 @@ technically feasible substitution is actually carried out is partly a question
 about that position. We attach six kinds of variable from outside, with a
 rationale for each.
 
-**Table 4.5 — External variables**
+**Table 4.2 — Labour-market variables**
 
 | variable | source | why it might bear on substitution |
 |---|---|---|
@@ -171,7 +174,8 @@ is populated for 116 of 894 — and cannot support an analysis.
 Projections to 2034 were excluded on a different ground. A forecast of an
 occupation's growth may already embed a judgement about automation, so relating
 it to a structure intended to inform such judgements would be circular.
-### 4.3 Variable Screening
+
+### 4.3 Variable screening
 
 Four of the blocks — Skills, Abilities, Knowledge and Work Activities — are
 published on two scales at once. Importance records how consequential a
@@ -207,15 +211,11 @@ Taken together: retaining Level would double the width of four blocks, add
 roughly a tenth of the information they already contain, and bring a
 missingness problem attached to precisely the least informative cells. It would
 also dilute every other variable in the matrix in proportion to the duplication
-— a consideration that matters here, since the institutional and economic
-variables number fifteen against a feature matrix in the hundreds. We drop
-Level and record that Handel (2009) argues it is the conceptually richer
-construct, which we do not dispute; the case above is empirical rather than
-conceptual.
+— a consideration that matters here, since the labour-market variables number fifteen against a feature matrix in the hundreds. We drop Level and record that Handel (2009) argues it is the conceptually richer construct, which we do not dispute; the case above is empirical rather than conceptual.
 
 Four further adjustments are smaller in consequence and are set out together.
 
-**Table 4.2 — Other adjustments to the feature matrix**
+**Table 4.3 — Other adjustments to the feature matrix**
 
 | adjustment | evidence | effect |
 |---|---|---|
@@ -287,7 +287,7 @@ individually. We record the exclusion here and again among the limitations.
 **894 detailed occupations remain, and this is the analysis set throughout.**
 
 **Scattered absence.** Among the 894, the feature data is close to complete.
-After the Importance-only restriction of Section 4.2, the five feature
+After the Importance-only restriction of Section 4.3, the five feature
 blocks — Abilities, Skills, Knowledge, Work Activities and Work Context — have
 **no missing cells at all** for any of the 894 occupations. The only gap is in
 Education, Training and Experience, where 16 occupations have no rows in any of
@@ -305,7 +305,7 @@ flags honoured as missing — which is the correct reading of the flag, since th
 value is recorded as not applying rather than as unmeasured — then on the order
 of 8 to 10 percent of rows in Abilities and Knowledge would have required either
 imputation or the removal of the affected descriptors, concentrated, as Section
-4.2 noted, on exactly the descriptors the Importance scale already records as
+4.3 noted, on exactly the descriptors the Importance scale already records as
 marginal. The alternative to dropping Level is not a fuller matrix but a matrix
 with a tenth of its cells reconstructed.
 
@@ -321,7 +321,7 @@ Incumbent for Knowledge, Work Activities, Work Context and ETE. None of the
 retained blocks is model-generated, which was the basis for excluding Work
 Styles and Interests in Section 4.1.
 
-### 4.4 The final matrix, and whether it is too wide
+### 4.5 The final matrix, and whether it is too wide
 
 **Table 4.4 — Final feature matrix**
 
@@ -356,27 +356,25 @@ The guard against reading noise as structure is **resampling rather than a rule
 of thumb**. Each candidate component is refitted on bootstrap samples and on
 random halves of the occupations. A component supported only by the particular
 894 occupations in hand would not reproduce on an independent half, and in fact
-the fourth and later components do not (Section 5.2). This is a direct test of
+the fourth and later components do not (Section 5.3). This is a direct test of
 the concern that a wide matrix invites, rather than an assumption that it has
 been avoided.
 
-Where the width does bite is in the regressions used to ask how much of an
-external variable the feature data can predict. There, 253 predictors
+Where the width does bite is in the regressions used to ask how much of a labour-market variable the feature data can predict. There, 253 predictors
 against 894 observations is genuinely adverse: ordinary least squares does not
 merely lose precision but fails, returning large negative cross-validated R²
 values, because it fits the training folds exactly and generalises arbitrarily.
 Those regressions therefore use ridge, whose penalty is what makes the estimate
 meaningful in this shape, with the scaler fitted inside each fold.
 
-
-### 4.6 Alignment, coverage and imputation of the external variables
+### 4.6 Alignment, coverage and imputation of the labour-market variables
 
 The external sources use three coding systems and were collected at different
 dates, so their attachment to the 894 occupations is of uneven quality. We set
 out the alignment first, then the resulting gaps, then how they were filled,
 because the treatment follows from the cause in each case.
 
-### Alignment
+#### Alignment
 
 **Exact, on the six-digit SOC.** OEWS, the BLS Employment Projections tables and
 the Occupational Prestige Ratings project all key on SOC codes that map one to
@@ -402,14 +400,12 @@ prestige survey is earlier still, while O\*NET revises its blocks on a rotating
 schedule so that different occupations carry different vintages. The analysis is
 cross-sectional and treats all of this as one period, which is an approximation.
 
-### Coverage
+#### Coverage
 
-Unlike the feature data, the external variables have substantial gaps, and
+Unlike the feature data, the labour-market variables have substantial gaps, and
 the occupation-by-variable matrix shows them to be structural rather than
 scattered: they arrive in whole rows or whole blocks. Of the 894 occupations,
-121 are missing at least one external variable, none is missing almost all of
-them, and 39 are missing only one or two. Three causes account for nearly all of
-it.
+121 are missing at least one labour-market variable, none is missing almost all of them, and 39 are missing only one or two. Three causes account for nearly all of it.
 
 *Whole-row absence from a source.* Twenty-nine occupations have no OEWS record
 of any kind — among them laboratory technologists, home health aides, teaching
@@ -426,7 +422,7 @@ informative: it states that the true value lies above the cap.
 *Coverage of the source.* Occupational prestige is missing for 53 occupations,
 almost all of them detailed management titles the rating project did not cover.
 
-**Table 4.6 — Coverage of the external variables over the 894 analysis occupations**
+**Table 4.5 — Coverage of the labour-market variables over the 894 analysis occupations**
 
 | variable | coverage | dominant cause of gaps |
 |---|---|---|
@@ -443,7 +439,7 @@ almost all of them detailed management titles the rating project did not cover.
 | 75th percentile wage | 93.6% | absent, or top-coded |
 | 90th percentile wage | 90.8% | absent, or top-coded |
 
-### Imputation
+#### Imputation
 
 Because the causes differ, the treatment differs. Where a high wage percentile is
 missing while a lower one is present, the occupation is in OEWS and the value has
@@ -462,24 +458,24 @@ Three considerations bound the risk this introduces. The variables carrying most
 of the imputation — the wage percentiles — enter the principal component
 analysis as two summary columns rather than nine, so the imputed cells are
 diluted before they reach the estimate. The axes are unchanged when every
-economic variable is removed from the analysis altogether (Section 5.7), so no
-wage decision can be producing them. And imputation is confined to a single
+labour-market variable is removed from the analysis altogether (Section 5.9), so no wage decision can be producing them. And imputation is confined to a single
 step, so every analysis reads the same numbers. What imputation cannot be
 defended against is a systematic difference between the occupations a source
 omits and those it covers: the median fill assumes absence is uninformative, and
 for the twenty-nine occupations absent from OEWS we have no evidence either way.
 
 Standardisation is deliberately not applied at this stage. The ridge regressions
-of Section 5.5 fit their scaler within training folds only, and storing
+of Section 5.7 fit their scaler within training folds only, and storing
 standardised values would carry test-fold information into the training set.
 
 # 5. Analysis and results
+
 ## 5.1 Standardisation
 
 Every variable is centred and scaled to unit variance before entering any
 decomposition. The feature ratings share a scale within a block but not
 across blocks — a five-point importance rating and a percentage of respondents
-in an education category are not commensurable — and the economic variables
+in an education category are not commensurable — and the labour-market variables
 range from a proportion to a count in the millions. Without this the leading
 component would report which variables were measured in the largest units.
 
@@ -501,7 +497,7 @@ of the median as a level, the ninetieth-to-tenth percentile ratio as a
 dispersion — because nine near-collinear measurements of one quantity would give
 that quantity nine votes against one for every other variable.
 
-## 5.2 Attemps of Clustering - Do occupations form groups?
+## 5.2 Attempts at clustering: do occupations form groups?
 
 Describing occupations by position on continuous axes presumes they do not
 instead fall into kinds. We test that rather than assume it, clustering by
@@ -542,11 +538,7 @@ continuous axis among occupations. That axis is the first one recovered below.
 ## 5.3 The principal components of occupational feature space
 
 The standardised matrix — 894 occupations by 260 variables, of which 253 are
-feature columns and seven economic and institutional — is decomposed by
-principal component analysis. The unrotated solution places 28.3 percent of
-variance in the first component and requires 76 components to reach 90 percent,
-which is what heavy collinearity looks like: a great deal of variance, little of
-it independent.
+feature columns and seven labour-market — is decomposed by principal component analysis. The unrotated solution places 28.3 percent of variance in the first component and requires 76 components to reach 90 percent, which is what heavy collinearity looks like: a great deal of variance, little of it independent.
 
 How many components to keep is decided by whether they reproduce. Each of the
 first eight is refitted on 200 bootstrap resamples of the occupations and on 50
@@ -778,29 +770,25 @@ The wage figures fall out of the same table and are reported here rather than
 held back. The median wage gap along R2 is **$38,520**; along R1, **$8,940**. A
 physically demanding but judgement-intensive occupation pays 61 percent more
 than a physically light but routine one. The medium is not irrelevant — among
-judgement-intensive occupations, the physically light ones pay about $18,000 more — but it
-is second order. This is an association across occupations weighted equally, not
-a return to individual ability and not a causal claim.
+judgement-intensive occupations, the physically light ones pay about $18,000 more — but it is second order. This is an association across occupations weighted equally, not a return to individual ability and not a causal claim.
 
 **Endpoints.** The occupations at each extreme, listed in Section 5.5, are the
 least formal check and the most direct: a name that does not fit its own extreme
 cases is wrong whatever the loadings say. All three survive it, with the
 qualification about R1's negative pole recorded above.
 
-## 5.7 The external variables
+## 5.7 The labour-market variables
 
-The institutional and economic variables are not requirements of the work but
-properties of the occupation's position in the labour market, and the question
-is whether they carry information the features do not.
+The labour-market variables are not requirements of the work but properties of the occupation's position in the labour market, and the question is whether they carry information the features do not.
 
 A decomposition of the pooled matrix cannot answer this. Principal components
 are directions of maximum variance, and with 253 feature columns against
-fifteen external ones, heavily correlated among themselves, the leading
-components are determined almost entirely by the former; an external variable
+fifteen labour-market ones, heavily correlated among themselves, the leading
+components are determined almost entirely by the former; a labour-market variable
 can appear only by riding on a feature axis. We confirmed that this is a
 property of column counts rather than of the variables, by re-running the same
 decomposition with the feature side deliberately widened and narrowed:
-whether an external variable appears to emerge changes with how many feature
+whether a labour-market variable appears to emerge changes with how many feature
 columns are present while nothing about the variable has changed. Multiple
 factor analysis, which normalises each group of variables by its own first
 singular value so that no group dominates by size, improves on this but does not
@@ -811,7 +799,7 @@ variable account for a large share of the joint variation" when the question is
 a variable with small variance and an independent direction those have different
 answers. This is the situation Section 5.4 anticipated.
 
-The question is therefore put directly by regression. For each external variable
+The question is therefore put directly by regression. For each labour-market variable
 we ask how much of it the feature data predicts, estimating by ridge with
 five-fold cross-validation, the penalty chosen within each training fold and the
 scaler fitted on training folds only. Ordinary least squares is not usable at 253
@@ -902,10 +890,10 @@ natural next variable for the institutional side of the question.
 
 **The axes are a property of the feature data.** The whole procedure was
 refitted with wages as two columns (the reported specification), with all nine
-raw percentiles, and with every economic variable removed so that only
+raw percentiles, and with every labour-market variable removed so that only
 feature data remains. Congruence with the reported axes is 1.000 / 1.000 /
 1.000, 1.000 / 1.000 / 0.998 and 1.000 / 1.000 / 0.999. No decision about wages
-produced the axes, and removing the economic variables entirely does not change
+produced the axes, and removing the labour-market variables entirely does not change
 them.
 
 **Rotation.** Reported in Section 5.5: the oblique refit gives factor
@@ -924,11 +912,12 @@ alongside the stability criterion.
 ---
 
 ## 6. Discussion
+
 ### 6.1 Which part of the occupational space is most substitutable
 
 The analysis returns three axes: physical intensity, judgement, and
 person-facing work. The number was not chosen. It follows from the resampling
-criterion of Section 4.4, which retains a component only where an independent
+criterion of Section 5.3, which retains a component only where an independent
 half of the occupations reproduces it, and the fourth candidate component fails
 that test by a wide margin. That the answer happens to be three is convenient
 rather than designed: three dimensions can be drawn, and every occupation in the
@@ -937,7 +926,7 @@ dataset can be placed in a single figure and located by eye.
 **[Figure 6.1 — the 894 occupations in the three-axis space, rotatable, coloured
 by union coverage.]**
 
-The first thing the figure shows is what the clustering analysis of Section 5.1
+The first thing the figure shows is what the clustering analysis of Section 5.2
 established numerically: the distribution is continuous. Occupations fill the
 space rather than gathering into groups, there is no region of concentration,
 and no partition of them into types is supported by the data. This matters for
@@ -1000,7 +989,7 @@ In the short term this should make physically intensive occupations less
 substitutable than symbolic ones. In the longer term the argument depends
 entirely on the trajectory of robotics, on which we take no position.
 
-**Judgement.** The structured and procedural end of this axis should be more
+**Judgement.** The procedural end of this axis should be more
 exposed than the end requiring autonomous judgement, which is the standard
 reading of the task literature. But the margin is narrowing. Capability
 evaluations on unstructured, long-horizon work report rapid improvement —
@@ -1038,7 +1027,7 @@ requires a body — and on the technical side of the person-facing axis. Both
 place it among the more substitutable occupations. But on judgement it is
 internally divided in a way its single position on the axis conceals: the work
 contains procedural components, such as implementing well-specified
-functionality, that sit near the structured pole, and components requiring
+functionality, that sit near the procedural pole, and components requiring
 autonomous judgement about architecture and trade-offs that sit near the other.
 An occupational average places software engineering in the middle of an axis
 along which its constituent work is spread from one end to the other.
@@ -1095,7 +1084,7 @@ axes at once, and under the conjecture this is the most secure region.
 Electricians, aircraft mechanics, millwrights and firefighters sit here. It is
 worth noting how poorly this region is described by the conventional contrast
 between manual and cognitive work, which would place these occupations on the
-manual side and infer exposure from that alone.
+manual side and infer substitutability from that alone.
 
 One caution about reading any single plane. A two-dimensional section is a
 projection, and it merges occupations that the third axis separates. The exposed
@@ -1199,8 +1188,6 @@ ratios computed from one or two tasks degenerate towards zero or one. Results
 from it move substantially depending on how tasks are aggregated and how
 thinly-covered occupations are handled, which is not a defect of the source but
 a limit on what it can support at the occupational level.
-
----
 
 ## 6.3 How do the institutional variables act
 
