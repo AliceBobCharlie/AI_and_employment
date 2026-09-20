@@ -70,40 +70,24 @@ We take an alternative approach. We apply unsupervised analysis, specifically cl
 
 ## 3. Literature
 
-*To be written. The two studies whose methods this paper departs from directly
-are summarised here rather than in the data section, since the departures are
-analytical rather than about the data.*
+**Measures of substitution.** A first generation established that the question could be quantified and fixed O*NET as the substrate for almost everything since (Frey and Osborne, 2017; Brynjolfsson et al., 2018; Felten et al., 2018, 2021; Webb, 2020 [WP]). Capability was inferred indirectly — from patent text, from benchmark results, from crowd-sourced matching to ability scales — and aggregated to occupations by weights the authors judged reasonable. Each produced a single score. Their disagreement is the relevant fact here: correlations of these measures with wages run from −0.56 to +0.54, so they are not noisy estimates of one quantity but estimates of different ones. The approach has not been superseded so much as left available: independent work continues to appear in which both the task scores and the aggregation weights are assigned by the author, validated against external data but leaving no structure a reader can test (for instance, 2026 [WP]).
 
-**Structure recovered from the same database.** Alabdulkareem et al. (2018)
-analysed O\*NET with the skills as objects rather than the occupations. They
-normalised the occupation-by-skill matrix by revealed comparative advantage and
-binarised it, defined the complementarity of two skills as the minimum of the
-conditional probabilities that an occupation using one also uses the other,
-thresholded the resulting network, and found that it separates into two
-communities — one social and cognitive, one sensory and physical — with
-occupations then characterised by which community they draw on. We follow that
-work in taking O\*NET as the description of work and in seeking structure rather
-than imposing it, and depart from it in two respects. We do not binarise:
-thresholding at RCA > 1 discards the intermediate values that distinguish
-occupations differing by degree, and whether the reported structure depends on
-that step is answerable (Section 5.2). And we take occupations rather than
-skills as the objects, because displacement attaches to occupations: a worker is
-laid off from a job, not from a skill, and the institutions that determine
-whether displacement is permitted — unions, licences, professional associations
-— attach to occupations as well.
+A second generation made the capability judgement explicit and reproducible. Eloundou et al. (2024) apply a common rubric to O*NET task statements, separating what a model can do unaided from what it can do with additional software, and report inter-rater agreement. Work in this group also began to set the resulting scores alongside the characteristics of the workers holding the occupations: the Pew Research Center's analysis (Kochhar, 2023) scores O*NET work activities and skills, matches 873 detailed occupations to 485 in the Current Population Survey, and crosses the result with wages, education, gender, race and industry, finding the most exposed occupations paying $33 an hour against $20 in the least exposed; the US Treasury (2024) analysis follows a similar route. These are the closest precedents for the second question asked here, though they describe the labour-market characteristics of exposed occupations rather than asking whether those characteristics carry information the feature data does not. The capability side improves throughout; the output remains one number per occupation.
 
-**The closest methodological precedent.** Benzell et al. (2019) applied
-principal-component factoring with varimax rotation to O\*NET importance ratings
-and report eight factors. Their procedure differs from ours in two ways that
-matter for what is found. Their variable set omits Knowledge and Work Context,
-and they prune iteratively, discarding any item that loads below a threshold on
-all factors or above one on more than one factor, until every retained item
-loads cleanly on a single factor. They observe that routineness does not appear
-among their factors. An item measuring how demanding work is would load across
-several feature domains, and is therefore precisely the kind of item that a
-simple-structure criterion removes. Neither their analysis nor Alabdulkareem et
-al.'s tests whether the reported components are reproducible on an independent
-subset of occupations.
+Frontier work advances on one of two fronts. GDPval (Patwardhan et al., 2025 [WP]) measures rather than judges: practitioners author the tasks and grade the deliverables. Its coverage is correspondingly bounded, since a task must yield a reviewable artefact, which excludes most embodied work by construction. The OECD (2026 [WP]) advances instead on structure, assessing AI capability and occupational demand separately on a common five-level scale across nine domains and publishing the gap for each domain as well as the total. That measure is the closest in spirit to the present paper, and its own caution is our point of departure: the total index "should be interpreted alongside the underlying domain-specific gaps rather than as a self-sufficient measure." Separately, the Anthropic Economic Index (Handa et al., 2025 [WP]) records what AI is actually used for rather than what it can do, and is the only public source distinguishing automative from augmentative use.
+
+**The task framework**. Autor, Levy and Murnane (2003) organised this literature around two crossed distinctions, manual against cognitive and routine against non-routine; Deming (2017) established the wage return to social skills. Both bear on how the axes recovered below should be read, and Section 5.5 returns to them.
+
+**Prior attempts of analysing the structure of O\*NET.** Alabdulkareem et al. (2018) analysed O*NET with the skills as objects rather than the occupations. They normalised the occupation-by-skill matrix by revealed comparative advantage and binarised it, and found two communities — one social and cognitive, one sensory and physical. We follow that work in seeking structure rather than imposing it, and depart from it in two respects: we do not binarise, since thresholding discards the intermediate values that distinguish occupations differing by degree, and we take occupations rather than skills as the objects, because displacement attaches to occupations.
+
+The closest methodological precedent is Lise and Postel-Vinay (2020), who run principal component analysis on over two hundred O*NET descriptors, retain the first three components, and recombine them to satisfy three exclusion restrictions — that mathematics reflects only cognitive requirements, mechanical knowledge only manual, and social perceptiveness only interpersonal — stating that the resulting labels rest on those restrictions. The procedure is ours; the object is not. Their components are an input to a structural model of sorting, and the properties of the reduction are accordingly left unexamined. The number of components is fixed at three and no test of that number is reported, nor eigenvalues, variance shares, or any diagnostic of stability; the authors note that for a one-dimensional variant of their model they remain agnostic as to what the first principal component measures. The estimation is run on a worker-week panel of a single survey cohort, so occupations enter weighted by employment and occupations nobody in that cohort held are absent; the Level rather than the Importance scale is used; and descriptors that could not be assigned in advance to one of the three target concepts are dropped before the decomposition. Each of these is appropriate to their purpose and consequential for ours. Benzell et al. (2019 [WP]) reach eight factors on similar data by pruning items until each loads cleanly on one factor. Neither tests whether the reported components reproduce on an independent subset of occupations.
+
+**Labour-market position.** Whether a technically feasible substitution is carried out depends on more than capability, and a separate literature has established that the relevant variables are neither negligible nor recoverable from the content of the work. Svanberg et al. (2024 [WP]) find that cost and firm size leave most technically automatable vision work unattractive to automate, with the binding constraint being that most firms are too small to justify the fixed cost. Weeden (2002) maps five institutionalised closure devices — licensing, educational credentialing, voluntary certification, association representation and unionisation — onto 488 occupations, and finds that the returns to them are not tightly linked to the complexity of the occupation's knowledge base: institutional position and occupational content are largely separate things, which is the proposition our treatment of the labour-market variables assumes and tests. The direction of the institutional effect on substitution, as distinct from wages, is unsettled. Collective agreements may restrain what an employer does with a technology, but by attaching rents to a job they may equally invite its automation (Acemoglu and Restrepo, 2024), and minimum wage increases have been shown to accelerate the automation of automatable work (Lordan and Neumark, 2018). We therefore treat these variables as a dimension to be located rather than as a protective factor to be assumed.
+
+**Mechanisms below the occupation.** A further literature works at the level of tasks within a job, and it is precisely the level our data cannot reach, since O*NET publishes one profile per occupational code. Autor and Thompson (2025) show that when tasks are automated the sign of the wage effect depends on whether the removed tasks were the expert or the inexpert part of the job: automation that strips away inexpert tasks raises wages and lowers employment, and automation that strips away expert tasks does the reverse. A share-of-tasks-exposed measure therefore cannot determine the direction of the effect, however accurately it is estimated. Freund and Mann (2026 [WP]) reach a compatible conclusion from task bundling, and report that dispersion of outcomes within an occupation grows with its exposure, so an occupational average is least informative exactly where exposure is highest. Hampole et al. (2025 [WP]) find that occupational outcomes are summarised not by one statistic but by two, the mean of task exposure and its concentration, which offset one another. We record these results as a limit on what any occupation-level description can deliver, and return to them in Section 6.
+
+**Observed outcomes.** The clearest employment evidence to date is not of displacement. Brynjolfsson et al. (2025 [WP]), using a monthly payroll panel of several million US workers, find no widespread economy-wide job losses, but report that employment of workers aged 22 to 25 in the most exposed occupations stands well below where it would be had it kept pace with their less exposed peers, with no comparable gap for experienced workers. The adjustment runs through reduced hiring rather than increased separations — separation rates in exposed occupations fell at least as fast as elsewhere — and the declines concentrate in occupations where AI usage substitutes for labour rather than complementing it. The authors present these as descriptive facts rather than causal estimates, and note that the estimates attenuate when occupational education is controlled for, that some divergence predates the technology, and that their sample over-represents large firms and exposed occupations. Others reach different conclusions on different data: Humlum and Vestergaard (2025 [WP]) find no significant effect on earnings or hours in Danish administrative data, and Lambert and Schindler (2026 [WP]) attribute much of the entry-level pattern to remote work. Two features of this evidence bear on what follows. The signal is a within-occupation one, at the entry level, which is the level our data cannot represent; and it is about hiring rather than employment stocks, which is the margin on which institutional protection of incumbents would be expected to leave occupational totals unchanged.
+
 
 ## 4. Data
 
@@ -1190,51 +1174,203 @@ thinly-covered occupations are handled, which is not a defect of the source but
 a limit on what it can support at the occupational level.
 
 ## 6.3 How do the labour-market variables act
+The three axes describe what an occupation requires. Whether a technically feasible substitution is actually carried out is a separate question, and the labour-market variables are where it is decided. This section sets out how we read them, and is more speculative than what precedes it.
 
-*[Author's text to follow.]*
+Collective agreements can constrain what an employer does with a technology, and there is now a worked example. The 2023 Writers Guild of America agreement, reached after a 148-day strike, is the first collective bargaining agreement anywhere to place explicit limits on generative AI. It does not ban the technology. It establishes that AI-generated material is not literary material under the agreement, so it cannot receive writing credit, cannot be used to reduce the minimum number of writers a production must hire, and cannot be required of a writer; studios must disclose AI-generated material given to writers as source material. The companion SAG-AFTRA agreement governs digital replicas and synthetic performers through consent and compensation requirements rather than prohibition. Both are instructive for what they show is possible and for what they show is not: neither guild obtained a restriction on training models on members' work, and SAG-AFTRA stated plainly that an outright ban was not achievable in that round. The constraint operates on the use of the output within covered productions, not on the capability itself.
+
+This is also a demonstration of how narrow the mechanism is. The agreements bind only work performed under them. Production that moves outside the covered perimeter is unaffected, and the perimeter is not fixed. And the conditions that produced them are unusual: the Writers Guild bargains at sector level rather than firm by firm, which few American unions can do. Nationally, around one worker in ten is represented by a union, and the share is lower in the private sector and lower still in the industries with the highest measured substitutability. Our own figures point the same way: the median occupation in the data has 8 percent coverage, with quartiles at 4 and 16, so most of the distribution sits in a narrow band near zero. Union coverage is independent of the feature data — no description of what an occupation requires predicts whether it is organised, which is Section 5.7's result and, in a different literature, Weeden's — but independence is not the same as reach. An institution that is orthogonal to the work and present for a tenth of it can protect that tenth and no more.
+
+Two readings follow, and they differ in which margin they attend to. On one account, which we take from the labour-advocacy literature, the danger is distributional and works through bargaining power: the workers with the least of it are dismissed first, dismissals at scale become unemployment at scale, and unemployment at scale becomes a problem of social stability rather than of labour economics. On this reading, the appropriate policy response to AI is to strengthen workers' bargaining position, and the low coverage documented above is the central fact.
+
+The observed evidence does not currently support the premise of that account, though it does not refute the concern. Dismissals at scale have not occurred; the clearest employment signal is a shortfall in the hiring of workers at the beginning of their careers in the most substitutable occupations, with no comparable effect on those already employed, and separation rates in those occupations falling at least as fast as elsewhere (Brynjolfsson et al., 2025 [WP]). If that pattern holds, it is a problem institutions are poorly built for. Seniority provisions, dismissal protection, minimum staffing and collective agreements are instruments for protecting incumbents. They operate on the separation margin. An adjustment that runs through hiring leaves the protected stock intact and closes the entry point, and it does so without any employer doing anything an agreement forbids. Institutional protection and the observed margin of adjustment are, at present, not the same margin.
+
+Our reading of what institutional protection does is therefore that it buys time rather than conferring immunity, and that this is worth more than it sounds. Protection is bounded by the market it operates in. If capability advances far enough that unprotected producers outside the agreement can make a better product more cheaply — an independent film-maker with tools that outperform a studio, to continue the example — then the covered producers lose to them regardless of what the covered contract says, and the protection lapses through the product market rather than the labour market. The protection cannot be permanent for that reason. What it can do is hold the substitution off for some years, and those years are not neutral: they are the interval in which a worker can acquire other skills and move. An occupation with institutional protection and one without may end in a similar place, and arrive there very differently — one through gradual attrition and voluntary transition, the other through dismissal. That difference does not appear in a substitutability measure and it does not appear in an employment total, but it is most of what a policymaker concerned with employment stability would want to know.
+
+For the coordinate system, the implication is a modest one. The institutional variables do not belong on the axes: they are uncorrelated with the feature data, so they cannot be recovered from it, and in United States data they have too little variance to order occupations. They belong alongside the axes, as a property that modifies the rate at which a position in the space is converted into an outcome. An occupation's coordinates indicate what could be substituted; its institutional position indicates how quickly, and through which margin, that would be allowed to happen. Neither substitutes for the other, and a measure that reports only the first is silent on the question policy is actually asking.
+
 
 ---
 
-## References
+# References
 
-*(partial; details to verify)*
+Entries marked [WP] are working papers or preprints that have not been peer reviewed. Where a figure from one of these is cited in the text, the version and date should be given with it, since several are revised frequently.
 
-Acemoglu, D. and Autor, D. (2011). Skills, tasks and technologies. *Handbook of Labor Economics* 4.
+## Works cited
 
-Alabdulkareem, A., Frank, M. R., Sun, L., AlShebli, B., Hidalgo, C. and Rahwan, I. (2018). Unpacking the polarization of workplace skills. *Science Advances* 4(7).
+Acemoglu, D. (2002). Directed technical change. *Review of Economic Studies*, 69(4), 781–809. https://doi.org/10.1111/1467-937X.00226
 
-Autor, D., Levy, F. and Murnane, R. (2003). The skill content of recent technological change. *Quarterly Journal of Economics* 118(4).
+Acemoglu, D. (2025). The simple macroeconomics of AI. *Economic Policy*, 40(121), 13–58. https://doi.org/10.1093/epolic/eiae042
 
-Autor, D. and Thompson, N. (2025). Expertise. NBER working paper.
+Acemoglu, D., & Autor, D. (2011). Skills, tasks and technologies: Implications for employment and earnings. In O. Ashenfelter & D. Card (Eds.), *Handbook of Labor Economics* (Vol. 4B, pp. 1043–1171). Elsevier.
 
-Benzell, S., Brynjolfsson, E., MacCrory, F. and Westerman, G. (2019). Identifying the multiple skills in skill-biased technical change. MIT IDE working paper.
+Acemoglu, D., Autor, D., Hazell, J., & Restrepo, P. (2022). Artificial intelligence and jobs: Evidence from online vacancies. *Journal of Labor Economics*, 40(S1), S293–S340. https://doi.org/10.1086/718327
 
-Brynjolfsson, E., Chandar, B. and Chen, R. (2025). Canaries in the coal mine? Six facts about the recent employment effects of artificial intelligence. Stanford Digital Economy Lab.
+Acemoglu, D., Manera, A., & Restrepo, P. (2020). Does the US tax code favor automation? *Brookings Papers on Economic Activity*, Spring, 231–300.
 
-Center for American Progress. Unions give workers a voice over how AI affects their jobs.
+Acemoglu, D., & Restrepo, P. (forthcoming). Automation and rent dissipation: Implications for wages, inequality, and productivity. *Quarterly Journal of Economics*. NBER Working Paper 32536 (May 2024, revised November 2025). https://doi.org/10.3386/w32536
 
-Deming, D. (2017). The growing importance of social skills in the labor market. *Quarterly Journal of Economics* 132(4).
+Alabdulkareem, A., Frank, M. R., Sun, L., AlShebli, B., Hidalgo, C., & Rahwan, I. (2018). Unpacking the polarization of workplace skills. *Science Advances*, 4(7), eaao6030. https://doi.org/10.1126/sciadv.aao6030
 
-Eloundou, T., Manning, S., Mishkin, P. and Rock, D. (2024). GPTs are GPTs: labor market impact potential of LLMs. *Science*.
+Arquié, A., Duthoit, A., & Subileau, G. (2026). *Emplois, compétences, valeur : ce que l'IA est en train de bouleverser*. Coface and Observatoire des Emplois Menacés et Émergents, 1 April 2026. [WP]
 
-Felten, E., Raj, M. and Seamans, R. (2021). Occupational, industry, and geographic exposure to artificial intelligence. *Strategic Management Journal*.
+Autor, D. (2013). The "task approach" to labor markets: An overview. *Journal for Labour Market Research*, 46(3), 185–199.
 
-Handel, M. (2016). The O\*NET content model: strengths and limitations. *Journal for Labour Market Research* 49.
+Autor, D., Chin, C., Salomons, A., & Seegmiller, B. (2024). New frontiers: The origins and content of new work, 1940–2018. *Quarterly Journal of Economics*, 139(3), 1399–1465. https://doi.org/10.1093/qje/qjae008
 
-Hartley, J., Jolevski, F., Melo, V. and Moore, B. (2026). [generative AI adoption and labour outcomes].
+Autor, D., & Dorn, D. (2013). The growth of low-skill service jobs and the polarization of the US labor market. *American Economic Review*, 103(5), 1553–1597. https://doi.org/10.1257/aer.103.5.1553
 
-Humlum, A. and Vestergaard, E. (2025). Large language models, small labor market effects.
+Autor, D., Levy, F., & Murnane, R. J. (2003). The skill content of recent technological change: An empirical exploration. *Quarterly Journal of Economics*, 118(4), 1279–1333.
 
-Iscenko, Z. and Millet (2026). Looking for the ladder: is AI impacting entry-level jobs?
+Autor, D., & Thompson, N. (2025). Expertise. *Journal of the European Economic Association*, 23(4), 1203–1271.
 
-OECD (2026). The OECD AI Exposure Measure. OECD Artificial Intelligence Papers No. 59.
+Benzell, S., Brynjolfsson, E., MacCrory, F., & Westerman, G. (2019). *Identifying the multiple skills in skill-biased technical change*. MIT Initiative on the Digital Economy. [WP]
 
-Patwardhan, T. et al. (2025). GDPval: evaluating AI model performance on real-world economically valuable tasks.
+Brynjolfsson, E. (2022). The Turing trap: The promise and peril of human-like artificial intelligence. *Daedalus*, 151(2), 272–287.
 
-Pew Research Center. Which U.S. workers are most exposed to AI on their jobs?
+Brynjolfsson, E., Chandar, B., & Chen, R. (2025). *Canaries in the coal mine? Six facts about the recent employment effects of artificial intelligence*. Stanford Digital Economy Lab. [WP] [cite with data vintage; updated through June 2026]
 
-*The AI Skills Shift: mapping skill obsolescence, emergence, and transition pathways in the LLM era.* Preprint.
+Brynjolfsson, E., Li, D., & Raymond, L. (2025). Generative AI at work. *Quarterly Journal of Economics*, 140(2), 889–942.
 
-*Unbalanced labor market power is what makes technology — including AI — threatening to workers.*
+Brynjolfsson, E., Mitchell, T., & Rock, D. (2018). What can machines learn and what does it mean for occupations and the economy? *AEA Papers and Proceedings*, 108, 43–47.
 
-Weeden, K. (2002). Why do some occupations pay more than others? *American Journal of Sociology* 108(1).
+Deming, D. J. (2017). The growing importance of social skills in the labor market. *Quarterly Journal of Economics*, 132(4), 1593–1640.
+
+Dingel, J. I., & Neiman, B. (2020). How many jobs can be done at home? *Journal of Public Economics*, 189, 104235.
+
+Eisfeldt, A. L., Schubert, G., Taska, B., & Zhang, M. B. (forthcoming). Generative AI and firm values. *Journal of Finance*. NBER Working Paper 31222 (May 2023). https://doi.org/10.3386/w31222
+
+Eloundou, T., Manning, S., Mishkin, P., & Rock, D. (2024). GPTs are GPTs: Labor market impact potential of LLMs. *Science*, 384(6702), 1306–1308. https://doi.org/10.1126/science.adj0998
+
+Felten, E., Raj, M., & Seamans, R. (2018). A method to link advances in artificial intelligence to occupational abilities. *AEA Papers and Proceedings*, 108, 54–57.
+
+Felten, E., Raj, M., & Seamans, R. (2021). Occupational, industry, and geographic exposure to artificial intelligence: A novel dataset and its potential uses. *Strategic Management Journal*, 42(12), 2195–2217.
+
+Felten, E., Raj, M., & Seamans, R. (2023). *How will language modelers like ChatGPT affect occupations and industries?* arXiv:2303.01157. [WP]
+
+Freund, L. B., & Mann, S. (2026). *Job transformation, specialization, and the labor market effects of AI*. Federal Reserve Bank of Minneapolis, Institute Working Paper 114; also IZA Discussion Paper 18565. [WP]
+
+Frey, C. B., & Osborne, M. A. (2017). The future of employment: How susceptible are jobs to computerisation? *Technological Forecasting and Social Change*, 114, 254–280.
+
+Genz, S., & Rademakers, E. (2026). Automation and collective agreements. *Fiscal Studies*, 47, 53–68. https://doi.org/10.1111/1475-5890.70018
+
+Gittleman, M., & Kleiner, M. M. (2016). Wage effects of unionization and occupational licensing coverage in the United States. *ILR Review*, 69(1), 142–172.
+
+Haapanala, H., Marx, I., & Parolin, Z. (2023). Robots and unions: The moderating effect of organized labour on technological unemployment. *Economic and Industrial Democracy*, 44(3), 827–852. https://doi.org/10.1177/0143831X221094078
+
+Hampole, M., Papanikolaou, D., Schmidt, L. D. W., & Seegmiller, B. (2025). *Artificial intelligence and the labor market*. NBER Working Paper 33509. [WP]
+
+Handa, K., et al. (2025). *Which economic tasks are performed with AI? Evidence from millions of Claude conversations*. Anthropic. [WP] [Anthropic Economic Index; cite release date]
+
+Handel, M. J. (2016). The O\*NET content model: Strengths and limitations. *Journal for Labour Market Research*, 49(2), 157–176.
+
+Humlum, A., & Vestergaard, E. (2025). *Large language models, small labor market effects*. Becker Friedman Institute Working Paper; NBER Working Paper 33777. [WP]
+
+Jones, C. I., & Tonetti, C. (2026). *Past automation and future A.I.: How weak links tame the growth explosion* (Version 0.3, 15 January 2026). Unpublished manuscript, Stanford GSB and NBER. [WP] [the authors describe the draft as very preliminary; cite the version and date with any figure]
+
+Kleiner, M. M., & Krueger, A. B. (2013). Analyzing the extent and influence of occupational licensing on the labor market. *Journal of Labor Economics*, 31(S1), S173–S202. https://doi.org/10.1086/669060
+
+Kochhar, R. (2023). *Which U.S. workers are more exposed to AI on their jobs?* Pew Research Center.
+
+Lambert, P. J., & Schindler, Y. (2026). *The broken ladder: AI, remote work, and early-career hiring*. CAGE Online Working Paper Series 808, University of Warwick; also CEP Discussion Paper 2193, LSE; SSRN 6787638. [WP]
+
+Lazear, E. P. (2009). Firm-specific human capital: A skill-weights approach. *Journal of Political Economy*, 117(5), 914–940.
+
+Lindenlaub, I. (2017). Sorting multidimensional types: Theory and application. *Review of Economic Studies*, 84(2), 718–789. https://doi.org/10.1093/restud/rdw063
+
+Lise, J., & Postel-Vinay, F. (2020). Multidimensional skills, sorting, and human capital accumulation. *American Economic Review*, 110(8), 2328–2376. https://doi.org/10.1257/aer.20162002
+
+Lise, J., & Postel-Vinay, F. (2020). *Replication package for: Multidimensional skills, sorting, and human capital accumulation* [Data and code]. openICPSR-117662. https://doi.org/10.3886/E117662V1
+
+Lordan, G., & Neumark, D. (2018). People versus machines: The impact of minimum wages on automatable jobs. *Labour Economics*, 52, 40–53.
+
+McElheran, K., Li, J. F., Brynjolfsson, E., Kroff, Z., Dinlersoz, E., Foster, L., & Zolas, N. (2024). AI adoption in America: Who, what, and where. *Journal of Economics & Management Strategy*, 33(2), 374–415.
+
+Noy, S., & Zhang, W. (2023). Experimental evidence on the productivity effects of generative artificial intelligence. *Science*, 381(6654), 187–192. https://doi.org/10.1126/science.adh2586
+
+OECD. (2023). *Social dialogue and collective bargaining in the age of artificial intelligence*. OECD Publishing.
+
+OECD. (2025). *Introducing the OECD AI Capability Indicators*. OECD Publishing. https://doi.org/10.1787/be745f04-en
+
+OECD. (2026). *The OECD AI exposure measure: Mapping the OECD AI Capability Indicators to occupations*. OECD Artificial Intelligence Papers No. 59, 25 May 2026. OECD Publishing. https://doi.org/10.1787/f3da0f0a-en [WP]
+
+Patwardhan, T., et al. (2025). *GDPval: Evaluating AI model performance on real-world economically valuable tasks*. OpenAI. [WP]
+
+Poletaev, M., & Robinson, C. (2008). Human capital specificity: Evidence from the Dictionary of Occupational Titles and Displaced Worker Surveys, 1984–2000. *Journal of Labor Economics*, 26(3), 387–420. https://doi.org/10.1086/588180
+
+Sanders, C., & Taber, C. (2012). Life-cycle wage growth and heterogeneous human capital. *Annual Review of Economics*, 4, 399–425.
+
+Svanberg, M., Li, W., Fleming, M., Goehring, B., & Thompson, N. (2024). *Beyond AI exposure: Which tasks are cost-effective to automate with computer vision?* SSRN. [WP] [revised 2026; cite version]
+
+Webb, M. (2020). *The impact of artificial intelligence on the labor market*. SSRN 3482150. [WP]
+
+Weeden, K. A. (2002). Why do some occupations pay more than others? Social closure and earnings inequality in the United States. *American Journal of Sociology*, 108(1), 55–101. https://doi.org/10.1086/344121
+
+Writers Guild of America. (2023). *2023 Minimum Basic Agreement*. [Primary document; the AI provisions are summarised in Article 72.]
+
+Yamaguchi, S. (2012). Tasks and heterogeneous human capital. *Journal of Labor Economics*, 30(1), 1–53.
+
+## Preprints consulted but not central
+
+These are cited in the text only where a specific figure or claim is attributed to them. All are unrefereed.
+
+*AI and jobs: A review of theory, estimates, and evidence.* arXiv:2509.15265. [WP]
+
+Center for AI Safety & Scale AI. (2025). *Remote Labor Index*. arXiv:2510.26787. [WP] [figures updated July 2026; cite the update where used]
+
+*Economics of human and AI collaboration.* arXiv:2603.29121. [WP]
+
+Fan, T. (2025). *The labor market incidence of new technologies*. arXiv:2504.04047. [WP]
+
+*Stable geometry, reversing poles: The bipolar structure of AI occupational substitutability and its decade-scale inversion.* arXiv:2606.07939. [WP]
+
+*The AI skills shift: Mapping skill obsolescence, emergence, and transition pathways in the LLM era.* arXiv:2604.06906. [WP]
+
+*Who uses AI? Platform selection and the measurement of occupational AI exposure.* arXiv:2605.21743. [WP]
+
+## Data sources
+
+### Occupational features
+
+National Center for O\*NET Development. (2026). *O\*NET 30.2 Database* (released February 2026). Raleigh, NC: U.S. Department of Labor, Employment and Training Administration. https://www.onetcenter.org/database.html
+
+O\*NET files used: Abilities, Skills, Knowledge, Work Activities, Work Context, Education Training and Experience. Files inspected and excluded: Work Values, Work Styles, Interests, Job Zones, Occupation Level Metadata.
+
+### Wages and employment
+
+U.S. Bureau of Labor Statistics. (2025). *Occupational Employment and Wage Statistics, national, May 2024*. https://www.bls.gov/oes/
+
+U.S. Bureau of Labor Statistics. (2025). *Employment Projections, Table 1.2: Employment by detailed occupation, 2024 and 2034*. https://www.bls.gov/emp/tables.htm
+
+U.S. Bureau of Labor Statistics. (2025). *Employment Projections, Table 1.10: Occupational separations and openings, projected 2024–34*. https://www.bls.gov/emp/tables.htm
+
+U.S. Bureau of Labor Statistics. *National Employment Matrix*. [Used for the crosswalk between CPS occupational classes and SOC codes.]
+
+### Union coverage
+
+Hirsch, B. T., Macpherson, D. A., & Even, W. E. (2025). *Union membership and coverage database from the Current Population Survey*. unionstats.com [2024 data; occupation-level coverage rates]
+
+### Occupational prestige
+
+Smith, T. W., & Son, J. (2014). *Measuring occupational prestige on the 2012 General Social Survey*. NORC, GSS Methodological Report 122.
+
+### Microdata
+
+Ruggles, S., Flood, S., Sobek, M., Backman, D., Cooper, G., Rivera Drew, J. A., Richards, S., Rogers, R., Schroeder, J., & Williams, K. C. W. (2025). *IPUMS USA: Version 16.0* [Dataset]. Minneapolis, MN: IPUMS. https://doi.org/10.18128/D010.V16.0
+
+American Community Survey samples used: 2015–2019, 2021–2024. The 2020 one-year sample is excluded; the Census Bureau advises against comparing it with other years because of the experimental weights introduced to handle pandemic-related collection problems.
+
+Variables used from IPUMS USA: YEAR, PERWT, AGE, SEX, EMPSTAT, CLASSWKR, UHRSWORK, OCCSOC, INDNAICS, EDUC, STATEFIP.
+
+Flood, S., King, M., Rodgers, R., Ruggles, S., Warren, J. R., Backman, D., Breton, E., Cooper, G., Rivera Drew, J. A., Richards, S., & Van Riper, D. (2025). *Integrated Public Use Microdata Series, Current Population Survey: Version 13.0* [Dataset]. Minneapolis, MN: IPUMS. https://doi.org/10.18128/D030.V13.0
+
+### Substitution measures projected onto the axes
+
+Eloundou, T., Manning, S., Mishkin, P., & Rock, D. (2024). *Replication data for GPTs are GPTs*. [Task- and occupation-level exposure ratings, human and GPT-4 annotated.]
+
+OECD. (2026). *AI Capability Gap Index dataset*. OECD.AI. [Total gap index, reversed exposure index, capability-specific gap indexes, and underlying occupational capability demand ratings for 879 occupations.]
+
+### Crosswalks
+
+U.S. Bureau of Labor Statistics. *2010 to 2018 SOC crosswalk*. https://www.bls.gov/soc/
+
+U.S. Census Bureau. *Census occupation code to 2018 SOC crosswalk*. [Used to align IPUMS OCCSOC with the six-digit SOC codes carried by O\*NET and OEWS.]ikely to need correction.
