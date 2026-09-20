@@ -1189,7 +1189,7 @@ from it move substantially depending on how tasks are aggregated and how
 thinly-covered occupations are handled, which is not a defect of the source but
 a limit on what it can support at the occupational level.
 
-## 6.3 How do the institutional variables act
+## 6.3 How do the labour-market variables act
 
 *[Author's text to follow.]*
 
