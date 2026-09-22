@@ -8,15 +8,15 @@ to ~257 columns (single-scale IM, no redundant LV), the question is whether the
 external variables -- especially union coverage -- can now surface as their own
 axis instead of being drowned by skill-feature count.
 
-Preprocessing (as fixed earlier):
-  wages: top-coded highs (p10 present) -> OEWS cap; whole-row-missing (p10 also
-         absent) -> column median; ratios recomputed from filled levels.
-  employment -> log1p.  union, prestige -> as-is.  residual gaps -> median.
-  everything z-scored, then one PCA.
+Input is output/master_clean.xlsx, already imputed by clean_master.py. All nine
+wage columns enter as they are (that equal footing is the point of this
+baseline); employment enters in logs; everything is z-scored, then one PCA.
+The two compressed wage columns that clean_master.py adds for pca_rotated.py
+are left out, since they restate wage columns already present.
 
 Outputs: scree, per-axis loadings (ext_ marked), block composition with the
 'external' share per PC, and each external variable's correlation with each PC.
-Terminal + master_out/.
+Terminal + output/mixed_scree.png.
 """
 
 import numpy as np
@@ -28,51 +28,25 @@ from pathlib import Path
 from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import PCA
 
-MASTER = Path("master_wide.xlsx")
-OUTDIR = Path("master_out"); OUTDIR.mkdir(exist_ok=True)
-OEWS_CAP = 239200.0
+MASTER = Path("output/master_clean.xlsx")
+OUTDIR = Path("output"); OUTDIR.mkdir(exist_ok=True)
 N_PC = 10
 TOP = 12
 
-WAGE_LEVELS = ["ext_wage_median", "ext_wage_mean", "ext_wage_p10",
-               "ext_wage_p25", "ext_wage_p75", "ext_wage_p90"]
+# derived by clean_master.py: the raw employment column is replaced by its log,
+# and the two compressed wage columns are dropped (see docstring)
+EXCLUDE = ["ext_employment", "ext_wage_level_log", "ext_wage_disp_p90p10"]
 
 
 def load_and_prep():
     df = pd.read_excel(MASTER).set_index("onet_soc")
     title = df["title"] if "title" in df.columns else pd.Series("", index=df.index)
     onet = [c for c in df.columns if "__" in c]
-    ext = [c for c in df.columns if c.startswith("ext_")]
-
-    W = df[[c for c in WAGE_LEVELS + ["ext_wage_p90p10", "ext_wage_p90p50",
-            "ext_wage_p50p10"] if c in df.columns]].apply(pd.to_numeric, errors="coerce")
-    has_p10 = W["ext_wage_p10"].notna() if "ext_wage_p10" in W else pd.Series(False, index=df.index)
-    tc = wr = 0
-    for col in [c for c in WAGE_LEVELS if c in W.columns]:
-        med = W[col].median(); na = W[col].isna()
-        W.loc[na & has_p10, col] = OEWS_CAP; tc += int((na & has_p10).sum())
-        W.loc[na & ~has_p10, col] = med;      wr += int((na & ~has_p10).sum())
-    if {"ext_wage_p90", "ext_wage_p10"}.issubset(W.columns):
-        W["ext_wage_p90p10"] = W["ext_wage_p90"] / W["ext_wage_p10"]
-    if {"ext_wage_p90", "ext_wage_median"}.issubset(W.columns):
-        W["ext_wage_p90p50"] = W["ext_wage_p90"] / W["ext_wage_median"]
-    if {"ext_wage_median", "ext_wage_p10"}.issubset(W.columns):
-        W["ext_wage_p50p10"] = W["ext_wage_median"] / W["ext_wage_p10"]
-    print(f"wage fill: {tc} top-code -> cap, {wr} whole-row -> median")
-
-    F = df[onet].apply(pd.to_numeric, errors="coerce").copy()
-    for c in W.columns:
-        F[c] = W[c]
-    for c in ext:
-        if c not in F.columns:
-            F[c] = pd.to_numeric(df[c], errors="coerce")
-    if "ext_employment" in F.columns:
-        F["ext_employment"] = np.log1p(F["ext_employment"])
-    n_missing = int(F.isna().sum().sum())
-    F = F.fillna(F.median())
+    ext = [c for c in df.columns if c.startswith("ext_") and c not in EXCLUDE]
+    F = df[onet + ext]
     feats = list(F.columns)
-    print(f"median-filled {n_missing} cells | matrix {F.shape[0]} x {len(feats)} "
-          f"({len(onet)} skill + {len([c for c in feats if c.startswith('ext_')])} external)")
+    print(f"matrix {F.shape[0]} x {len(feats)} "
+          f"({len(onet)} skill + {len(ext)} external)")
     return F.values, feats, title
 
 

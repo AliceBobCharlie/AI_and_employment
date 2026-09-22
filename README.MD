@@ -23,7 +23,7 @@ python pca_skills.py            # 5. skill-only axes (needed by pca_ete.py)
 python pca_ete.py               # 6. structure of the education/training block
 python check_orthogonality.py   # 7. which external variables skills can predict
 python validate_axes.py         # 8. do the axis names hold up?
-python plot_axes.py             # 9. figures
+python plot_axes.py             # 9. data for the figures (needs step 4)
 ```
 
 Steps 1 and 2 run in that order; every analysis afterwards reads
@@ -138,18 +138,13 @@ Same procedure — stability, then rotation — followed by correlating the
 resulting axes against the skill axes to see how far the preparation a job
 demands is separable from the ability it demands.
 
-**`plot_axes.py`** → `fig_3d_space.html`, `fig_panels.html`
+**`plot_axes.py`** → `plot_data.csv`
 
-Interactive figures: the three axes in 3-D, drawn as free coordinate axes and
-coloured by union coverage, and the six pairwise 2-D sections on one page, any
-of which enlarges on click. Marker size is log employment; hovering names the
-occupation.
-Locating other measures in the space
-A coordinate system earns its keep if measures built independently of it can be placed inside it. These two scripts do that, and they are also where the negative results live.
-project_measures.py → measure_projection.csv
-Projects published substitution measures onto the three axes: Eloundou et al. (2024), under both their human and GPT-4 annotations; the OECD AI Capability Gap Index, both its total and its nine capability domains, with the sign reversed so that higher always means more substitutable; and, where the files are present, the Anthropic Economic Index. The domain-level projection is the sharper test of the OECD measure, since summing nine correlated domains is what cancels one of the axes. The AEI results carry a caveat the output makes explicit: the median occupation matches a single task, so its automation ratio is reported only where at least ten tasks match.
-acs_young_share.py → acs_young_share.csv
-Builds occupation-level young-worker shares from an IPUMS ACS extract — employed, wage and salary, 35 hours or more, non-military, aged 22 to 25 — and projects the 2022–2024 change onto the axes. The build step is skipped when the aggregate already exists. The result is a null: about 60 percent of the cross-occupational variance in the change is real rather than sampling noise, but correlations with all three axes are below 0.2 and change sign between specifications. It is retained because the null is reported in the paper.
+The table the interactive figures are drawn from: each occupation's position on
+the three axes, with union coverage and employment. It needs `rotated_axes.csv`,
+so run it after `pca_rotated.py`. The figures themselves are drawn in the
+browser by plotly.js. `rotated_axes.csv` and `plot_data.csv` are both committed,
+so the axes can be downloaded without running anything.
 
 ## Supporting analyses
 

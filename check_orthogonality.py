@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-test_orthogonality.py -- can O*NET information predict each external variable?
+check_orthogonality.py -- can O*NET information predict each external variable?
 High R^2 => that external variable is collinear with skills (status-consistent);
 near-zero R^2 => it is orthogonal, a dimension of its own.
 
@@ -11,7 +11,8 @@ issues. Honest generalization R^2 comes from a plain 5-fold split done ONCE in
 this function (inside each fold RidgeCV picks alpha by its own fast leave-one-
 out CV) -- no nested cross_val_score wrapping.
 
-All feature matrices are median-filled and z-scored before fitting.
+Inputs come from master_clean.xlsx, which has no missing cells (all
+imputation lives in clean_master.py). Features are z-scored inside each fold.
 
 For each target we report:
   A) all raw O*NET features
@@ -21,7 +22,7 @@ For each target we report:
   E) ETE distributions alone -> each external variable
 
 Targets: union coverage, wage median, prestige, log employment.
-Reads master_wide.xlsx. Terminal output only.
+Reads output/master_clean.xlsx. Terminal output only.
 """
 
 import numpy as np
@@ -56,10 +57,8 @@ def cols_with(df, prefixes):
 
 def ridge_r2(X, y):
     """Honest 5-fold R^2 with RidgeCV (alpha chosen inside each fold).
-    X is median-filled then z-scored (scaler fit on train fold only)."""
-    Xf = pd.DataFrame(X).apply(lambda s: s.fillna(s.median())).values
-    ok = ~np.isnan(y)
-    Xf, yy = Xf[ok], y[ok]
+    X is z-scored with the scaler fit on the train fold only."""
+    Xf, yy = X, y
     if len(yy) < 60 or Xf.shape[1] == 0:
         return np.nan
     kf = KFold(n_splits=5, shuffle=True, random_state=SEED)
@@ -84,8 +83,7 @@ def main():
     onet_cols = [c for c in df.columns if "__" in c]
     Xonet = df[onet_cols]
 
-    Xf = Xonet
-    Xz = StandardScaler().fit_transform(Xf.values)
+    Xz = StandardScaler().fit_transform(Xonet.values)
     pcs = PCA(n_components=10, random_state=SEED).fit_transform(Xz)
 
     classic = cols_with(Xonet, CLASSIC_PREFIXES)
@@ -98,7 +96,7 @@ def main():
 
     for name, y in targets.items():
         print("\n" + "=" * 70)
-        print(f"TARGET: {name}   (n={int((~np.isnan(y)).sum())})")
+        print(f"TARGET: {name}   (n={len(y)})")
         print("=" * 70)
 
         print(f"  [A] all O*NET features ({len(onet_cols)} cols): "

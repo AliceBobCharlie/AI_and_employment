@@ -13,7 +13,7 @@ job's pay, and what pays ON TOP OF skill?
      high negative = paid less than skills predict. List the top occupations at
      each end -- a personal map of 'where the money is relative to ability'.
 
-Reads master_wide.xlsx. Terminal + wage_residuals.csv.
+Reads output/master_clean.xlsx. Terminal + output/wage_residuals.csv.
 """
 
 import numpy as np
@@ -51,16 +51,17 @@ def main():
 
     skill = [c for c in df.columns if "__" in c and not c.startswith("ete_")]
     ete = [c for c in df.columns if c.startswith("ete_")]
-    Xs = df[skill].apply(pd.to_numeric, errors="coerce").fillna(df[skill].median()).values
+    Xs = df[skill].values
 
+    # master_clean.xlsx has no gaps. Employment enters the regression in logs
+    # (ext_employment_log, made in clean_master.py); the reports below use the
+    # raw column under its own name.
     inst_cols = ["ext_union_cov_pct", "ext_self_employed_pct",
                  "ext_sep_exit_rate", "ext_sep_transfer_rate", "ext_employment"]
-    inst_cols = [c for c in inst_cols if c in df.columns]
-    I = df[inst_cols].apply(pd.to_numeric, errors="coerce")
-    if "ext_employment" in I:
-        I["ext_employment"] = np.log1p(I["ext_employment"])
-    I = I.fillna(I.median()).values
-    Xete = df[ete].apply(pd.to_numeric, errors="coerce").fillna(df[ete].median()).values
+    I = df[inst_cols].copy()
+    I["ext_employment"] = df["ext_employment_log"]
+    I = I.values
+    Xete = df[ete].values
 
     print("=" * 60)
     print("WHAT PREDICTS (LOG) MEDIAN WAGE?  honest 5-fold R^2")
@@ -89,7 +90,7 @@ def main():
                       "skill_pred": pred_s, "residual": resid,
                       "wage_median": med.values}, index=df.index)
     for c in inst_cols:
-        R[c] = pd.to_numeric(df[c], errors="coerce").values
+        R[c] = df[c].values
 
     print("\n" + "=" * 60)
     print("PAID MORE THAN SKILLS PREDICT (top +residual)")
@@ -112,9 +113,7 @@ def main():
     print("does the residual (pay beyond skill) track institutions?")
     print("=" * 60)
     for c in inst_cols:
-        v = pd.to_numeric(df[c], errors="coerce").values
-        ok = ~np.isnan(v)
-        r = np.corrcoef(resid[ok], v[ok])[0, 1]
+        r = np.corrcoef(resid, df[c].values)[0, 1]
         print(f"  corr(residual, {c:24s}) = {r:+.3f}")
 
     R.to_csv(OUTDIR / "wage_residuals.csv")
