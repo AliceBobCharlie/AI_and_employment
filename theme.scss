@@ -1,0 +1,268 @@
+/*-- scss:defaults --*/
+
+// Palette: black ink on white paper. Grey is used only for secondary text and
+// hairlines, never for body text.
+$paper: #ffffff;
+$ink: #000000;
+$ink-secondary: #555555;
+$hairline: #d9d9d9;
+
+$serif: "Source Serif 4", "Iowan Old Style", Georgia, serif;
+$sans: "Source Sans 3", "Helvetica Neue", Arial, sans-serif;
+
+$body-bg: $paper;
+$body-color: $ink;
+$link-color: $ink;
+$link-hover-color: $ink;
+
+$font-family-base: $serif;
+$font-family-sans-serif: $sans;
+$headings-font-family: $serif;
+$headings-font-weight: 600;
+$headings-color: $ink;
+
+$font-size-root: 18px;
+$line-height-base: 1.65;
+
+$toc-color: $ink-secondary;
+$toc-active-border: $ink;
+$toc-inactive-border: $hairline;
+
+$table-border-color: $hairline;
+$border-color: $hairline;
+
+
+/*-- scss:rules --*/
+
+body {
+  font-optical-sizing: auto;
+  font-kerning: normal;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+// ------------------------------------------------------------------ links
+
+a {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.18em;
+}
+
+a:hover {
+  text-decoration-thickness: 2px;
+}
+
+a:focus-visible,
+select:focus-visible {
+  outline: 2px solid $ink;
+  outline-offset: 2px;
+}
+
+// Heading anchors and TOC entries are navigation, not prose links.
+.anchorjs-link,
+#TOC a,
+#quarto-margin-sidebar a {
+  text-decoration: none;
+}
+
+// ------------------------------------------------------------------ title block
+
+#title-block-header {
+  margin-top: 3.5rem;
+  margin-bottom: 3rem;
+}
+
+#title-block-header .title {
+  font-size: clamp(2rem, 1.4rem + 2.2vw, 2.9rem);
+  font-weight: 600;
+  line-height: 1.12;
+  letter-spacing: -0.012em;
+  margin-bottom: 2.5rem;
+}
+
+#title-block-header .abstract {
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+#title-block-header .abstract-title,
+#title-block-header .block-title {
+  font-family: $sans;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: 0;
+  color: $ink;
+  margin-bottom: 0.5rem;
+}
+
+// ------------------------------------------------------------------ headings
+
+h2, h3, h4 {
+  border-bottom: none;
+  padding-bottom: 0;
+  text-wrap: balance;
+}
+
+h2 {
+  font-size: 1.65rem;
+  line-height: 1.25;
+  margin-top: 4rem;
+  margin-bottom: 1.25rem;
+}
+
+h3 {
+  font-size: 1.28rem;
+  line-height: 1.3;
+  margin-top: 2.75rem;
+  margin-bottom: 1rem;
+}
+
+h4 {
+  font-family: $sans;
+  font-size: 1.02rem;
+  font-weight: 600;
+  margin-top: 2rem;
+  margin-bottom: 0.6rem;
+}
+
+p {
+  hyphens: auto;
+}
+
+hr {
+  border: 0;
+  border-top: 1px solid $hairline;
+  opacity: 1;
+  margin: 3.5rem 0;
+}
+
+// ------------------------------------------------------------------ contents
+
+#TOC,
+#quarto-sidebar-toc-left {
+  font-family: $sans;
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+#toc-title,
+.toc-actions {
+  font-family: $sans;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: $ink;
+}
+
+#TOC .nav-link {
+  padding-top: 0.2rem;
+  padding-bottom: 0.2rem;
+}
+
+#TOC .nav-link.active {
+  color: $ink;
+  font-weight: 600;
+}
+
+// ------------------------------------------------------------------ tables
+
+main table,
+main .table {
+  font-family: $sans;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  font-variant-numeric: tabular-nums lining-nums;
+  border-top: 1px solid $ink;
+  border-bottom: 1px solid $ink;
+  margin: 0.75rem 0 2rem;
+}
+
+main .table > :not(caption) > * > * {
+  padding: 0.45rem 0.6rem;
+  background-color: transparent;
+  box-shadow: none;
+}
+
+main .table > thead > tr > th {
+  font-weight: 600;
+  border-bottom: 1px solid $ink;
+  vertical-align: bottom;
+}
+
+main .table > tbody > tr > td {
+  vertical-align: top;
+}
+
+main .table-striped > tbody > tr:nth-of-type(odd) > * {
+  --bs-table-accent-bg: transparent;
+}
+
+@media (max-width: 767.98px) {
+  main table {
+    display: block;
+    overflow-x: auto;
+  }
+}
+
+// ------------------------------------------------------------------ figures
+
+.plot-figure {
+  margin: 2.75rem 0 2.5rem;
+}
+
+.plot {
+  width: 100%;
+}
+
+.plot-3d {
+  height: clamp(420px, 72vh, 720px);
+}
+
+.plot-2d {
+  height: clamp(380px, 66vh, 640px);
+}
+
+.plot-figure figcaption {
+  font-family: $sans;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  color: $ink-secondary;
+  max-width: 700px;
+  margin-top: 0.75rem;
+}
+
+.plot-figure figcaption b {
+  color: $ink;
+  font-weight: 600;
+}
+
+.plot-controls {
+  font-family: $sans;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 0.5rem;
+}
+
+.plot-controls label {
+  font-weight: 600;
+}
+
+.plot-controls select {
+  font: inherit;
+  color: $ink;
+  background-color: $paper;
+  border: 1px solid $ink;
+  border-radius: 3px;
+  padding: 0.3rem 0.5rem;
+  max-width: 100%;
+}
+
+.plot-error {
+  font-family: $sans;
+  font-size: 0.9rem;
+  border: 1px solid $ink;
+  padding: 1rem;
+}

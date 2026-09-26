@@ -6,7 +6,7 @@ are about institutional position.
 Built on O*NET 30.2 (894 detailed occupations) joined to wages, union coverage,
 occupational prestige, separation rates and self-employment.
 
-**[Paper draft](paper_draft.md)** · **[Interactive figures](https://alicebobcharlie.github.io/AI_and_employment/)**
+**[Paper draft, with interactive figures](https://alicebobcharlie.github.io/AI_and_employment/)** (source: `paper_draft.qmd`)
 
 Everything reads and writes through `output/`. Run from the project root, the
 folder containing `data_raw/`.
@@ -187,6 +187,31 @@ A further one-off check established that BLS occupational openings is a size
 proxy (r = 0.89 with employment), that the "typical education needed" threshold
 is redundant with the ETE distributions (R² = 0.82), and that "work experience
 needed" is 85% missing. All three were excluded on that basis.
+
+## The web paper
+
+The paper is written in `paper_draft.qmd` and published as a web page with
+[Quarto](https://quarto.org).
+
+| file | role |
+|---|---|
+| `paper_draft.qmd` | the paper: title and abstract in the header, then the text |
+| `_quarto.yml` | page layout, fonts, and the scripts the page loads |
+| `theme.scss` | typography and colours |
+| `figures.js` | draws the interactive figures in the reader's browser with plotly.js, from `output/plot_data.csv` |
+
+No Python runs when the page is built. The figures read `output/plot_data.csv`
+directly, so after re-running the analysis, run `plot_axes.py` and commit the
+new CSV for the page to pick it up.
+
+To preview locally, install Quarto and run `quarto preview` from the project
+root. Opening `_site/index.html` straight from disk will not show the figures,
+because browsers block a local file from loading the CSV.
+
+Every push to `main` that touches one of the files above, or the CSV, triggers
+`.github/workflows/publish.yml`, which renders the page and deploys it to GitHub
+Pages. The rendered site is never committed. This requires Settings → Pages →
+Source to be set to *GitHub Actions*.
 
 ## Conventions
  
