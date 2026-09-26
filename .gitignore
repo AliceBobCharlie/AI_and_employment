@@ -43,5 +43,9 @@ __pycache__/
 .DS_Store
 reports/
 .idea/
+# Quarto build output. The last two lines are the exact form Quarto looks
+# for, so keeping them here stops it appending them on every render.
 _site/
 .quarto/
+/.quarto/
+**/*.quarto_ipynb
