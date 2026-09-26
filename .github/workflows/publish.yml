@@ -1,0 +1,53 @@
+name: Publish paper
+
+# Renders paper_draft.qmd and deploys the result to GitHub Pages. The rendered
+# site is uploaded as a Pages artifact, so it never lands on any branch.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - paper_draft.qmd
+      - _quarto.yml
+      - theme.scss
+      - figures.js
+      - output/plot_data.csv
+      - .github/workflows/publish.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# One deployment at a time; a newer push waits rather than cancelling a
+# deployment that is already under way.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: quarto-dev/quarto-actions/setup@v2
+        with:
+          version: 1.10.18
+
+      - run: quarto render
+
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5
