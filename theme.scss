@@ -86,6 +86,8 @@ select:focus-visible {
   line-height: 1.6;
 }
 
+// Matches the specificity of Quarto's own rule, which sets these in small caps.
+#title-block-header.quarto-title-block.default .abstract .block-title,
 #title-block-header .abstract-title,
 #title-block-header .block-title {
   font-family: $sans;
@@ -198,9 +200,12 @@ main .table-striped > tbody > tr:nth-of-type(odd) > * {
   --bs-table-accent-bg: transparent;
 }
 
-@media (max-width: 767.98px) {
+// Below this width the wide tables no longer fit their column, so they scroll
+// sideways inside it instead of pushing the whole page out.
+@media (max-width: 991.98px) {
   main table {
     display: block;
+    width: 100%;
     overflow-x: auto;
   }
 }
@@ -215,12 +220,16 @@ main .table-striped > tbody > tr:nth-of-type(odd) > * {
   width: 100%;
 }
 
+// Sized to sit inside the text column rather than dominate the page. The
+// standalone figures page overrides both heights below.
 .plot-3d {
-  height: clamp(420px, 72vh, 720px);
+  height: clamp(360px, 54vh, 560px);
 }
 
+// Near-square: both axes are in the same standardised units and are drawn
+// to the same scale, so a wide frame just pads the range with empty space.
 .plot-2d {
-  height: clamp(380px, 66vh, 640px);
+  height: clamp(380px, 68vh, 640px);
 }
 
 .plot-figure figcaption {
@@ -228,7 +237,6 @@ main .table-striped > tbody > tr:nth-of-type(odd) > * {
   font-size: 0.9rem;
   line-height: 1.45;
   color: $ink-secondary;
-  max-width: 700px;
   margin-top: 0.75rem;
 }
 
@@ -237,10 +245,21 @@ main .table-striped > tbody > tr:nth-of-type(odd) > * {
   font-weight: 600;
 }
 
+a.plot-fullscreen {
+  white-space: nowrap;
+  color: $ink;
+}
+
+a.plot-fullscreen::after {
+  content: " \2197";          // north-east arrow: leaves the page
+  text-decoration: none;
+}
+
 .plot-controls {
   font-family: $sans;
   font-size: 0.9rem;
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 0.6rem;
   margin-bottom: 0.5rem;
@@ -257,6 +276,10 @@ main .table-striped > tbody > tr:nth-of-type(odd) > * {
   border: 1px solid $ink;
   border-radius: 3px;
   padding: 0.3rem 0.5rem;
+  // The longest option name is wider than a phone screen, so let the control
+  // shrink rather than set the width of the row.
+  flex: 1 1 14rem;
+  min-width: 0;
   max-width: 100%;
 }
 
@@ -265,4 +288,102 @@ main .table-striped > tbody > tr:nth-of-type(odd) > * {
   font-size: 0.9rem;
   border: 1px solid $ink;
   padding: 1rem;
+}
+
+// ------------------------------------------------------------------ figures page
+
+// figures.qmd renders with page-layout: custom, so this block is the whole
+// page frame: Quarto contributes no grid, header or margins of its own.
+.figure-page {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 5rem;
+}
+
+.figure-page .back-link {
+  font-family: $sans;
+  font-size: 0.9rem;
+  text-decoration: none;
+}
+
+.figure-page .back-link:hover {
+  text-decoration: underline;
+}
+
+.figure-page h1.figure-page-title {
+  font-size: clamp(1.9rem, 1.5rem + 1.4vw, 2.4rem);
+  line-height: 1.15;
+  letter-spacing: -0.012em;
+  margin: 1.25rem 0 0.75rem;
+}
+
+.figure-page > p {
+  max-width: 40rem;
+}
+
+.figure-page h2 {
+  font-size: 1.3rem;
+  margin-top: 3.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.figure-page .plot-3d,
+.figure-page .plot-2d {
+  height: clamp(420px, 74vh, 760px);
+}
+
+.figure-page .plot-figure {
+  margin: 1rem 0 2rem;
+}
+
+.figure-page .plot-figure figcaption {
+  max-width: 46rem;
+}
+
+// ------------------------------------------------------------------ TOC extras
+
+// The link Quarto builds from `other-links`. It is emitted at the foot of the
+// table of contents; ordering the nav as a column lifts it above the section
+// list, where a reader who only wants the figures will see it first.
+nav#TOC {
+  display: flex;
+  flex-direction: column;
+}
+
+nav#TOC > #toc-title { order: 0; }
+nav#TOC > .quarto-other-links { order: 1; }
+nav#TOC > ul { order: 2; }
+
+.quarto-other-links {
+  font-family: $sans;
+  font-size: 0.85rem;
+  margin: 0.35rem 0 0.9rem;
+  padding-bottom: 0.9rem;
+  border-bottom: 1px solid $hairline;
+}
+
+// The generated "Other Links" heading says nothing the link does not; the
+// link text carries the meaning.
+.quarto-other-links h2 {
+  display: none;
+}
+
+.quarto-other-links ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.quarto-other-links a {
+  color: $ink;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.quarto-other-links a:hover {
+  text-decoration: underline;
+}
+
+.quarto-other-links .bi {
+  display: none;
 }

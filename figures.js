@@ -15,9 +15,9 @@
   const FONT = '"Source Sans 3", "Helvetica Neue", Arial, sans-serif';
 
   const DIMS = {
-    R1: { name: "Physical intensity", low: "symbolic", high: "physical" },
-    R2: { name: "Judgement", low: "procedural", high: "judgement" },
-    R3: { name: "Person-facing work", low: "technical", high: "person-facing" },
+    R1: { name: "Physical intensity", low: "symbolic", high: "embodied" },
+    R2: { name: "Judgement", low: "procedural", high: "complex" },
+    R3: { name: "Person-facing work", low: "technical", high: "caring" },
     union: { name: "Union coverage" },
   };
 
@@ -29,12 +29,20 @@
     ["R1", "union"], ["R2", "union"], ["R3", "union"],
   ];
 
+  // scrollZoom is off so that the wheel scrolls the page. Plotly turns it on
+  // for 3-D scenes by default, which traps the page when the reader scrolls
+  // over the figure. Zooming the 3-D view moves to Ctrl/Cmd + wheel below.
   const CONFIG = {
     responsive: true,
+    scrollZoom: false,
     displaylogo: false,
     showSendToCloud: false,
     modeBarButtonsToRemove: ["select2d", "lasso2d"],
   };
+
+  const ZOOM_STEP = 0.0008;       // camera distance change per wheel pixel
+  const ZOOM_PER_EVENT = [0.8, 1.25];   // biggest jump one wheel event may make
+  const ZOOM_LIMITS = [0.5, 4];         // how close to and far from the origin
 
   // ---------------------------------------------------------------- data
 
@@ -104,9 +112,15 @@
       colorbar: Object.assign({
         title: { text: "Union<br>coverage", side: "top" },
         tickformat: ".0%",
-        thickness: 10,
+        thickness: 9,
         outlinewidth: 0,
-        len: 0.6,
+        len: 0.55,
+        lenmode: "fraction",
+        x: 1,
+        xanchor: "right",
+        y: 0.5,
+        yanchor: "middle",
+        tickfont: { size: 12 },
       }, colourbarExtra || {}),
     };
   }
@@ -164,7 +178,9 @@
       const end = { x: [0], y: [0], z: [0] };
       const key = { R1: "x", R2: "y", R3: "z" }[k];
       line[key] = [lo, hi];
-      end[key] = [hi];
+      // The label sits beyond the end of its axis line: placed at the line's
+      // end it falls inside the point cloud from most camera angles.
+      end[key] = [hi * 1.22];
       traces.push(Object.assign({
         type: "scatter3d", mode: "lines",
         line: { color: "#555555", width: 4 },
@@ -184,10 +200,48 @@
       scene: {
         xaxis: hidden, yaxis: hidden, zaxis: hidden,
         aspectmode: "cube",
-        camera: { eye: { x: 1.5, y: 1.5, z: 1.1 } },
+        camera: { eye: { x: 0.86, y: 0.86, z: 0.62 } },
       },
     });
-    return Plotly.newPlot(el, traces, layout, CONFIG);
+    return Plotly.newPlot(el, traces, layout, CONFIG).then(() => {
+      enableModifierZoom(el);
+      return el;
+    });
+  }
+
+  // Plotly cancels the wheel event over a 3-D scene whether or not scrollZoom
+  // is on, which traps the page when a reader scrolls onto the figure. This
+  // listener runs in the capture phase, before Plotly's own: a plain wheel is
+  // stopped there, so Plotly never sees it and the page scrolls normally, and
+  // Ctrl/Cmd + wheel is handled here instead, moving the camera towards or
+  // away from the point it looks at.
+  function enableModifierZoom(el) {
+    el.addEventListener("wheel", (ev) => {
+      if (!ev.ctrlKey && !ev.metaKey) {
+        ev.stopPropagation();
+        return;
+      }
+      ev.stopPropagation();
+      ev.preventDefault();
+
+      const camera = el.layout && el.layout.scene && el.layout.scene.camera;
+      const eye = camera && camera.eye;
+      if (!eye) return;
+
+      const step = clamp(1 + ev.deltaY * ZOOM_STEP, ZOOM_PER_EVENT[0], ZOOM_PER_EVENT[1]);
+      const distance = Math.hypot(eye.x, eye.y, eye.z);
+      const wanted = clamp(distance * step, ZOOM_LIMITS[0], ZOOM_LIMITS[1]);
+      const factor = wanted / distance;
+      if (factor === 1) return;
+
+      Plotly.relayout(el, {
+        "scene.camera.eye": { x: eye.x * factor, y: eye.y * factor, z: eye.z * factor },
+      });
+    }, { capture: true, passive: false });
+  }
+
+  function clamp(v, lo, hi) {
+    return Math.min(Math.max(v, lo), hi);
   }
 
   // ---------------------------------------------------------------- figure 6.3

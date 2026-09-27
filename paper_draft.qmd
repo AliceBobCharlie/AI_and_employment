@@ -26,6 +26,9 @@ abstract: |
   along the judgement axis, which accounts for their disagreement without
   adjudicating between them.
 output-file: index.html
+other-links:
+  - text: Interactive figures
+    href: figures.html
 ---
 
 ## 1. Introduction
@@ -907,17 +910,17 @@ that test by a wide margin. That the answer happens to be three is convenient
 rather than designed: three dimensions can be drawn, and every occupation in the
 dataset can be placed in a single figure and located by eye.
 
-::: {.column-page}
 ```{=html}
 <figure class="plot-figure">
   <div class="plot plot-3d" id="plot-space" role="img"
        aria-label="Three-dimensional scatter plot of 894 occupations on the physical intensity, judgement and person-facing axes, coloured by union coverage."></div>
   <figcaption><b>Figure 6.1</b> — the 894 occupations in the three-axis space,
-  rotatable, coloured by union coverage. Marker size is log employment; hover
-  for the occupation. On every axis, + means harder to automate.</figcaption>
+  coloured by union coverage. Drag to rotate; hold ⌘ or Ctrl and scroll to
+  zoom. Marker size is log employment; hover for the occupation. On every axis,
+  + means harder to automate.
+  <a class="plot-fullscreen" href="figures.html#space">Open full screen</a></figcaption>
 </figure>
 ```
-:::
 
 The first thing the figure shows is what the clustering analysis of Section 5.2
 established numerically: the distribution is continuous. Occupations fill the
@@ -1048,7 +1051,6 @@ subset of occupations can be shown in them. Each plane admits a reading of its
 quadrants. We give one as an illustration, and it is the plane on which the
 conjecture above has the most to say.
 
-::: {.column-page}
 ```{=html}
 <figure class="plot-figure">
   <div class="plot-controls">
@@ -1059,10 +1061,10 @@ conjecture above has the most to say.
        aria-label="Scatter plot of 894 occupations on two of the axes; the menu above chooses the pair."></div>
   <figcaption><b>Figure 6.3</b> — physical intensity × judgement, all 894
   occupations. The menu shows the other sections. Dotted lines mark the
-  medians; marker size is log employment.</figcaption>
+  medians; marker size is log employment.
+  <a class="plot-fullscreen" href="figures.html#sections">Open full screen</a></figcaption>
 </figure>
 ```
-:::
 
 **Low physical intensity, low judgement — exposed on both counts.** Work that
 demands little of the body and little in the way of decisions has a defence on

@@ -1,0 +1,47 @@
+---
+pagetitle: "Figures — the occupation space"
+description: "The 894 US occupations of the paper, on three axes, at full size."
+output-file: figures.html
+toc: false
+page-layout: custom
+---
+
+::: {.figure-page}
+
+[← Back to the paper](index.html){.back-link}
+
+# Figures {.figure-page-title}
+
+The 894 occupations of the paper, on the three axes recovered from O\*NET.
+On every axis, **+ means harder to automate**. The coordinates are in
+[`output/plot_data.csv`](output/plot_data.csv), one row per occupation.
+
+## The occupation space in three dimensions {#space}
+
+```{=html}
+<figure class="plot-figure">
+  <div class="plot plot-3d" id="plot-space" role="img"
+       aria-label="Three-dimensional scatter plot of 894 occupations on the physical intensity, judgement and person-facing axes, coloured by union coverage."></div>
+  <figcaption><b>Figure 6.1</b> — the three-axis space, coloured by union
+  coverage. Drag to rotate; hold ⌘ or Ctrl and scroll to zoom. Marker size is
+  log employment; hover for the occupation.</figcaption>
+</figure>
+```
+
+## The pairwise sections {#sections}
+
+```{=html}
+<figure class="plot-figure">
+  <div class="plot-controls">
+    <label for="section-select">Section</label>
+    <select id="section-select"></select>
+  </div>
+  <div class="plot plot-2d" id="plot-section" role="img"
+       aria-label="Scatter plot of 894 occupations on two of the axes; the menu above chooses the pair."></div>
+  <figcaption><b>Figure 6.3</b> — any two axes plotted against each other; the
+  menu chooses the pair. Dotted lines mark the medians; marker size is log
+  employment.</figcaption>
+</figure>
+```
+
+:::

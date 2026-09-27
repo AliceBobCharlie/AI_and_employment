@@ -1,11 +1,12 @@
 project:
   type: default
   output-dir: _site
-  # Render the paper only; without this Quarto would also render README.MD
+  # Render these only; without the list Quarto would also render README.MD
   # and every other Markdown file in the repository.
   render:
     - paper_draft.qmd
-  # Copied into the site as they are, so the page can load them.
+    - figures.qmd
+  # Copied into the site as they are, so the pages can load them.
   resources:
     - figures.js
     - output/plot_data.csv
@@ -22,9 +23,9 @@ format:
     link-external-icon: false
     grid:
       sidebar-width: 240px
-      body-width: 700px
-      margin-width: 240px
-      gutter-width: 2.5rem
+      body-width: 800px
+      margin-width: 120px
+      gutter-width: 2rem
     include-in-header:
       text: |
         <link rel="preconnect" href="https://fonts.googleapis.com">
