@@ -3,16 +3,12 @@ name: Publish paper
 # Renders paper_draft.qmd and deploys the result to GitHub Pages. The rendered
 # site is uploaded as a Pages artifact, so it never lands on any branch.
 
+# Every push to main rebuilds. There is no paths filter on purpose: a filter
+# that misses one input (or gets mangled) shows up as a silent non-deployment,
+# and the render takes under a minute.
 on:
   push:
     branches: [main]
-    paths:
-      - ../../paper_draft.qmd.bak
-      - _quarto.yml
-      - theme.scss
-      - figures.js
-      - output/plot_data.csv
-      - .github/workflows/publish.yml
   workflow_dispatch:
 
 permissions:
@@ -37,6 +33,12 @@ jobs:
           version: 1.10.18
 
       - run: quarto render
+
+      # Fail loudly rather than deploying a site with no landing page. Without
+      # this, a paper_draft.qmd that lost its YAML header still renders -- to
+      # paper_draft.html -- and the deployment succeeds while the site 404s.
+      - name: Check the landing page exists
+        run: test -s _site/index.html
 
       - uses: actions/upload-pages-artifact@v5
         with:
