@@ -7,7 +7,7 @@ on:
   push:
     branches: [main]
     paths:
-      - paper_draft.qmd
+      - ../../paper_draft.qmd.bak
       - _quarto.yml
       - theme.scss
       - figures.js

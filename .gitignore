@@ -35,7 +35,7 @@ output/*
 !output/master_clean.xlsx
 !output/rotated_axes.csv
 !output/plot_data.csv
-
+!figures/content model.png
 
 # 6. junk
 __pycache__/
