@@ -448,27 +448,26 @@ values, because it fits the training folds exactly and generalises arbitrarily.
 Those regressions therefore use ridge, whose penalty is what makes the estimate
 meaningful in this shape, with the scaler fitted inside each fold.
 
-Sections 4.1 and 4.2 together settle one decision per block of the Content
-Model, and the decisions are gathered here.
+Sections 4.1 and 4.2 settle one decision per block, and the decisions are
+gathered here. Education, training and experience is not in this table: it is
+treated as a labour-market variable and appears in Table 4.2.
 
-**Table 4.1 — The Content Model, block by block**
+**Table 4.1 — O\*NET blocks in release 30.2 and their treatment**
 
-::: {.block-table}
+::: {.block-table .column-page-right}
 
-| block | why it might bear on substitution | in? | scale, columns | missing values, and the decision |
-|---|---|---|---|---|
-| Abilities | what a system would have to supply to stand in | yes | Importance, 52 | none |
-| Skills | what the work teaches; how fast it could be re-staffed | yes | Importance, 35 | none |
-| Knowledge | what the work draws on | yes | Importance, 33 | none on Importance; the 8.3 and 10.2 percent flag rates sit on Level rows |
-| Work Activities | what is done, rather than what the doer is like | yes | Importance, 41 | none |
-| Work Context | conditions that constrain what can be delegated | yes | Context, 55 | none. The Category scale duplicates it: 2 items, 0.5 percent of variance |
-| Work Styles | personal attributes affecting performance | no | — | Domain Source AI/Expert: a model output, not a measurement |
-| Interests | occupational interest types | no | — | Machine Learning/Expert, for the same reason |
-| Work Values | what the work satisfies in the worker | no | — | 1.1 percent of leading variance, R² = 0.75 from the other blocks, analyst vintage 2008 |
-| Job Zones | O\*NET's own 1–5 summary of preparation needed | no | — | leakage: a ready-made grouping from the ratings' own supplier (0.85 with PC1, R² = 0.89) |
-| Education, training and experience | entry thresholds are institutional, not technical | §4.3 | 4 distributions, 41 → 37 | 16 occupations lack the block (592 cells) → column median |
-| Workforce Characteristics | where the occupation stands in the market | §4.3 | — | no data distributed; taken from the BLS sources instead |
-| Occupation-Specific Information | titles, tasks, tools and technology | no | — | occupation-specific by construction: no columns common to all |
+| block | what it records | scale | source | bearing on substitution | decision | missing values, and how handled |
+|---|---|---|---|---|---|---|
+| Abilities | enduring attributes of the person that influence performance — cognitive, psychomotor, physical, sensory | Importance | Analyst | direct: what the work demands of a worker is what a system would have to supply | kept (52) | none |
+| Skills | developed capacities that facilitate learning and performance | Importance | Analyst | direct | kept (35) | none |
+| Knowledge | organised bodies of principles and facts | Importance | Incumbent | direct, though what is one domain for a person may not be for a model (§2) | kept (33) | none on Importance. The block's high flag rates — 8.3 percent suppressed, 10.2 percent not relevant — sit on Level rows and go with Level |
+| Work Activities | generalised activities common across occupations | Importance | Incumbent | direct: closest of the blocks to what is actually done | kept (41) | none |
+| Work Context | physical and social conditions of the work | Context (CX) | Incumbent | indirect but material: whether work is done in person, outdoors, under hazard or under time pressure constrains what can be delegated to a system | kept (55) | none |
+| Work Context | a few of the same items on a category scale | Category (CT) | Incumbent | duplicative | dropped (2) | 0.5 percent of variance, and the items are already on CX |
+| Work Values | six dimensions of what an occupation offers a worker | Extent | Analyst, 2008 | weak: describes reward, not requirement | dropped (6) | 1.1 percent of the variance in the leading components, and predictable from the retained blocks at R² = 0.75 |
+| Work Styles | personal characteristics affecting performance | Importance | **AI / Expert (model-generated)** | would be direct if observed | dropped | not assessed: a model output does not measure the occupation |
+| Interests | RIASEC occupational interest profile | Occupational Interest | **Machine Learning / Expert (model-generated)** | weak, and not observed | dropped | as above |
+| Job Zones | a single 1–5 ordinal summary of required preparation | ordinal | Analyst | direct in principle | dropped (1) | correlates 0.85 with the leading component and is predictable from the other blocks at R² = 0.89, but the ground is leakage: it is a ready-made grouping supplied by the same organisation as the ratings |
 
 :::
 
