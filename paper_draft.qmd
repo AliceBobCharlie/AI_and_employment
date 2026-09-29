@@ -944,14 +944,7 @@ sitting (−0.63), indoor environmentally controlled conditions (−0.56), and
 speaking, written and oral expression (−0.53 to −0.52); its extremes are poets,
 proofreaders, literature and philosophy professors and judicial law clerks.
 
-The two poles are not symmetric — 0.88 against 0.63 — and the asymmetry is
-interpretively important. This is an axis of physical capability demand whose
-low end is defined by the absence of that demand, not a neutral contrast between
-embodied and symbolic media. The negative half of the distribution accordingly
-contains light service work as well as verbal work: dishwashers sit on the same
-side as poets, not because dishwashing is symbolic but because it makes few
-demands on reaction time, depth perception or multilimb coordination. Reading R1
-as a medium rather than an intensity would misplace them.
+The two poles are both real, but they are not measured to the same depth. Seventy-four of the 216 columns load above +0.5 on R1 and only ten below −0.5, the most negative being time spent sitting at −0.63; a composite of the physical and psychomotor abilities correlates +0.875 with the axis, a composite of the language skills −0.549. So the negative pole is a construct and not an absence — reading, writing, speaking, English language and working with computers all sit between −0.49 and −0.52 — but it is a narrower one than the embodied complex opposite it, because O*NET describes physical work with more items than it describes symbolic work. Two things follow for reading a position on this axis. A large positive score is a stronger statement than a large negative one. And work that is light in both media sits near the middle rather than at the symbolic end: janitors are at −0.03, dishwashers at −0.50, waiters at −0.65 and cashiers at −0.97, against poets at −2.10, proofreaders at −1.95 and judicial law clerks at −1.86. The symbolic pole is where language-intensive work is, not where physically undemanding work is.
 
 R1 is also the direction along which the clustering of Section 5.2 failed most
 informatively. If one insists on splitting the 894 occupations in two, the best
@@ -969,65 +962,8 @@ axes orthogonal to it take a further 29.8 percent between them. The dichotomy
 points along a real direction and accounts for less than half of what
 distinguishes one occupation from another.
 
-**R2 (20.4 percent): judgement.** The axis runs from judgement-intensive work to
-procedure-following work. The positive pole loads on complex problem solving
-(0.87), deductive reasoning (0.86), critical thinking (0.86), systems analysis
-(0.86), systems evaluation (0.85), judgement and decision making (0.83) and
-analysing data or information (0.79); its extremes are chief executives,
-robotics engineers, biochemists, construction managers and nuclear engineers.
-The negative pole loads on time spent making repetitive motions (−0.56), time
-standing (−0.47), trunk strength (−0.47), bending or twisting the body (−0.46),
-dynamic strength (−0.45) and stamina (−0.44); its extremes are models, cloakroom
-attendants, dishwashers, textile pressers and refuse collectors.
-
-The negative pole deserves a word, because it is not what the axis's name would
-lead one to expect. Orthogonal to R1 as it is, R2 still ends in bodily work — but
-in a specific kind: sustained, physically repetitive, performed to a given
-routine. The contrast R2 draws is not between using the body and using the mind,
-which is R1's business, but between work whose procedure the worker has to
-determine and work whose procedure is handed to them. Two Work Context items say
-that directly and confirm the reading: Determine Tasks, Priorities and Goals
-loads **+0.49** and Freedom to Make Decisions **+0.45**.
-
-Office work lands where the reading predicts. Clerical occupations are
-physically light, so they sit low on R1, and they also sit low on R2: cashiers at
-−2.18, proofreaders at −1.82, switchboard and telephone operators at −1.69 and
-−1.55, court reporters at −1.55, word processors and typists at −1.32, general
-office clerks at −1.12 — most of them below the tenth percentile of the axis,
-which is −1.31. Of twenty-five clerical and administrative codes only one, order
-clerks, is on the positive side, and it is there by 0.02. The procedural pole is
-not a manual pole that happens to contain some office work; it holds routinised
-work of either medium, and the extremes are manual only because R2 is estimated
-orthogonally to R1.
-
-One caveat belongs with the name, and it is sharper than a caveat usually is.
-O\*NET has an item that asks directly how repetitive the work is — Importance of
-Repeating Same Tasks — and it loads **−0.03** on R2, +0.14 on R1 and +0.04 on R3.
-The three axes account for 2.2 percent of its variance, which is the **lowest of
-all 216 columns**; the median column is at 0.55. So repetition in the sense of
-doing the same task again is not what this axis measures, and none of the three
-measures it. The pair that makes this concrete is airline pilots and court
-reporters: both score about one standard deviation above the mean on repeating
-the same tasks, and they sit at +1.50 and −1.55 on R2. Repetition does not
-separate them; who determines the procedure does.
-
-We keep the name judgement for that reason. What R2 orders is discretion
-together with the analytic work discretion requires, not routineness, and the
-word should be read that way. We also record that a repetition dimension does
-exist in this matrix and lies outside the retained three — which is where a
-reader interested in automation should expect to find it.
-
-We call the axis judgement rather than cognitive load, which was our first label
-and which we now think misleading in two ways. "Cognitive load" has an
-established meaning in psychology — the burden on working memory during a task —
-which is not what this measures: a high-speed assembly job is demanding in that
-sense and sits at the negative pole here. And "cognitive" invites reading the
-axis as knowledge or intelligence, which the loadings do not support. Among
-O\*NET's own expert categories, reported below, process-oriented basic skills
-load at 0.75 and content-oriented basic skills at 0.68, while the knowledge
-domains reach only 0.27 to 0.38. Structured knowledge is not what the positive
-pole is made of, and much of the work that draws on the most structured
-knowledge is also the most procedural.
+**R2 (20.4 percent): judgement.** The axis runs from judgement-intensive work to procedure-following work. The positive pole loads on complex problem solving (0.87), deductive reasoning (0.86), critical thinking (0.86), systems analysis (0.86), systems evaluation (0.85), judgement and decision making (0.83) and analysing data or information (0.79); its extremes are chief executives, robotics engineers, biochemists, construction managers and nuclear engineers. The negative pole loads on time spent making repetitive motions (−0.56), time standing (−0.47), trunk strength (−0.47), bending or twisting the body (−0.46), dynamic strength (−0.45) and stamina (−0.44). Its extreme occupations are special kind of manual work: sustained, physically repetitive, performed to a given routine - models, cloakroom attendants, dishwashers, textile pressers, refuse collectors — but the pole is not a manual pole. Clerical work sits on it too: cashiers at −2.18, proofreaders at −1.82, switchboard operators at −1.69, court reporters at −1.55, word processors and typists at −1.32, general office clerks at −1.12, most of them below the axis's tenth percentile of −1.31. Of twenty-five clerical and administrative codes, twenty-four are negative.
+Judgement here is not knowledge, and the two should not be run together. Among O*NET's own expert categories, reported below, process-oriented basic skills load at 0.75 and content-oriented basic skills at 0.68, while the knowledge domains reach only 0.27 to 0.38. Structured knowledge is not what the positive pole is made of; a good deal of the work that draws on the most structured knowledge — credentialed clinical and technical roles, several of which sit below zero here — is among the most procedural.
 
 **R3 (9.4 percent): person-facing work.** The positive pole loads on assisting
 and caring for others (0.77), psychology (0.73), performing for or working
@@ -1041,6 +977,7 @@ developers, mathematicians and computer programmers. The positive pole is not
 care in the emotional-labour sense — conflict handling loads as heavily as
 caring. What its occupations share is direct public contact with responsibility
 attached.
+
 
 **What the structure turns out to match.** The method of Section 2 was to
 recover the structure first and compare it with theory afterwards, so this is
