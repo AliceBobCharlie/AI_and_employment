@@ -118,6 +118,12 @@ def part_a_occupations(M):
         best = max(sil, key=sil.get)
         curves[label] = sil
         print(f"  {label:22s} best k={best}, silhouette={sil[best]:.3f}")
+
+    print("\n  silhouette by k")
+    print(f"  {'k':22s}" + "".join(f"{k:>7d}" for k in K_RANGE))
+    for label, sil in curves.items():
+        print(f"  {label:22s}" + "".join(f"{sil[k]:>7.3f}" for k in K_RANGE))
+
     print("\n  Silhouettes far below 0.5 in every representation: occupations sit")
     print("  on a continuum, and any partition of them is imposed rather than found.")
     return cont, curves
@@ -240,13 +246,21 @@ def figures(curves, results):
 
 def main():
     df = pd.read_excel(MASTER).set_index("onet_soc")
+    # Part A asks about OCCUPATIONS, so it uses the same 216-column feature
+    # matrix the axes are estimated from -- otherwise the silhouettes and the
+    # axes would describe different spaces.
+    feats = [c for c in df.columns if "__" in c and not c.startswith("ete_")]
+    F = df[feats].values
+    # Part B asks about SKILLS, where the object of comparison is the 161
+    # element ratings; Work Context is a condition of the job, not a skill.
     skill = [c for c in df.columns if c.startswith(SKILL_PREFIXES)]
     M = df[skill].values
     names = [c.split("__", 1)[1] for c in skill]
     prefixes = [c.split("__", 1)[0] for c in skill]
-    print(f"{M.shape[0]} occupations x {len(skill)} skill ratings")
+    print(f"{F.shape[0]} occupations x {len(feats)} features "
+          f"(of which {len(skill)} skill ratings)")
 
-    cont, curves = part_a_occupations(M)
+    cont, curves = part_a_occupations(F)
     results = part_b_skills(M, names, prefixes)
     figures(curves, results)
 
