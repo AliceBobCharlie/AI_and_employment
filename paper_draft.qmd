@@ -691,17 +691,11 @@ test-fold information into every estimate built on it.
 
 ### 5.2 Do occupations fall into classes?
 
-A coordinate system is one way to describe a set of objects; a set of classes is
-another, and which one the data supports is a question to settle before choosing.
-If occupations fell into a few kinds, the structure would be better reported as
-kinds, and much of what follows would be the wrong apparatus for it. So we asked
-first.
-
 The reason to expect classes comes from Alabdulkareem et al. (2018), who find
 two communities among skills — one social and cognitive, one sensory and
-physical. Their object is the skill; ours is the occupation, and the two
-questions are different, so what follows is not a replication of their result but
-the same question asked of a different set of objects. We cluster the 894
+physical. If occupations fell into a few kinds, the substitution question
+could be answered kind by kind — identify the exposed kinds, and the analysis
+would be both simpler. So what follows is the same question asked of occupations: Do occupations fall into classes? . We cluster the 894
 occupations by k-means for k from 2 to 10 and measure separation by the
 silhouette coefficient, which compares a point's average distance to the other
 members of its own cluster against its average distance to the members of the
@@ -1234,24 +1228,15 @@ between a bachelor's and a doctorate, and compressing the scale to an intensity
 discards exactly the thresholds at which credentialing operates. We report the
 reduction as a negative result and use the block at full width.
 
-**Union coverage is independent for a different reason, and independence is not
-reach.** One might expect protection to follow the character of the work, since
-hazardous and physical occupations have historically been easier to organise. It
-does not. Its largest correlation with any of the three axes is 0.23, no feature
+**Union coverage is independent, and independence is not
+reach.** Union coverage is not recoverable from the occupational features.
+Its largest correlation with any of the three axes is 0.23, no feature
 block predicts it well, and the full feature matrix reaches only R² = 0.35.
-Whether an occupation
-is organised is a fact about a history of bargaining, employer structure and law,
+Whether an occupation is organised is a fact about a history of bargaining, employer structure and law,
 and that history is not written in the descriptor ratings — which is Weeden's
-(2002) finding arriving by a different route.
+(2002) finding arriving by a different route. Thus, it is a different variable need to be considered in empirical study.
 
-That it has to be measured rather than inferred does not mean that measuring it
-will change many conclusions, and the distribution is why. The median occupation
-has 8.1 percent coverage, 81 percent of occupations sit below 20 percent, and
-only twenty-nine of the 894 are above half — a short and familiar list of rail,
-postal and public-safety occupations. Weighted by employment the mean is 10.9
-percent.
-
-The consequence is visible even when the feature matrix is taken out of the
+While independent, it has low variance. The consequence is visible even when the feature matrix is taken out of the
 picture. Decomposing the eight labour-market variables on their own, their
 leading direction — 38.1 percent of the group's variance — is the pay, status and
 retention direction of Section 5.6, and union coverage loads 0.05 on it: within
@@ -1260,8 +1245,12 @@ occupations most. It appears only on the group's second and third directions,
 which carry 16.9 and 13.3 percent. So union coverage is not swamped merely
 because the feature side is 216 columns wide; it is a variable with little
 between-occupation variation to contribute in the first place.
-
-Two things follow, and they should be kept apart. Within the organised minority a
+The median occupation
+has 8.1 percent coverage, 81 percent of occupations sit below 20 percent, and
+only twenty-nine of the 894 are above half — a short and familiar list of rail,
+postal and public-safety occupations. Weighted by employment the mean is 10.9
+percent.
+ Within the organised minority a
 collective agreement is a real constraint on what an employer may do with a
 technology, and Section 6.3 takes the 2023 Writers Guild agreement as the
 clearest case: where coverage exists it can bind hard. Across the American
@@ -1270,8 +1259,7 @@ next, so it has little power to explain why one occupation is displaced and
 another is not. An empirical study should therefore carry union coverage as a
 variable — it cannot be inferred from anything else — while not expecting it to
 carry much cross-occupational explanatory weight in the United States as
-currently organised. This is a fact about American labour institutions rather
-than a measurement failure; in a country with higher and more differentiated
+currently organised. This is a fact about American labour institutions; in a country with higher and more differentiated
 coverage the same variable would behave differently.
 
 We also note the resolution with which this variable is measured. The CPS
@@ -1282,7 +1270,7 @@ not be used to characterise a single occupation.
 
 #### What follows for empirical work
 
-These four have to be measured, not inferred. A study that controls for
+These four have to be taken into account in real-world displacement analytics. A study that controls for
 occupational content has not thereby controlled for union coverage, employment
 size, self-employment or entry requirements, and since each plausibly affects
 whether a technically feasible substitution is carried out, an exposure measure
