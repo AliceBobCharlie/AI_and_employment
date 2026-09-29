@@ -412,18 +412,9 @@ Incumbent for Knowledge, Work Activities, Work Context and ETE. None of the
 retained blocks is model-generated, which was the basis for excluding Work
 Styles and Interests in Section 4.1.
 
-**Table 4.1 — The feature matrix**
-
-| block | scale | columns |
-|---|---|---|
-| Work Context | Context | 55 |
-| Abilities | Importance | 52 |
-| Work Activities | Importance | 41 |
-| Skills | Importance | 35 |
-| Knowledge | Importance | 33 |
-| **total** | | **216** |
-
-The matrix entering the principal component analysis is therefore 894
+Work Context contributes 55 columns, Abilities 52, Work Activities 41, Skills 35
+and Knowledge 33. The matrix entering the principal component analysis is
+therefore 894
 occupations by 216 variables, all of them O\*NET descriptors. Nothing from
 Section 4.3 is in it — not the wages, not employment, not union coverage, not
 the education and training distributions. That is the design: every variable the
@@ -456,6 +447,30 @@ merely lose precision but fails, returning large negative cross-validated R²
 values, because it fits the training folds exactly and generalises arbitrarily.
 Those regressions therefore use ridge, whose penalty is what makes the estimate
 meaningful in this shape, with the scaler fitted inside each fold.
+
+Sections 4.1 and 4.2 together settle one decision per block of the Content
+Model, and the decisions are gathered here.
+
+**Table 4.1 — The Content Model, block by block**
+
+::: {.block-table}
+
+| block | why it might bear on substitution | in? | scale, columns | missing values, and the decision |
+|---|---|---|---|---|
+| Abilities | what a system would have to supply to stand in | yes | Importance, 52 | none |
+| Skills | what the work teaches; how fast it could be re-staffed | yes | Importance, 35 | none |
+| Knowledge | what the work draws on | yes | Importance, 33 | none on Importance; the 8.3 and 10.2 percent flag rates sit on Level rows |
+| Work Activities | what is done, rather than what the doer is like | yes | Importance, 41 | none |
+| Work Context | conditions that constrain what can be delegated | yes | Context, 55 | none. The Category scale duplicates it: 2 items, 0.5 percent of variance |
+| Work Styles | personal attributes affecting performance | no | — | Domain Source AI/Expert: a model output, not a measurement |
+| Interests | occupational interest types | no | — | Machine Learning/Expert, for the same reason |
+| Work Values | what the work satisfies in the worker | no | — | 1.1 percent of leading variance, R² = 0.75 from the other blocks, analyst vintage 2008 |
+| Job Zones | O\*NET's own 1–5 summary of preparation needed | no | — | leakage: a ready-made grouping from the ratings' own supplier (0.85 with PC1, R² = 0.89) |
+| Education, training and experience | entry thresholds are institutional, not technical | §4.3 | 4 distributions, 41 → 37 | 16 occupations lack the block (592 cells) → column median |
+| Workforce Characteristics | where the occupation stands in the market | §4.3 | — | no data distributed; taken from the BLS sources instead |
+| Occupation-Specific Information | titles, tasks, tools and technology | no | — | occupation-specific by construction: no columns common to all |
+
+:::
 
 ### 4.3 The labour-market variables
 
@@ -650,6 +665,8 @@ and takes the block from 41 columns to 37.
 
 **Table 4.2 — The labour-market variables**
 
+::: {.lm-table}
+
 | variable | why it might bear on substitution | source | what the coding does | coverage and treatment |
 |---|---|---|---|---|
 | education, training and experience | entry thresholds are institutional, not technical, and can hold where the work is substitutable | O\*NET 30.2, Experience Requirements | already on O\*NET-SOC; no join | 16 occupations absent as a whole block (592 cells) → column median; highest category of each scale dropped, 41 → 37 columns |
@@ -659,6 +676,8 @@ and takes the block from 41 columns to 37.
 | occupational prestige | status may protect an occupation independently of its content; also a check on whether an axis is a status measure | Occupational Prestige Ratings project | averaged where several rated titles share one SOC | 94.1%; column median |
 | labour-force exit rate; occupational transfer rate | how readily an occupation sheds labour without dismissals, and whether leavers exit or move | BLS Employment Projections, table 1.10 | exact on the six-digit SOC | 96.9%; column median |
 | self-employment share | no employer to make the substitution decision, so the mechanism differs | BLS Employment Projections, table 1.2 | exact on the six-digit SOC | 100%; blanks mean negligible, filled at zero |
+
+:::
 
 None of these variables enters the decomposition. They are the subject of
 Section 5.5, which asks how much of each the feature data can predict, and which
@@ -963,6 +982,7 @@ points along a real direction and accounts for less than half of what
 distinguishes one occupation from another.
 
 **R2 (20.4 percent): judgement.** The axis runs from judgement-intensive work to procedure-following work. The positive pole loads on complex problem solving (0.87), deductive reasoning (0.86), critical thinking (0.86), systems analysis (0.86), systems evaluation (0.85), judgement and decision making (0.83) and analysing data or information (0.79); its extremes are chief executives, robotics engineers, biochemists, construction managers and nuclear engineers. The negative pole loads on time spent making repetitive motions (−0.56), time standing (−0.47), trunk strength (−0.47), bending or twisting the body (−0.46), dynamic strength (−0.45) and stamina (−0.44). Its extreme occupations are special kind of manual work: sustained, physically repetitive, performed to a given routine - models, cloakroom attendants, dishwashers, textile pressers, refuse collectors — but the pole is not a manual pole. Clerical work sits on it too: cashiers at −2.18, proofreaders at −1.82, switchboard operators at −1.69, court reporters at −1.55, word processors and typists at −1.32, general office clerks at −1.12, most of them below the axis's tenth percentile of −1.31. Of twenty-five clerical and administrative codes, twenty-four are negative.
+
 Judgement here is not knowledge, and the two should not be run together. Among O*NET's own expert categories, reported below, process-oriented basic skills load at 0.75 and content-oriented basic skills at 0.68, while the knowledge domains reach only 0.27 to 0.38. Structured knowledge is not what the positive pole is made of; a good deal of the work that draws on the most structured knowledge — credentialed clinical and technical roles, several of which sit below zero here — is among the most procedural.
 
 **R3 (9.4 percent): person-facing work.** The positive pole loads on assisting
