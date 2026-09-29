@@ -1,30 +1,36 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-pca_rotated.py -- an interpretable multi-axis PCA over skills + institutional/
-economic variables, designed to yield several STABLE, ROTATED (varimax) axes
-that each have a clean meaning.
+pca_rotated.py -- an interpretable multi-axis PCA over the O*NET descriptor
+blocks, designed to yield several STABLE, ROTATED (varimax) axes that each have
+a clean meaning.
 
 Key design choices (from earlier diagnostics):
-  - WAGES are collapsed to 2 columns before the PCA: log(median) [wage level]
-    and p90/p10 [wage dispersion]. The nine raw wage columns are collinear and
-    were vote-stuffing the first component, making axes vague; 2 columns capture
-    the wage information without dominating by count.
-  - union, self-employment, separation rates DO enter the PCA (per request),
-    even though union has low variance in the US -- we let the data place them.
-  - employment -> log; ETE distributions kept; everything z-scored.
+  - ONLY the O*NET feature blocks enter the decomposition: Abilities, Skills,
+    Knowledge and Work Activities on the Importance scale, plus Work Context on
+    the Context scale. 216 columns.
+  - The labour-market variables (wages, employment, union coverage, self-
+    employment, separation rates, prestige) and the education/training/
+    experience distributions are HELD OUT. They are correlated against the
+    finished axes as supplementary variables. This is what licenses the
+    comparisons later: an axis cannot be said to predict wages if wages helped
+    to build it. Wages appear in that comparison as a level (log median) and a
+    dispersion (p90/p10) rather than as nine collinear percentiles.
+  - everything z-scored.
   - VARIMAX rotation is applied to the leading components so each axis loads on a
     few variables and is interpretable (raw PCs are variance-optimal, not
     interpretation-optimal).
 
 Procedure: PCA -> scree + bootstrap/split-half stability on UNROTATED components
 to choose k -> varimax-rotate the first k -> name axes by rotated loadings ->
-block composition. Union/self-employment interpretation is read off the rotated
-loadings (a low-variance but orthogonal variable will simply load weakly
-everywhere -- 'independent but low discriminating power', which is the correct
-US finding).
+block composition -> supplementary variables correlated against the axis scores.
 
-Reads master_wide.xlsx. Terminal + master_out/.
+A supplementary variable that correlates weakly with every axis is independent
+of the content of the work; that is a statement about independence, not about
+importance, and Section 5.5 of the paper makes the distinction with a ridge
+regression instead.
+
+Reads output/master_clean.xlsx. Terminal + output/.
 """
 
 import numpy as np
@@ -49,34 +55,36 @@ STABLE_THRESH = 0.90
 # --------------------------------------------------------------------------- #
 def load_and_prep():
     """master_clean.xlsx is already imputed and carries the derived wage columns
-    (see clean_master.py), so this only selects columns and standardizes."""
+    (see clean_master.py), so this only selects columns and standardizes.
+
+    ONLY the O*NET descriptor blocks enter the decomposition. Education,
+    training and experience and the economic/institutional columns are held out
+    and correlated against the axes afterwards, so that nothing the axes are
+    later compared with has helped to form them."""
     df = pd.read_excel(MASTER).set_index("onet_soc")
     title = df["title"] if "title" in df.columns else pd.Series("", index=df.index)
 
-    skill = [c for c in df.columns if "__" in c and not c.startswith("ete_")]
+    feats = [c for c in df.columns if "__" in c and not c.startswith("ete_")]
+
+    # held out of the PCA, used only as supplementary variables below. Wages
+    # appear as a level and a dispersion: the nine raw wage columns are
+    # collinear and comparing all nine against every axis says nothing extra.
     ete = [c for c in df.columns if c.startswith("ete_")]
-    # wages enter as a level and a dispersion only: the nine raw wage columns are
-    # collinear and would dominate an axis by sheer count.
     econ = [c for c in ["ext_wage_level_log", "ext_wage_disp_p90p10",
-                        "ext_employment_log", "ext_union_cov_pct",
-                        "ext_self_employed_pct", "ext_sep_exit_rate",
-                        "ext_sep_transfer_rate"] if c in df.columns]
+                        "ext_prestige", "ext_sep_exit_rate",
+                        "ext_sep_transfer_rate", "ext_union_cov_pct",
+                        "ext_self_employed_pct", "ext_employment_log"]
+            if c in df.columns]
+    supp = df[econ + ete]
 
-    F = df[skill + ete + econ]
-    prestige = df["ext_prestige"]          # supplementary, not in the PCA
-
-    feats = list(F.columns)
-    Xz = StandardScaler().fit_transform(F.values)
-    print(f"matrix {Xz.shape[0]} x {len(feats)}  "
-          f"(skills={len(skill)}, ete={len(ete)}, econ/inst={len(econ)})")
-    return Xz, feats, title, prestige.values
+    Xz = StandardScaler().fit_transform(df[feats].values)
+    print(f"feature matrix {Xz.shape[0]} x {len(feats)}")
+    print(f"held out as supplementary: {len(econ)} labour-market columns, "
+          f"{len(ete)} ETE columns")
+    return Xz, feats, title, supp
 
 
 def block_of(c):
-    if c.startswith("ext_"):
-        return "econ_inst"
-    if c.startswith("ete_"):
-        return "ete"
     return c.split("__", 1)[0]
 
 
@@ -159,7 +167,7 @@ def varimax(Phi, gamma=1.0, q=100, tol=1e-6):
 
 # --------------------------------------------------------------------------- #
 def main():
-    Xz, feats, title, prestige = load_and_prep()
+    Xz, feats, title, supp = load_and_prep()
 
     pca = PCA(random_state=SEED).fit(Xz)
     ev = pca.explained_variance_ratio_
@@ -237,16 +245,6 @@ def main():
     comp = pd.DataFrame(rows, index=[f"R{j+1}" for j in range(k)])
     print("\n" + (comp * 100).round(1).to_string())
 
-    # where the key institutional variables land (rotated loadings)
-    print("\n" + "=" * 66)
-    print("INSTITUTIONAL / ECONOMIC VARIABLES on the rotated axes")
-    print("(low loadings everywhere = independent but low discriminating power)")
-    print("=" * 66)
-    ext_feats = [c for c in feats if c.startswith("ext_")]
-    with pd.option_context("display.width", 200):
-        print(Ld.loc[ext_feats].round(3).to_string())
-
-    # supplementary prestige vs rotated axis scores
     # Rotated component scores. NOT Xz @ Lr: loadings carry a sqrt(eigenvalue)
     # scaling, and because the eigenvalues differ, using them as weights makes
     # the axes correlated (an orthogonal rotation should leave them
@@ -258,11 +256,16 @@ def main():
     print(f"\n  max |corr| between rotated axes: {np.abs(off).max():.3f} "
           f"(should be ~0)")
     print("\n" + "=" * 66)
-    print("SUPPLEMENTARY prestige correlation with rotated axes")
+    print("SUPPLEMENTARY VARIABLES against the rotated axes")
+    print("(none of these helped form the axes; low everywhere = independent")
+    print(" of the content of the work, not necessarily unimportant)")
     print("=" * 66)
-    for j in range(k):
-        r = np.corrcoef(prestige, S[:, j])[0, 1]
-        print(f"  R{j+1}: r = {r:+.3f}")
+    names = [f"R{j+1}" for j in range(k)]
+    Sdf = pd.DataFrame(S, columns=names, index=title.index)
+    corr = pd.DataFrame(
+        {n: supp.apply(lambda v: v.corr(Sdf[n])) for n in names})
+    with pd.option_context("display.width", 200):
+        print(corr.round(2).to_string())
 
     # ---- robustness: does the data prefer orthogonal axes, or does varimax
     # impose them? Promax starts from this solution and lets the axes tilt.

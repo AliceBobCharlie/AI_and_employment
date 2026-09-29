@@ -354,6 +354,12 @@ nav#TOC > #toc-title { order: 0; }
 nav#TOC > .quarto-other-links { order: 1; }
 nav#TOC > ul { order: 2; }
 
+// Keep the whole table of contents open. Bootstrap hides a `.collapse` that is
+// not `.show`, which is how Quarto reveals subsections only once their parent
+// section is the active one; in a paper whose subsections are numbered, that
+// hides exactly the structure a reader is scanning for.
+nav#TOC .collapse:not(.show) { display: block; }
+
 .quarto-other-links {
   font-family: $sans;
   font-size: 0.85rem;
