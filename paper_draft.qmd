@@ -227,7 +227,7 @@ them would put a model's judgement inside a matrix intended to hold only
 measured features. The other two, Work Values and Job Zones, are excluded on
 evidence. Job Zones is the case worth arguing at length.
 
-**Job Zones** is dropped for a reason that is not only redundancy, and it is
+The **Job Zones** block is dropped for a reason that is not only redundancy, and it is
 worth stating plainly. A Job Zone is O\*NET's own one-to-five summary of how much
 preparation an occupation needs — a ready-made low-dimensional grouping of
 occupations, assigned by the same organisation that supplied the ratings. This
@@ -771,7 +771,7 @@ efficient — it was built for statistical reporting, grouping by industry and
 function — but that is the point: reaching for the classification that exists,
 instead of recovering structure, gives up most of the information in the ratings.
 
-### 5.3 How many axes, and how we choose them
+### 5.3 Determining the dimensions
 
 The standardised feature matrix — 894 occupations by 216 variables — is
 decomposed by principal component analysis.
@@ -981,12 +981,41 @@ dynamic strength (−0.45) and stamina (−0.44); its extremes are models, cloak
 attendants, dishwashers, textile pressers and refuse collectors.
 
 The negative pole deserves a word, because it is not what the axis's name would
-lead one to expect. Orthogonal to R1 as it is, R2 still ends in bodily work —
-but in a specific kind: repetitive, sustained, performed to a given routine. The
-contrast R2 draws is not between using the body and using the mind, which is R1's
-business, but between work whose procedure the worker has to determine and work
-whose procedure is handed to them, and the clearest cases of the second are
-repetitive manual jobs.
+lead one to expect. Orthogonal to R1 as it is, R2 still ends in bodily work — but
+in a specific kind: sustained, physically repetitive, performed to a given
+routine. The contrast R2 draws is not between using the body and using the mind,
+which is R1's business, but between work whose procedure the worker has to
+determine and work whose procedure is handed to them. Two Work Context items say
+that directly and confirm the reading: Determine Tasks, Priorities and Goals
+loads **+0.49** and Freedom to Make Decisions **+0.45**.
+
+Office work lands where the reading predicts. Clerical occupations are
+physically light, so they sit low on R1, and they also sit low on R2: cashiers at
+−2.18, proofreaders at −1.82, switchboard and telephone operators at −1.69 and
+−1.55, court reporters at −1.55, word processors and typists at −1.32, general
+office clerks at −1.12 — most of them below the tenth percentile of the axis,
+which is −1.31. Of twenty-five clerical and administrative codes only one, order
+clerks, is on the positive side, and it is there by 0.02. The procedural pole is
+not a manual pole that happens to contain some office work; it holds routinised
+work of either medium, and the extremes are manual only because R2 is estimated
+orthogonally to R1.
+
+One caveat belongs with the name, and it is sharper than a caveat usually is.
+O\*NET has an item that asks directly how repetitive the work is — Importance of
+Repeating Same Tasks — and it loads **−0.03** on R2, +0.14 on R1 and +0.04 on R3.
+The three axes account for 2.2 percent of its variance, which is the **lowest of
+all 216 columns**; the median column is at 0.55. So repetition in the sense of
+doing the same task again is not what this axis measures, and none of the three
+measures it. The pair that makes this concrete is airline pilots and court
+reporters: both score about one standard deviation above the mean on repeating
+the same tasks, and they sit at +1.50 and −1.55 on R2. Repetition does not
+separate them; who determines the procedure does.
+
+We keep the name judgement for that reason. What R2 orders is discretion
+together with the analytic work discretion requires, not routineness, and the
+word should be read that way. We also record that a repetition dimension does
+exist in this matrix and lies outside the retained three — which is where a
+reader interested in automation should expect to find it.
 
 We call the axis judgement rather than cognitive load, which was our first label
 and which we now think misleading in two ways. "Cognitive load" has an
@@ -1026,6 +1055,16 @@ literature added to it. That is evidence for the framework, and it is also the
 strongest evidence we have that the procedure is recovering structure rather
 than fitting noise: noise does not land on a theory.
 
+The second correspondence needs qualifying in the way the last paragraph
+described. R2 recovers the *non-routine* side of the routine/non-routine
+distinction — analytic problem solving, discretion over what is done — but it
+does not recover routineness as repetition, and the O\*NET item that measures
+repetition directly is orthogonal to all three axes. If the routine/non-routine
+distinction is read as a distinction about who decides, our data supports it as
+one of the two leading dimensions of occupational structure. If it is read as a
+distinction about how repetitive the tasks are, our data says that is a separate
+dimension, and a smaller one.
+
 Where the result departs from the framework is in the weighting, not the
 content. In the task literature the manual/cognitive distinction carries much of
 the explanatory load. Our wage results, in Section 5.6, place almost all of it on
@@ -1038,8 +1077,9 @@ keeping. Physical work that calls for continual on-the-spot decisions sits at
 R2's positive pole and is paid accordingly; symbolic work performed to a given
 procedure sits at the negative pole and is not.
 
-**Checking the names.** We then applied checks on the naming of the three axes
-against O\*NET's own taxonomy. The Content Model arranges descriptors in a
+**Checking the names.** The names were then checked three times over, each check
+using evidence that took no part in the estimation. The first is O\*NET's own
+taxonomy. The Content Model arranges descriptors in a
 hierarchy whose element identifiers encode position: O\*NET's authors group
 abilities into cognitive, psychomotor, physical and sensory, and work activities
 into information input, mental processes, work output and interaction. Truncating
@@ -1129,14 +1169,23 @@ with the labour-market variables added back, with wages entered as two summaries
 and as all nine raw percentiles, and congruence with the reported axes is 1.000,
 1.000 and 0.999 in every case. They neither create the structure nor disturb it.
 
-The question is therefore put directly by regression. For each labour-market variable
-we ask how much of it the feature data predicts, estimating by ridge with
-five-fold cross-validation, the penalty chosen within each training fold and the
-scaler fitted on training folds only. Ordinary least squares is not usable at 216
-predictors against 894 observations: it fits each training fold exactly and
-generalises arbitrarily, returning large negative cross-validated R², which we
-confirmed before adopting the penalised estimator. This quantity depends on
-neither the variable's variance nor the number of feature columns.
+The question is therefore put directly by regression: for each labour-market
+variable, how much of it can the 216 feature columns predict? At that width the
+choice of estimator is not free. Ordinary least squares is not usable with 216
+predictors against 894 observations — it fits each training fold almost exactly
+and generalises arbitrarily, returning large negative cross-validated R², which
+we confirmed before moving on. A penalised estimator is therefore required rather
+than preferred, and we use ridge, which shrinks the coefficients toward zero
+without dropping any predictor. That is the right shape of penalty here, where
+the predictors are heavily collinear and all of them plausibly belong: a
+selection penalty would pick one column out of a group of near-duplicates and
+report the group's information as that column's.
+
+We estimate with five-fold cross-validation, the penalty chosen within each
+training fold and the scaler fitted on training folds only. The resulting
+quantity depends on neither the variable's variance nor the number of feature
+columns, which is what makes it the right instrument for the question the
+decomposition could not answer.
 
 | variable | cross-validated R² | reading |
 |---|---|---|
@@ -1175,10 +1224,10 @@ use is that it rules out treating measured wages as a summary statistic for
 occupational content, which some substitution measures effectively do.
 
 **Employment size and self-employment are facts about the market, and neither is
-trivial.** It is tempting to dismiss them as bookkeeping — how
-many people hold an occupation, and whether they hold it as employees — but both
-bear directly on whether a feasible substitution is carried out, and by
-mechanisms the feature data cannot supply.
+trivial.** It is tempting to dismiss them as bookkeeping — how many people hold
+an occupation, and whether they hold it as employees — but both bear directly on
+whether a feasible substitution is carried out, and by mechanisms the feature
+data cannot supply.
 
 Employment size sets the denominator over which the fixed cost of building an
 automation is spread. Svanberg et al. (2024 [WP]) find that most technically
@@ -1213,6 +1262,17 @@ coverage. What preparation an occupation demands is not, in this data,
 recoverable from what the work requires, which is what one would expect if entry
 thresholds are set institutionally rather than by the difficulty of the job.
 
+That is also why the block belongs with the labour-market variables rather than
+being read as one more description of the work. A required credential is a
+barrier to entry: it restricts who may hold the job, and it does so whether or
+not the work behind it could be done by someone without the credential — or by a
+system. This is the closure mechanism Weeden (2002) documents, arriving in our
+data as a block that is independent of occupational content, and it puts
+education and training alongside union coverage as a form of institutional
+protection rather than alongside skills as a property of the task. A licensed
+occupation whose task profile is highly substitutable is a real case, and it is
+one an exposure measure built from work descriptors cannot see.
+
 We also attempted to reduce the block to a single intensity of preparation, and
 could not. Its leading component runs from low thresholds — no credential, no
 prior experience, brief training — to high, moving together across all four
@@ -1225,39 +1285,29 @@ between a bachelor's and a doctorate, and compressing the scale to an intensity
 discards exactly the thresholds at which credentialing operates. We report the
 reduction as a negative result and use the block at full width.
 
-**Union coverage is independent, and independence is not
-reach.** Union coverage is not recoverable from the occupational features.
-Its largest correlation with any of the three axes is 0.23, no feature
-block predicts it well, and the full feature matrix reaches only R² = 0.35.
-Whether an occupation is organised is a fact about a history of bargaining, employer structure and law,
-and that history is not written in the descriptor ratings — which is Weeden's
-(2002) finding arriving by a different route. It is therefore a separate variable that empirical studies need to measure.
+**Union coverage is independent, and independence is not reach.** Union coverage
+is not recoverable from the occupational features. Its largest correlation with
+any of the three axes is 0.23, no feature block predicts it well, and the full
+feature matrix reaches only R² = 0.35. Whether an occupation is organised is a
+fact about a history of bargaining, employer structure and law, and that history
+is not written in the descriptor ratings — which is Weeden's (2002) finding
+arriving by a different route. It is therefore a separate variable that empirical
+studies need to measure.
 
-While independent, it has low variance. The consequence is visible even when the feature matrix is taken out of the
-picture. Decomposing the eight labour-market variables on their own, their
-leading direction — 38.1 percent of the group's variance — is the pay, status and
-retention direction of Section 5.6, and union coverage loads 0.05 on it: within
-its own small group, it contributes essentially nothing to what separates
-occupations most. It appears only on the group's second and third directions,
-which carry 16.9 and 13.3 percent. So union coverage is not swamped merely
-because the feature side is 216 columns wide; it is a variable with little
-between-occupation variation to contribute in the first place.
-The median occupation
-has 8.1 percent coverage, 81 percent of occupations sit below 20 percent, and
-only twenty-nine of the 894 are above half — a short and familiar list of rail,
-postal and public-safety occupations. Weighted by employment the mean is 10.9
-percent.
- Within the organised minority a
-collective agreement is a real constraint on what an employer may do with a
-technology, and Section 6.3 takes the 2023 Writers Guild agreement as the
-clearest case: where coverage exists it can bind hard. Across the American
-economy as a whole, coverage is both low and similar from one occupation to the
-next, so it has little power to explain why one occupation is displaced and
-another is not. An empirical study should therefore carry union coverage as a
-variable — it cannot be inferred from anything else — while not expecting it to
-carry much cross-occupational explanatory weight in the United States as
-currently organised. This is a fact about American labour institutions; in a country with higher and more differentiated
-coverage the same variable would behave differently.
+Independent, though, does not mean it will do much work. The median occupation
+has 8.1 percent coverage, 81 percent sit below 20 percent, and only
+twenty-nine of the 894 are above half — a short and familiar list of rail, postal
+and public-safety occupations. Coverage is both low and similar from one
+occupation to the next, and a variable with little between-occupation variation
+has little power to explain why one occupation is displaced and another is not.
+The same shows up within its own group: decomposing the eight labour-market
+variables on their own, union coverage loads 0.05 on their leading direction, so
+it is not being swamped by the 216 feature columns — there is not much there to
+swamp. Where coverage does exist it can bind hard, and Section 6.3 takes the 2023
+Writers Guild agreement as the case. But an empirical study of the United States
+should carry union coverage because it cannot be inferred from anything else,
+not because it is expected to move the estimate. In a country with higher and
+more differentiated coverage the same variable would behave differently.
 
 We also note the resolution with which this variable is measured. The CPS
 occupational classification is coarser than the SOC, so roughly 494 distinct
@@ -1265,7 +1315,7 @@ classes back the 894 occupations and groups of them share a value. This
 attenuates any correlation involving union coverage and means the variable should
 not be used to characterise a single occupation.
 
-**What follows for empirical work**These four have to be taken into account in any analysis of real-world displacement. A study that controls for
+**What follows for empirical work.** These four have to be taken into account in any analysis of real-world displacement. A study that controls for
 occupational content has not thereby controlled for union coverage, employment
 size, self-employment or entry requirements, and since each plausibly affects
 whether a technically feasible substitution is carried out, an exposure measure
