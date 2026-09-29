@@ -1038,11 +1038,8 @@ keeping. Physical work that calls for continual on-the-spot decisions sits at
 R2's positive pole and is paid accordingly; symbolic work performed to a given
 procedure sits at the negative pole and is not.
 
-**Checking the names.** Naming an axis from its loadings is a judgement on which
-every later claim depends, so three checks are applied, each using information
-that took no part in the estimation.
-
-**Against O\*NET's own taxonomy.** The Content Model arranges descriptors in a
+**Checking the names.** We then applied checks on the naming of the three axes
+against O\*NET's own taxonomy. The Content Model arranges descriptors in a
 hierarchy whose element identifiers encode position: O\*NET's authors group
 abilities into cognitive, psychomotor, physical and sensory, and work activities
 into information input, mental processes, work output and interaction. Truncating
@@ -1268,9 +1265,7 @@ classes back the 894 occupations and groups of them share a value. This
 attenuates any correlation involving union coverage and means the variable should
 not be used to characterise a single occupation.
 
-#### What follows for empirical work
-
-These four have to be taken into account in any analysis of real-world displacement. A study that controls for
+**What follows for empirical work**These four have to be taken into account in any analysis of real-world displacement. A study that controls for
 occupational content has not thereby controlled for union coverage, employment
 size, self-employment or entry requirements, and since each plausibly affects
 whether a technically feasible substitution is carried out, an exposure measure
