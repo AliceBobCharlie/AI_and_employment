@@ -200,28 +200,14 @@ main .table-striped > tbody > tr:nth-of-type(odd) > * {
   --bs-table-accent-bg: transparent;
 }
 
-// The two summary tables at the end of Sections 4.2 and 4.3 hold prose in some
-// columns and one or two words in others. Left to itself the browser gives them
-// comparable widths, which wraps the prose into narrow ribbons and leaves the
-// short columns half empty. The widths below are set per table because the two
-// have different columns.
-.block-table table,
+// The summary table at the end of Section 4.3 holds prose in some columns and a
+// few words in others. Left to itself the browser gives them comparable widths,
+// which wraps the prose into narrow ribbons and leaves the short columns half
+// empty.
+// variable | why | source | what the coding does | coverage and treatment
 .lm-table table {
   font-size: 0.78rem;
   table-layout: fixed;
-}
-
-// block | why | in? | scale, columns | missing values
-.block-table table {
-  th:nth-child(1), td:nth-child(1) { width: 15%; }
-  th:nth-child(2), td:nth-child(2) { width: 25%; }
-  th:nth-child(3), td:nth-child(3) { width:  7%; }
-  th:nth-child(4), td:nth-child(4) { width: 17%; }
-  th:nth-child(5), td:nth-child(5) { width: 36%; }
-}
-
-// variable | why | source | what the coding does | coverage and treatment
-.lm-table table {
   th:nth-child(1), td:nth-child(1) { width: 14%; }
   th:nth-child(2), td:nth-child(2) { width: 24%; }
   th:nth-child(3), td:nth-child(3) { width: 16%; }

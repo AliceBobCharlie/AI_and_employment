@@ -412,9 +412,7 @@ Incumbent for Knowledge, Work Activities, Work Context and ETE. None of the
 retained blocks is model-generated, which was the basis for excluding Work
 Styles and Interests in Section 4.1.
 
-Work Context contributes 55 columns, Abilities 52, Work Activities 41, Skills 35
-and Knowledge 33. The matrix entering the principal component analysis is
-therefore 894
+The matrix entering the principal component analysis is therefore 894
 occupations by 216 variables, all of them O\*NET descriptors. Nothing from
 Section 4.3 is in it — not the wages, not employment, not union coverage, not
 the education and training distributions. That is the design: every variable the
@@ -448,29 +446,19 @@ values, because it fits the training folds exactly and generalises arbitrarily.
 Those regressions therefore use ridge, whose penalty is what makes the estimate
 meaningful in this shape, with the scaler fitted inside each fold.
 
-Sections 4.1 and 4.2 together settle one decision per block of the Content
-Model, and the decisions are gathered here.
+**Table 4.1 — The final matrix**
 
-**Table 4.1 — The Content Model, block by block**
-
-::: {.block-table}
-
-| block | why it might bear on substitution | in? | scale, columns | missing values, and the decision |
+| block | scale | columns | missing cells | filled |
 |---|---|---|---|---|
-| Abilities | what a system would have to supply to stand in | yes | Importance, 52 | none |
-| Skills | what the work teaches; how fast it could be re-staffed | yes | Importance, 35 | none |
-| Knowledge | what the work draws on | yes | Importance, 33 | none on Importance; the 8.3 and 10.2 percent flag rates sit on Level rows |
-| Work Activities | what is done, rather than what the doer is like | yes | Importance, 41 | none |
-| Work Context | conditions that constrain what can be delegated | yes | Context, 55 | none. The Category scale duplicates it: 2 items, 0.5 percent of variance |
-| Work Styles | personal attributes affecting performance | no | — | Domain Source AI/Expert: a model output, not a measurement |
-| Interests | occupational interest types | no | — | Machine Learning/Expert, for the same reason |
-| Work Values | what the work satisfies in the worker | no | — | 1.1 percent of leading variance, R² = 0.75 from the other blocks, analyst vintage 2008 |
-| Job Zones | O\*NET's own 1–5 summary of preparation needed | no | — | leakage: a ready-made grouping from the ratings' own supplier (0.85 with PC1, R² = 0.89) |
-| Education, training and experience | entry thresholds are institutional, not technical | §4.3 | 4 distributions, 41 → 37 | 16 occupations lack the block (592 cells) → column median |
-| Workforce Characteristics | where the occupation stands in the market | §4.3 | — | no data distributed; taken from the BLS sources instead |
-| Occupation-Specific Information | titles, tasks, tools and technology | no | — | occupation-specific by construction: no columns common to all |
+| Work Context | Context | 55 | 0 | none |
+| Abilities | Importance | 52 | 0 | none |
+| Work Activities | Importance | 41 | 0 | none |
+| Skills | Importance | 35 | 0 | none |
+| Knowledge | Importance | 33 | 0 | none |
 
-:::
+894 occupations by 216 variables, and not one imputed cell. Education, training
+and experience is not part of this matrix: it is a labour-market variable, and
+its 592 missing cells are filled in Section 4.3.
 
 ### 4.3 The labour-market variables
 
