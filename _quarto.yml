@@ -10,6 +10,7 @@ project:
   resources:
     - figures.js
     - output/plot_data.csv
+    - output/acs_young_share.csv
 
 format:
   html:

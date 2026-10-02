@@ -3,6 +3,10 @@
 // Data: output/plot_data.csv, written by plot_axes.py. One row per occupation:
 // onet_soc, title, R1, R2, R3, employment, union.
 //
+// Figure 6.2 reads output/acs_young_share.csv, written by acs_young_share.py:
+// one row per matched O*NET occupation, with the change in the young-worker
+// share (delta) and the occupation's axis scores.
+//
 // Axis signs are fixed in pca_rotated.py so that + always means harder to
 // automate. Marker size is log employment, scaled the way plotly express does
 // it (area proportional to value, largest marker SIZE_MAX pixels across).
@@ -11,6 +15,7 @@
   "use strict";
 
   const DATA_URL = "output/plot_data.csv";
+  const YOUNG_URL = "output/acs_young_share.csv";
   const SIZE_MAX = 16;
   const FONT = '"Source Sans 3", "Helvetica Neue", Arial, sans-serif';
 
@@ -305,7 +310,118 @@
     return draw();
   }
 
+  // ---------------------------------------------------------------- figure 6.2
+
+  // Change in the share of workers aged 22 to 25, 2022 to 2024, against each
+  // axis. Only exact matches are drawn: an aggregate ACS code broadcasts one
+  // value to several occupations, which would put identical points in a row.
+  // Each panel reports the correlation unweighted and employment-weighted,
+  // computed the same way as in acs_young_share.py.
+
+  function youngColumns(records) {
+    const exact = records.filter((r) => r.exact_match === "True");
+    const col = (k) => exact.map((r) => Number(r[k]));
+    const employment = col("employment");
+    return {
+      title: exact.map((r) => r.title),
+      R1: col("R1"), R2: col("R2"), R3: col("R3"),
+      delta: col("delta").map((v) => v * 100),     // percentage points
+      employment: employment,
+      size: employment.map((e) => Math.log1p(e)),
+    };
+  }
+
+  function correlation(x, y, w) {
+    // Weighted Pearson correlation; with w all ones it is the ordinary one.
+    // Rows with a weight of zero (no employment figure) are left out.
+    const keep = x.map((_, i) => i).filter((i) => w[i] > 0);
+    const total = keep.reduce((s, i) => s + w[i], 0);
+    const mean = (v) => keep.reduce((s, i) => s + w[i] * v[i], 0) / total;
+    const mx = mean(x), my = mean(y);
+    let sxy = 0, sxx = 0, syy = 0;
+    keep.forEach((i) => {
+      sxy += w[i] * (x[i] - mx) * (y[i] - my);
+      sxx += w[i] * (x[i] - mx) ** 2;
+      syy += w[i] * (y[i] - my) ** 2;
+    });
+    return sxy / Math.sqrt(sxx * syy);
+  }
+
+  function formatSigned(v) {
+    return (v < 0 ? "−" : "+") + Math.abs(v).toFixed(2);
+  }
+
+  function drawYoung(el, d) {
+    const dims = ["R1", "R2", "R3"];
+    // Side by side in the text column; stacked on a narrow screen, where three
+    // panels across would each be too thin to read.
+    const stacked = el.clientWidth < 600;
+    if (stacked) el.classList.add("plot-young-stacked");
+    const ones = d.delta.map(() => 1);
+
+    const traces = [];
+    const annotations = [];
+    const layout = Object.assign(baseLayout(), {
+      plot_bgcolor: "#ffffff",
+      grid: stacked
+        ? { rows: 3, columns: 1, pattern: "independent", ygap: 0.45 }
+        : { rows: 1, columns: 3, pattern: "independent", xgap: 0.08 },
+      margin: { l: 64, r: 16, t: 36, b: 56 },
+    });
+
+    dims.forEach((k, i) => {
+      const n = i === 0 ? "" : String(i + 1);
+      traces.push({
+        type: "scatter", mode: "markers",
+        x: d[k], y: d.delta,
+        xaxis: "x" + n, yaxis: "y" + n,
+        text: d.title,
+        customdata: d.employment,
+        hovertemplate: "<b>%{text}</b><br>" + DIMS[k].name + ": %{x:+.2f}" +
+          "<br>Change in young share: %{y:+.1f} pp" +
+          "<br>Employment: %{customdata:,.0f}<extra></extra>",
+        marker: Object.assign(markerSize(d), { color: "#333333", opacity: 0.6, line: { width: 0 } }),
+        showlegend: false,
+      });
+
+      layout["xaxis" + n] = {
+        title: { text: DIMS[k].name },
+        zeroline: false, showgrid: false,
+        linecolor: "#000000", ticks: "outside",
+      };
+      layout["yaxis" + n] = {
+        title: { text: i === 0 || stacked ? "Change in young share (pp)" : "" },
+        zeroline: true, zerolinecolor: "#8c8c8c", zerolinewidth: 1,
+        showgrid: false,
+        linecolor: "#000000", ticks: "outside",
+      };
+      // Every panel shares one vertical scale so they can be compared.
+      if (i > 0) layout["yaxis" + n].matches = "y";
+
+      const r = correlation(d[k], d.delta, ones);
+      const rw = correlation(d[k], d.delta, d.employment);
+      annotations.push({
+        xref: "x" + n + " domain", yref: "y" + n + " domain",
+        x: 0, y: 1.02, xanchor: "left", yanchor: "bottom",
+        showarrow: false, align: "left",
+        text: "r = " + formatSigned(r) + "   weighted " + formatSigned(rw),
+        font: { family: FONT, size: 13, color: "#000000" },
+      });
+    });
+    layout.annotations = annotations;
+
+    return Plotly.newPlot(el, traces, layout, CONFIG);
+  }
+
   // ---------------------------------------------------------------- start
+
+  async function loadCsv(url) {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(url + " returned " + res.status);
+    return parseCsv(await res.text());
+  }
+
+  const LOAD_HELP = "If the page was opened as a local file, serve it over HTTP instead, for example with quarto preview.";
 
   function showError(elements, message) {
     elements.forEach((el) => {
@@ -316,11 +432,38 @@
     });
   }
 
-  async function main() {
+  async function drawAxesFigures(space, section, select) {
+    const targets = [space, section].filter(Boolean);
+    if (!targets.length) return;
+    let d;
+    try {
+      d = toColumns(await loadCsv(DATA_URL));
+    } catch (err) {
+      showError(targets, "The figure data could not be loaded (" + err.message + "). " + LOAD_HELP);
+      return;
+    }
+    if (space) drawSpace(space, d);
+    if (section && select) drawSections(section, select, d);
+  }
+
+  async function drawYoungFigure(young) {
+    if (!young) return;
+    let d;
+    try {
+      d = youngColumns(await loadCsv(YOUNG_URL));
+    } catch (err) {
+      showError([young], "The figure data could not be loaded (" + err.message + "). " + LOAD_HELP);
+      return;
+    }
+    drawYoung(young, d);
+  }
+
+  function main() {
     const space = document.getElementById("plot-space");
     const section = document.getElementById("plot-section");
     const select = document.getElementById("section-select");
-    const targets = [space, section].filter(Boolean);
+    const young = document.getElementById("plot-young");
+    const targets = [space, section, young].filter(Boolean);
     if (!targets.length) return;
 
     if (typeof Plotly === "undefined") {
@@ -328,19 +471,10 @@
       return;
     }
 
-    let d;
-    try {
-      const res = await fetch(DATA_URL);
-      if (!res.ok) throw new Error(DATA_URL + " returned " + res.status);
-      d = toColumns(parseCsv(await res.text()));
-    } catch (err) {
-      showError(targets, "The figure data could not be loaded (" + err.message + "). " +
-        "If the page was opened as a local file, serve it over HTTP instead, for example with quarto preview.");
-      return;
-    }
-
-    if (space) drawSpace(space, d);
-    if (section && select) drawSections(section, select, d);
+    // Separate data files, loaded independently, so a missing file leaves
+    // only its own figure empty.
+    drawAxesFigures(space, section, select);
+    drawYoungFigure(young);
   }
 
   if (document.readyState === "loading") {

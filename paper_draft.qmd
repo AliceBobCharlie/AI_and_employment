@@ -1398,7 +1398,17 @@ specifications, and the occupations at the extremes are not coherent: the
 largest declines include exercise trainers, social workers and bakers, which no
 account of language-model capability would place at the front of the queue.
 
-**[Figure 6.2 — change in the young-worker share, 2022–2024, against each axis.]**
+```{=html}
+<figure class="plot-figure">
+  <div class="plot plot-young" id="plot-young" role="img"
+       aria-label="Three scatter plots of the change in the share of workers aged 22 to 25 within each occupation, 2022 to 2024, against the physical intensity, judgement and person-facing axes."></div>
+  <figcaption><b>Figure 6.2</b> — change in the share of workers aged 22 to 25
+  within each occupation, 2022 to 2024, in percentage points, against each axis.
+  American Community Survey; occupations whose survey code matches a single
+  SOC code only. Each panel gives the correlation unweighted and weighted by
+  employment. Marker size is log employment; hover for the occupation.</figcaption>
+</figure>
+```
 
 Three things stand between the data and an answer. The alignment between survey
 occupation codes and O\*NET is imperfect, and the aggregated codes in the survey
@@ -1450,8 +1460,36 @@ less substitutable one — then the least substitutable occupations are those
 positive on all three, and the most substitutable are those negative on all
 three.
 
-**[Table 6.1 — the ten occupations furthest into each of the two corners, with
-their coordinates.]**
+**Table 6.1 — The ten occupations furthest into each of the two corners**
+
+An occupation's depth into a corner is the smallest of its three coordinates,
+taken with the corner's sign, so an occupation ranks high only if it is far from
+zero on every axis at once. Coordinates are in standard deviations.
+
+| occupation | physical intensity | judgement | person-facing |
+|----------------------------------------------------|----------------|----------------|----------------|
+| **Positive on all three axes** (111 occupations) | | | |
+| First-Line Supervisors of Firefighting and Prevention Workers | +1.96 | +1.35 | +2.03 |
+| Nurse Anesthetists | +1.02 | +1.72 | +1.15 |
+| Dentists, General | +0.99 | +1.52 | +1.15 |
+| First-Line Supervisors of Police and Detectives | +0.97 | +1.01 | +2.33 |
+| First-Line Supervisors of Landscaping, Lawn Service, and Groundskeeping Workers | +1.59 | +0.90 | +1.10 |
+| Airfield Operations Specialists | +0.99 | +0.89 | +1.08 |
+| First-Line Supervisors of Material-Moving Machine and Vehicle Operators | +0.81 | +0.98 | +1.29 |
+| Coroners | +0.81 | +1.00 | +1.86 |
+| Critical Care Nurses | +0.81 | +1.06 | +1.83 |
+| Detectives and Criminal Investigators | +0.80 | +0.86 | +2.01 |
+| **Negative on all three axes** (67 occupations) | | | |
+| Proofreaders and Copy Markers | −1.95 | −1.82 | −1.42 |
+| Poets, Lyricists and Creative Writers | −2.10 | −1.03 | −1.23 |
+| Payroll and Timekeeping Clerks | −1.63 | −0.87 | −0.89 |
+| Fine Artists, Including Painters, Sculptors, and Illustrators | −0.80 | −1.10 | −1.68 |
+| Craft Artists | −0.77 | −1.21 | −1.58 |
+| Billing and Posting Clerks | −1.46 | −0.93 | −0.74 |
+| Bookkeeping, Accounting, and Auditing Clerks | −1.46 | −0.85 | −0.70 |
+| Title Examiners, Abstractors, and Searchers | −1.39 | −0.64 | −0.66 |
+| Judicial Law Clerks | −1.86 | −0.64 | −0.78 |
+| Gem and Diamond Workers | −0.62 | −0.97 | −1.46 |
 
 #### The occupations the corners do not describe
 

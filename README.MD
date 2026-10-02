@@ -24,6 +24,8 @@ python pca_ete.py               # 6. structure of the education/training block
 python check_orthogonality.py   # 7. which external variables skills can predict
 python validate_axes.py         # 8. do the axis names hold up?
 python plot_axes.py             # 9. data for the figures (needs step 4)
+python corner_table.py          # 10. Table 6.1 (needs step 4)
+python acs_young_share.py       # 11. data for Figure 6.2 (needs step 4 and the ACS extract)
 ```
 
 Steps 1 and 2 run in that order; every analysis afterwards reads
@@ -146,6 +148,23 @@ so run it after `pca_rotated.py`. The figures themselves are drawn in the
 browser by plotly.js. `rotated_axes.csv` and `plot_data.csv` are both committed,
 so the axes can be downloaded without running anything.
 
+**`corner_table.py`** → terminal
+
+Table 6.1: the ten occupations furthest into the corner positive on all three
+axes and the corner negative on all three. Depth into a corner is the smallest
+of the three coordinates taken with the corner's sign, so an occupation that is
+extreme on one axis and near zero on another does not rank as deep. Prints a
+Markdown table to paste into `paper_draft.qmd`. Needs `rotated_axes.csv`.
+
+**`acs_young_share.py`** → `acs_young_share.csv`
+
+Figure 6.2: the change in the share of workers aged 22 to 25 within each
+occupation between 2022 and 2024, from the American Community Survey, matched to
+O\*NET codes and projected onto the axes. Builds its occupation-year aggregate
+from an IPUMS extract in `data_raw/` the first time, then reuses it. The
+microdata is not redistributable and stays out of the repository; the
+occupation-level output is committed so the web paper can draw the figure.
+
 ## Supporting analyses
 
 **`mfa_analysis.py`** → `mfa_row_coords.csv`
@@ -198,11 +217,12 @@ The paper is written in `paper_draft.qmd` and published as a web page with
 | `paper_draft.qmd` | the paper: title and abstract in the header, then the text |
 | `_quarto.yml` | page layout, fonts, and the scripts the page loads |
 | `theme.scss` | typography and colours |
-| `figures.js` | draws the interactive figures in the reader's browser with plotly.js, from `output/plot_data.csv` |
+| `figures.js` | draws the interactive figures in the reader's browser with plotly.js, from `output/plot_data.csv` and `output/acs_young_share.csv` |
 
 No Python runs when the page is built. The figures read `output/plot_data.csv`
-directly, so after re-running the analysis, run `plot_axes.py` and commit the
-new CSV for the page to pick it up.
+and `output/acs_young_share.csv` directly, so after re-running the analysis, run
+`plot_axes.py` and `acs_young_share.py` and commit the new CSVs for the page to
+pick them up.
 
 To preview locally, install Quarto and run `quarto preview` from the project
 root. Opening `_site/index.html` straight from disk will not show the figures,

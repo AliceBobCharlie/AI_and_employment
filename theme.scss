@@ -247,6 +247,16 @@ main .table-striped > tbody > tr:nth-of-type(odd) > * {
   height: clamp(380px, 68vh, 640px);
 }
 
+// Three panels side by side, each about as tall as it is wide. On a narrow
+// screen figures.js stacks them and adds the second class.
+.plot-young {
+  height: 340px;
+}
+
+.plot-young.plot-young-stacked {
+  height: 1050px;
+}
+
 .plot-figure figcaption {
   font-family: $sans;
   font-size: 0.9rem;
