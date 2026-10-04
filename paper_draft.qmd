@@ -111,34 +111,41 @@ The closest methodological precedent is Lise and Postel-Vinay (2020), who run pr
 O\*NET is the successor to the *Dictionary of Occupational Titles*, maintained for
 the US Department of Labor. It describes roughly nine hundred detailed
 occupations on several hundred numeric scales, rated by job incumbents surveyed
-within each occupation and by trained occupational analysts. Its organising
-scheme, the Content Model, sorts those scales into six domains along two
-dimensions: whether a descriptor is a property of the worker or of the job, and
-whether it is cross-occupational or specific to one occupation.
+within each occupation, by occupation experts and by trained occupational
+analysts. We use release 31.0, published in August 2026. Its organising scheme,
+the Content Model, was reorganised in release 30.3 into three parts: the
+**worker**, meaning what the person in the job brings to it and must have
+acquired; the **job**, meaning what the work involves; and the **market**,
+meaning pay, employment and outlook.
 
 ```{=html}
 <figure class="content-model">
   <div class="cm-grid">
     <div class="cm-col">
-      <h4>Worker-oriented</h4>
+      <h4>Worker</h4>
       <div class="cm-domain">
         <b>Worker Characteristics</b>
         <span class="use">Abilities</span>
-        <span class="drop">Work Styles</span><span class="drop">Interests</span>
-        <span class="drop">Work Values</span>
+        <span class="drop">Work Styles</span>
+        <span class="drop">Career Interest Types</span>
+        <span class="drop">Specific Interest Areas</span>
       </div>
       <div class="cm-domain">
         <b>Worker Requirements</b>
-        <span class="use">Skills</span><span class="use">Knowledge</span>
+        <span class="use">Essential Skills</span>
+        <span class="use">Transferable Skills</span>
+        <span class="use">Knowledge</span>
+        <span class="lm">Education</span>
+        <span class="na">Software Skills</span>
       </div>
       <div class="cm-domain">
         <b>Experience Requirements</b>
-        <span class="lm">Education, Training and Experience</span>
+        <span class="lm">Training and Experience</span>
         <span class="drop">Job Zones</span>
       </div>
     </div>
     <div class="cm-col">
-      <h4>Job-oriented</h4>
+      <h4>Job</h4>
       <div class="cm-domain">
         <b>Occupational Requirements</b>
         <span class="use">Work Activities</span>
@@ -146,12 +153,15 @@ whether it is cross-occupational or specific to one occupation.
         <span class="drop">Work Context (Category scale)</span>
       </div>
       <div class="cm-domain">
-        <b>Workforce Characteristics</b>
-        <span class="na">labour market information, outlook</span>
-      </div>
-      <div class="cm-domain">
         <b>Occupation-Specific Information</b>
-        <span class="na">titles, tasks, tools and technology</span>
+        <span class="na">titles, tasks, detailed work activities</span>
+      </div>
+    </div>
+    <div class="cm-col">
+      <h4>Market</h4>
+      <div class="cm-domain">
+        <b>Labor Market Information and Occupational Outlook</b>
+        <span class="lm">pay, employment, outlook (from the BLS sources directly)</span>
       </div>
     </div>
   </div>
@@ -161,11 +171,14 @@ whether it is cross-occupational or specific to one occupation.
     <span class="drop">excluded, with reasons (§4.2)</span>
     <span class="na">not used</span>
   </div>
-  <figcaption><b>Figure 1</b> — the O*NET Content Model, with the treatment each
-  block receives here. The six domains and their contents follow the Content
-  Model documentation; the shading is ours. This figure includes information from
-  O*NET Resource Center by the U.S. Department of Labor, Employment and Training
-  Administration (USDOL/ETA). Used under the CC BY 4.0 license.</figcaption>
+  <figcaption><b>Figure 1</b> — the O*NET Content Model as reorganised in release
+  30.3, with the treatment each block receives here. The three parts and their
+  contents follow the Content Model documentation; Job Zones, which that
+  documentation does not list, are placed with the experience requirements, as
+  the database dictionary groups them. The shading is ours. This figure includes
+  information from O*NET Resource Center by the U.S. Department of Labor,
+  Employment and Training Administration (USDOL/ETA). Used under the CC BY 4.0
+  license.</figcaption>
 </figure>
 ```
 
@@ -185,32 +198,45 @@ analysis later recovers on its own.
 that facilitate learning and performance. Where Abilities record what a worker
 brings, Skills record what the work has taught them; the two differ in how far
 they can be acquired, which bears on how quickly an occupation could be
-re-staffed if part of it were automated.
+re-staffed if part of it were automated. Since release 30.3 the block is
+published as two files, Essential Skills (ten elements, such as reading,
+writing and mathematics) and Transferable Skills (twenty-five, from social to
+resource-management skills). Together they hold the same thirty-five elements
+as before, and we use them as one block.
 
-**Knowledge** *(Worker Requirements, incumbents, Importance).* Organised bodies
-of principles and facts. Relevant with a caveat we state rather than resolve:
-what O\*NET treats as separate domains, because each takes a person years to
-acquire, may not be separate for a model trained on a broad corpus. The block
-still discriminates occupations well, which is what it is used for here.
+**Knowledge** *(Worker Requirements, incumbents or occupation experts,
+Importance).* Organised bodies of principles and facts. Relevant with a caveat
+we state rather than resolve: what O\*NET treats as separate domains, because
+each takes a person years to acquire, may not be separate for a model trained on
+a broad corpus. The block still discriminates occupations well, which is what it
+is used for here.
 
-**Work Activities** *(Occupational Requirements, incumbents, Importance).*
-Generalised activities common across occupations. Of the five blocks this is the
-closest to what is actually done rather than to what the doer is like, and it is
-therefore the block most directly comparable to the task-level measures the
-substitution literature is built on.
+**Work Activities** *(Occupational Requirements, incumbents or occupation
+experts, Importance).* Generalised activities common across occupations. Of the
+five blocks this is the closest to what is actually done rather than to what the
+doer is like, and it is therefore the block most directly comparable to the
+task-level measures the substitution literature is built on.
 
-**Work Context** *(Occupational Requirements, incumbents, Context scale).*
-Physical and social conditions of the work. It carries what the other blocks
-omit: whether the work is done in person, outdoors, under hazard, under time
-pressure, in contact with the public. These constrain what can be delegated to a
-system independently of how difficult the work is, and without this block an
-occupation's physical setting is invisible to the analysis.
+**Work Context** *(Occupational Requirements, incumbents or occupation experts,
+Context scale).* Physical and social conditions of the work. It carries what the
+other blocks omit: whether the work is done in person, outdoors, under hazard,
+under time pressure, in contact with the public. These constrain what can be
+delegated to a system independently of how difficult the work is, and without
+this block an occupation's physical setting is invisible to the analysis.
 
-O\*NET also publishes, under Experience Requirements, the distribution of
-education, training and prior experience that holders of each occupation report.
-We take the view that this is not a description of the work, and introduce it in
-Section 4.3 with the other labour-market variables; Section 5.5 gives the
-evidence that led us there.
+The raters differ by block, and O\*NET records which supplied each rating.
+Abilities and Skills are rated by analysts for every occupation. Knowledge, Work
+Activities and Work Context come from a survey of incumbents for about 72
+percent of the occupations analysed here and from occupation experts for about
+27 percent. For the remaining nine, O\*NET publishes provisional analyst ratings
+until a survey is completed. None of the five blocks is generated by a model.
+
+O\*NET also publishes the distribution of education, training and prior
+experience that holders of each occupation report: education under Worker
+Requirements, training and experience under Experience Requirements. We take the
+view that this is not a description of the work, and introduce it in Section 4.3
+with the other labour-market variables; Section 5.5 gives the evidence that led
+us there.
 
 ### 4.2 Screening, missing values, and the width of the matrix
 
@@ -219,31 +245,34 @@ restatement of something else; and what it does publish has gaps whose causes
 differ and therefore need different treatment. This section settles what enters
 the feature matrix.
 
-Four blocks are excluded and the reasons differ in kind. Two are excluded
-because they are not observations: in release 30.2 the Domain Source field
-records Work Styles as AI/Expert and Interests as Machine Learning/Expert, so
-both are model outputs rather than measurements of the occupation, and including
-them would put a model's judgement inside a matrix intended to hold only
-measured features. The other two, Work Values and Job Zones, are excluded on
-evidence. Job Zones is the case worth arguing at length.
+Four blocks are excluded and the reasons differ in kind. Three are excluded
+because they are not observations. Work Styles was last revised in release 30.1
+by what O\*NET calls a hybrid artificial intelligence–expert method, and release
+31.0 carries it unchanged. Career Interest Types, the former Interests file
+renamed in release 30.3, holds profiles last updated in release 30.2 by a
+machine learning–expert method. Specific Interest Areas, added in release 30.3,
+was generated by the same hybrid method as Work Styles. All three are model
+outputs rather than measurements of the occupation, and including them would put
+a model's judgement inside a matrix intended to hold only measured features. The
+fourth, Job Zones, is excluded for a different reason, and it is the case worth
+arguing at length.
 
-The **Job Zones** block is dropped for a reason that is not only redundancy, and it is
-worth stating plainly. A Job Zone is O\*NET's own one-to-five summary of how much
-preparation an occupation needs — a ready-made low-dimensional grouping of
-occupations, assigned by the same organisation that supplied the ratings. This
-paper asks whether such structure emerges from the feature data on its own.
-Admitting a variable that already encodes the answer would let the target of the
-analysis in through the front door: the leading component would partly reproduce
-Job Zones because Job Zones was in the matrix, and we would have no way to tell
-that from a finding. The numbers bear this out — it correlates 0.85 with the
-leading component and is predictable from the other blocks at R² = 0.89 — but the
-reason for dropping it is the leakage, not the correlation.
-
-**Work Values** is dropped on a weaker and simpler ground: it is six columns
-that carry 1.1 percent of the variance in the leading components, is predictable
-from the remaining blocks at R² = 0.75, and rests on an analyst vintage of 2008.
-Half-redundant and the oldest ratings in the release, it earns its place in
-neither respect. Nothing in what follows turns on the decision.
+The **Job Zones** block is dropped for a reason that is not only redundancy, and
+it is worth stating plainly. A Job Zone is O\*NET's own summary of how much
+preparation an occupation needs, on a scale that ran from one to five and has
+been moving since release 30.2 to a framework of four levels; in release 31.0
+none of the occupations analysed here is in Zone 1. It is a ready-made
+low-dimensional grouping of occupations, assigned by the same organisation that
+supplied the ratings. This paper asks whether such structure emerges from the
+feature data on its own. Admitting a variable that already encodes the answer
+would let the target of the analysis in through the front door: the leading
+component would partly reproduce Job Zones because Job Zones was in the matrix,
+and we would have no way to tell that from a finding. The numbers bear this out
+— it correlates 0.85 with the leading component and is predictable from the
+other blocks at R² = 0.89 — but the reason for dropping it is the leakage, not
+the correlation.
+<!-- TODO: the 0.85 and R2 = 0.89 for Job Zones were computed on release 30.2;
+recompute on 31.0 (Job Zones is not in the master table). -->
 
 **A variable we do keep, and the reason to watch it.** Work Context includes an
 item, Degree of Automation, which asks incumbents how automated the job already
@@ -253,12 +282,14 @@ rather than silence. Ours is that the two cases differ in kind. A Job Zone is a
 summary of occupations, constructed to group them; Degree of Automation is a
 condition of the work, observed like the other fifty-four items in its block, and
 the structure it might bias is not a structure it encodes. The empirical answer is
-more direct. On the rotated axes of Section 5.4 its loadings are −0.02, 0.01 and
-−0.24, which rank 212th, 211th and 93rd among the 216 columns: it contributes
+more direct. On the rotated axes of Section 5.4 its loadings are 0.01, 0.06 and
+−0.24, which rank 214th, 194th and 98th among the 216 columns: it contributes
 almost nothing to the axes it might have contaminated. We record it here so that
 anyone using this space to study automation outcomes knows the variable is in the
 matrix and can remove it, while noting that on this evidence doing so would
 change very little.
+<!-- TODO: on release 31.0 Degree of Automation loads 0.53 on the second-tier
+axis R5. Revisit this paragraph once the second tier is in Section 5. -->
 
 What remains to settle is not which blocks to keep but which **scale** to keep
 them on, because O\*NET publishes most of its blocks twice over. Work Context is
@@ -271,176 +302,124 @@ Four of the blocks — Skills, Abilities, Knowledge and Work Activities — are
 published on two scales at once. Importance records how consequential a
 descriptor is to the occupation; Level records how much of it the work demands.
 Retaining both would be the natural default, and the four blocks would then
-occupy 322 columns rather than 161. We retain Importance only, for reasons that
-emerged in sequence.
+occupy 322 columns rather than 161. We retain Importance only, for three
+reasons, in order of weight.
 
-The first is a data problem specific to Level. O\*NET carries a "not relevant"
-flag marking descriptors that do not apply to an occupation, and the flag
-appears **only on Level rows**: 8.0 percent of Abilities rows and 10.2 percent of
-Knowledge rows carry it, and since roughly half the rows in each block are Level
-rows, the affected share of Level rows is approximately twice that. The
-Importance scale has no counterpart. Retaining Level therefore reintroduces a
-missingness problem that Importance does not have.
+The first is precision. A Level rating is far more often too imprecise to use
+than the Importance rating of the same element. O\*NET marks such ratings with a
+Recommend Suppress flag: for survey data when fewer than ten people responded,
+when fewer than fifteen responded and all gave the same answer, or when the
+standard error exceeds half the rating itself; for analyst data when the
+standard error exceeds 0.51. In release 31.0 the flag falls on 6,168 of the
+146,551 Level rows in the four blocks, and on 69 of the same number of
+Importance rows. It is concentrated where the analysis would feel it most:
+16.3 percent of Knowledge Level ratings are flagged, against 0.2 percent of
+Knowledge Importance ratings, and 2.9 percent of Work Activities Level ratings,
+against almost none on Importance. Keeping Level would put several thousand
+ratings that O\*NET itself recommends withholding into the matrix.
 
-The second is that this missingness is not arbitrary but semantically tied to
-the Importance scale. Every flagged row corresponds to an Importance rating of 2
-or below — that is, the Level value is absent exactly where the Importance value
-already records that the descriptor barely matters to the occupation. The two
-scales are not independently missing; Level goes missing where Importance is
-low.
+The second is meaning. O\*NET also marks a Level rating Not Relevant when the
+element barely matters to the occupation: when more than three quarters of
+incumbents rate its importance as "not important", or when no more than two of
+the analysts rate its importance 2 or higher. The flag falls only on Level rows:
+on 16 percent of them in Abilities, 11 percent in Skills, 20 percent in
+Knowledge and 3 percent in Work Activities. A flagged rating still carries a
+number, at or near the bottom of the scale — the median is 0 in Abilities and
+0.34 in Knowledge — but O\*NET advises showing users that the level is not
+relevant rather than showing the number. It is therefore neither a measurement
+the publisher stands behind nor a missing value, and the data offers no ground
+for preferring one treatment of it over another, whether the published number,
+zero, or a gap.
 
-The third followed from testing whether the two scales carry different
-information at all. Across the 161 elements, the per-element correlation between
-an element's Importance and its Level across occupations has a median of 0.94,
-and the full Level matrix is recoverable from the full Importance matrix by
-ridge regression at R² ≈ 0.90. Something on the order of a tenth of the
-information in Level is not already present in Importance, and that tenth is
-concentrated in the elements where the flag makes it least reliable.
-
-Taken together: retaining Level would double the width of four blocks, add
-roughly a tenth of the information they already contain, and bring a
-missingness problem attached to precisely the least informative cells. It would
-also compress the spacing of the decomposition it feeds: near-duplicate columns
-contribute variance in directions the matrix already has, which narrows the gaps
-between components and makes the retention criterion of Section 5.3 less able to
-separate one direction from the next. We drop Level and record that Handel (2009) argues it is the conceptually richer construct, which we do not dispute; the case above is empirical rather than conceptual.
-
-One side effect of the Importance-only decision is worth recording, because it
-bears on a block that would otherwise look weak. Knowledge carries the highest
-rate of both O\*NET reliability flags among the retained blocks — 8.3 percent of
-rows recommended for suppression and 10.2 percent marked not relevant. Both
-concentrate on Level rows. Once Level is dropped the problem largely goes with
-it, and Knowledge becomes as complete as the other three.
+The third is redundancy. Across the 161 elements, an element's Importance and
+Level correlate across occupations at a median of 0.94, and above 0.9 for three
+quarters of them; the whole Level matrix can be predicted from the Importance
+matrix by cross-validated ridge regression at R² = 0.90. Level would almost
+double the width of the matrix for about a tenth of new information. Appendix A
+reports what the analysis gives when Level replaces Importance and when the two
+are used together.
 
 Missingness has to be described before it is handled, because the treatment
 depends on what caused it. We inspected it as an occupation-by-variable matrix
 rather than as column totals, which distinguishes two patterns that column
 totals would merge.
 
-**Whole-row absence.** O\*NET release 30.2 lists 1,016 O\*NET-SOC codes but
-publishes feature ratings for only some of them. For 122 codes there are no
+**Whole-row absence.** O\*NET release 31.0 lists 1,016 O\*NET-SOC codes but
+publishes feature ratings for only some of them. For 105 codes there are no
 ratings in any block: the row is empty across every descriptor, not sparse. The
-composition of those 122 is not arbitrary, and the SOC coding system itself
+composition of those 105 is not arbitrary, and the SOC coding system itself
 identifies most of it.
 
-About four fifths — 96 of the 122, or 78.7 percent — are not occupations at all
-but artefacts of the classification. The SOC reserves, within each broad group,
-a detailed code whose four-digit portion ends in 9 for the "All Other"
-residual: `51-3099`, `43-4199` and the like collect the scattered jobs that
-belong to a group without warranting a line of their own. A residual bucket is
-heterogeneous by construction, so there is no coherent occupation for O\*NET to
-survey and it does not survey one. The military major group, `55-xxxx`, is
-likewise outside the civilian survey frame in its entirety. A handful of further
-cases are individual — legislators, for instance, being elected rather than
-employed. Dropping these is not a judgement about which occupations matter but
-the absence of anything to measure.
+Ninety-four of the 105, or 89.5 percent, are not occupations in the sense the
+survey needs. Seventy-four are artefacts of the classification. The SOC
+reserves, within each broad group, a detailed code whose four-digit portion ends
+in 9 for the "All Other" residual: `51-3099`, `43-4199` and the like collect the
+scattered jobs that belong to a group without warranting a line of their own. A
+residual bucket is heterogeneous by construction, so there is no coherent
+occupation for O\*NET to survey and it does not survey one. The military major
+group, `55-xxxx`, nineteen codes, is likewise outside the civilian survey frame
+in its entirety. The last is legislators, who are elected rather than employed.
+Dropping these is not a judgement about which occupations matter but the absence
+of anything to measure.
 
-The remaining 26 are ordinary detailed occupations, and what they have in common
-is temporal rather than structural: they are codes created or split by the 2018 SOC
-revision, for which O\*NET's rolling survey had not, at release 30.2, reached an
-independent collection. The 2018 revision separated Data Scientists from the former Computer
-Occupations, divided Financial Analysts into Financial and Investment Analysts
-and Financial Risk Specialists, broke a general Surgeons code into orthopaedic,
-paediatric and other specialisms, and split Emergency Medical Technicians from
-Paramedics; Web and Digital Interface Designers, Project Management Specialists,
-Medical Records Specialists, Health Information Technologists and Taxi Drivers
-arrived or were recoded on the same revision. Their descriptor rows are empty
-because collection has not caught up, not because the occupations are marginal.
+The remaining eleven are ordinary detailed occupations, and what they have in
+common is temporal rather than structural: they are codes created or split by
+the 2018 SOC revision, for which O\*NET's rolling survey had not, at release
+31.0, reached an independent collection. They are financial and investment
+analysts and financial risk specialists, which replaced the former financial
+analysts code; cardiologists and orthopaedic and paediatric surgeons, split
+from broader physician and surgeon codes; emergency medical technicians,
+separated from paramedics; health information technologists and medical
+registrars; hydrologic technicians; lighting technicians; crematory operators;
+and taxi drivers. Their descriptor rows are empty because collection has not
+caught up, not because the occupations are marginal. A twelfth 2018 code,
+calibration technologists and technicians, is rated on Work Activities and Work
+Context but not on Abilities, Skills or Knowledge, and cannot be placed in a
+space that needs all five blocks; it is excluded too.
 
 We exclude them rather than impute them, and the objection to imputing is not
 that it would be inaccurate but that it would be circular. Every donor available
-is the occupation the new code was split from: the former Computer Occupations
-for Data Scientists, the undivided Financial Analysts for the two codes that
-replaced it, the general Surgeons code for the specialisms. Those splits were
-made because the parent code covered work that differs. Filling a child code
-from its parent writes that difference back out of the data and returns each new
-occupation to the position of the classification the revision was introduced to
-replace. Here it would also be self-confirming: a data scientist imputed from
-computer occupations lands wherever computer occupations land, and one of the
-questions this space exists to be asked would have been answered by the fill
-rather than by a measurement.
+is the occupation the new code was split from: the undivided financial analysts
+code for the two codes that replaced it, the general surgeons code for the
+surgical specialisms, the combined code for emergency medical technicians.
+Those splits were made because the parent code covered work that differs.
+Filling a child code from its parent writes that difference back out of the
+data and returns each new occupation to the position of the classification the
+revision was introduced to replace. Here it would also be self-confirming: an
+imputed occupation lands wherever its parent lands, and its position would have
+been set by the fill rather than by a measurement. The cost is small: twelve
+occupations would barely move a covariance matrix estimated on 910.
 
-The cost is coverage rather than structure. Twenty-six occupations out of 920
-would barely move a covariance matrix, and the axes are estimated from the 894.
-But several of the excluded codes sit close to the centre of the question this
-paper is about — data scientists, financial and investment analysts, web and
-digital interface designers, project management specialists — alongside a group
-of medical specialisms and emergency services. The space can be built without
-them; none of them can be placed in it.
+**910 detailed occupations remain, and this is the analysis set throughout.**
+Among them the five feature blocks have no missing cells on the scales used
+here, Importance and, for Work Context, the Context scale. The 216-column
+feature matrix is complete as published, and the analysis rests on no imputed
+feature value. The few ratings on these scales that O\*NET flags for low
+precision, 69 Importance rows and 121 Context rows, are kept as published. The
+only gap in the O\*NET data the analysis uses is in education, training and
+experience, which Section 4.3 deals with.
 
-For part of this set the wait is now over. O\*NET has since issued release 31.0
-(August 2026), in which Data Scientists, Web and Digital Interface Designers,
-Project Management Specialists, Medical Records Specialists and Paramedics carry
-descriptor ratings collected in 2026. Others still carry none: Financial and
-Investment Analysts, Financial Risk Specialists, Health Information
-Technologists, Taxi Drivers, Emergency Medical Technicians and the surgical
-specialisms have tasks and a job zone but no Abilities, Skills, Knowledge, Work
-Activities or Work Context rows. Re-running this analysis on 31.0 would recover
-part of the excluded set and not the rest. We report 30.2 here, and note the
-exclusion again among the limitations.
-
-**894 detailed occupations remain, and this is the analysis set throughout.**
-
-**Scattered absence.** Among the 894 there is none. After the Importance-only
-restriction, the five feature blocks — Abilities, Skills, Knowledge, Work
-Activities and Work Context — have **no missing cells at all**, so the
-216-column feature matrix is complete as published and the analysis rests on no
-imputed feature value. The only gap anywhere in the O\*NET data is in Education,
-Training and Experience, where 16 occupations have no rows in any of the four
-scales: 592 cells, whole-block rather than scattered. ETE is treated as a
-labour-market variable in Section 4.3 and its gaps are filled there.
-
-This completeness is a consequence of the Importance-only decision rather than a
-property of O\*NET as published. Had Level been retained and its "not relevant"
-flags honoured as missing — which is the correct reading of the flag, since the
-value is recorded as not applying rather than as unmeasured — then on the order
-of 8 to 10 percent of rows in Abilities and Knowledge would have required either
-imputation or the removal of the affected descriptors, concentrated, as noted
-above, on exactly the descriptors the Importance scale already records as
-marginal. The alternative to dropping Level is not a fuller matrix but a matrix
-with a tenth of its cells reconstructed.
-
-Two further quality signals are worth recording alongside the missingness, since
-O\*NET publishes them and they are rarely reported. The "recommend suppress"
-flag marks ratings the programme regards as statistically unreliable, and among
-the retained blocks it affects 0.1 percent of Abilities rows, 0.2 percent of
-Skills rows, 1.5 percent of Work Activities rows, 2.5 percent of Work Context
-rows and 2.3 percent of ETE rows; Knowledge at 8.3 percent is the exception
-discussed above, and the flags there sit on Level rows. And the Domain Source
-field records who produced each rating: Analyst for Abilities and Skills,
-Incumbent for Knowledge, Work Activities, Work Context and ETE. None of the
-retained blocks is model-generated, which was the basis for excluding Work
-Styles and Interests in Section 4.1.
-
-The matrix entering the principal component analysis is therefore 894
+The matrix entering the principal component analysis is therefore 910
 occupations by 216 variables, all of them O\*NET descriptors. Nothing from
 Section 4.3 is in it — not the wages, not employment, not union coverage, not
 the education and training distributions. That is the design: every variable the
 axes are later compared against is a variable the axes were built without.
 
-The ratio of observations to variables is about 4.1, which is low for a
+The ratio of observations to variables is about 4.2, which is low for a
 regression but not for a principal component analysis, where the estimand is the
 covariance structure and the relevant quantity is whether that structure is
-stable rather than whether coefficients are identified. Three properties of the
+stable rather than whether coefficients are identified. Two properties of the
 data and the design bear on it.
 
 The feature ratings are **heavily collinear**, so the effective
 dimensionality is far below 216: 55 components are needed to reach 90 percent of
-variance, but the first three account for 54.1 percent and the leading structure
+variance, but the first three account for 53.8 percent and the leading structure
 is concentrated. Collinearity is a problem for regression coefficients and an
 advantage here, since it is what makes a low-dimensional summary possible at
 all.
 
-The guard against reading noise as structure is **resampling rather than a rule
-of thumb**. Each candidate component is refitted on bootstrap samples and on
-random halves of the occupations. A component supported only by the particular
-894 occupations in hand would not reproduce on an independent half, and in fact
-the fourth and later components do not (Section 5.3). This is a direct test of
-the concern that a wide matrix invites, rather than an assumption that it has
-been avoided.
-
 Where the width does bite is in the regressions used to ask how much of a labour-market variable the feature data can predict. There, 216 predictors
-against 894 observations is genuinely adverse: ordinary least squares does not
+against 910 observations is genuinely adverse: ordinary least squares does not
 merely lose precision but fails, returning large negative cross-validated R²
 values, because it fits the training folds exactly and generalises arbitrarily.
 Those regressions therefore use ridge, whose penalty is what makes the estimate
@@ -456,23 +435,22 @@ meaningful in this shape, with the scaler fitted inside each fold.
 | Skills | Importance | 35 | 0 | none |
 | Knowledge | Importance | 33 | 0 | none |
 
-894 occupations by 216 variables, and not one imputed cell. Education, training
+910 occupations by 216 variables, and not one imputed cell. Education, training
 and experience is not part of this matrix: it is a labour-market variable, and
-its 592 missing cells are filled in Section 4.3.
+its 333 missing cells are filled in Section 4.3.
 
 ### 4.3 The labour-market variables
 
-The Content Model already has a domain for the labour market. **Workforce
-Characteristics** — Labor Market Information and Occupational Outlook — sits
-beside the five descriptor blocks of Section 4.1, which is O\*NET's own
-statement that where an occupation stands in the labour market belongs to the
-description of it. What the domain does not have is data of its own. The
-downloadable database distributes no file for it. O\*NET OnLine fills it at
-display time from the Bureau of Labor Statistics, under the line "Source:
-Bureau of Labor Statistics 2025 wage data and 2024–2034 employment
-projections", and shows one figure of each kind: a median wage, an employment
-count, a growth rate reported as a band, and a count of projected annual
-openings.
+The Content Model already has a place for the labour market. Its third part,
+the **Market** — labour market information and occupational outlook — sits beside
+the worker and job descriptors of Section 4.1, which is O\*NET's own statement
+that where an occupation stands in the labour market belongs to the description
+of it. What that part does not have is data of its own. The downloadable
+database distributes no file for it. O\*NET OnLine fills it at display time from
+the Bureau of Labor Statistics, under the line "Source: Bureau of Labor
+Statistics 2025 wage data and 2024–2034 employment projections", and shows one
+figure of each kind: a median wage, an employment count, a growth rate reported
+as a band, and a count of projected annual openings.
 
 Going to those sources directly is therefore not a departure from O\*NET's
 scheme but the same numbers at the resolution the question needs. A median wage
@@ -482,28 +460,57 @@ workers who move to another occupation, and Section 5.5 turns on that
 distinction. Two things follow. Nothing in this section can have entered the
 feature matrix, because O\*NET does not publish any of it in the database the
 matrix is built from. And this section is a superset rather than an
-alternative: it includes everything the sixth domain would have supplied, and
+alternative: it includes everything the Market part would have supplied, and
 more.
 
 Each variable is taken in turn — why it might bear on whether a technically
 feasible substitution is carried out, where the numbers come from, whether their
 coding lines up with O\*NET's, and what is missing from them.
 
-**Education, training and experience** *(O\*NET, Experience Requirements,
-incumbents).* This is the one variable here that O\*NET itself collects: for
-each occupation, the share of respondents reporting each ordinal level of
-required education, prior related work experience, on-the-job training and
-on-site or in-plant training. It sits in this section rather than in Section 4.1
-because, in our reading, it does not describe the work but what holders of the
-job have — which is where credentialing and licensing enter the data. Entry
-thresholds are institutional rather than technical and can hold even where the
-work is substitutable, and a licensed occupation with a substitutable task
-profile is exactly the case the paper wants to be able to see. Section 5.5
-supplies the empirical half of the argument: what preparation an occupation
-demands is not recoverable from what the work requires. Because the block is
-O\*NET's own, no join is needed. Sixteen of the 894 occupations have no rows in
-any of the four scales — 592 cells, absent as a whole block rather than
-scattered — and no cell is missing anywhere else.
+**Education, training and experience** *(O\*NET, Worker and Experience
+Requirements, incumbents or occupation experts).* This is the one variable here
+that O\*NET itself collects: for each occupation, the share of respondents
+reporting each ordinal level of required education, prior related work
+experience, on-site or in-plant training and on-the-job training. It sits in
+this section rather than in Section 4.1 because, in our reading, it does not
+describe the work but what holders of the job have — which is where
+credentialing and licensing enter the data. Entry thresholds are institutional
+rather than technical and can hold even where the work is substitutable, and a
+licensed occupation with a substitutable task profile is exactly the case the
+paper wants to be able to see. Section 5.5 supplies the empirical half of the
+argument: what preparation an occupation demands is not recoverable from what
+the work requires. Because the block is O\*NET's own, no join is needed. Since
+release 30.3 it is published as two files, Education and Training and
+Experience.
+
+The education scale needs one further step. Release 31.0 publishes required
+education on two scales: RL, the scale of earlier releases, for 758 of the
+occupations analysed, and RQ for the other 143, never both for one occupation.
+RQ appears only among occupations whose education data were collected for this
+release, and its category labels are the response options of the Education and
+Training questionnaire as revised in February 2025. Its twelve categories match
+RL's in number and order. Ten are worded identically; two are reworded, First
+Professional Degree becoming Doctor's Degree, Professional Practice (such as a
+J.D. or an M.D.), and Doctoral Degree becoming Doctor's Degree,
+Research/Scholarship (such as a Ph.D.). We merge the two scales category by
+category into one. The evidence that this is safe comes from the 121
+occupations that were on RL in release 30.2 and are on RQ in 31.0. Their mean
+education level moves by −0.08 of a category, with a standard error of 0.07,
+and their distributions move no further than the training and experience
+distributions of the same occupations, which stayed on unchanged scales: a
+median distance of 0.29 against 0.35. One change is systematic. The share in
+category 10 falls from 1.4 percent to zero once the category is described as a
+doctorate rather than a first professional degree; post-secondary certificates
+and some college courses also lose about two percentage points each, at about
+two standard errors. We record these rather than correct for them.
+
+Nine of the 910 occupations have no rows in either file: 333 cells, absent as a
+whole block rather than scattered. They are the nine whose descriptor ratings are
+still provisional analyst ratings, which come without the respondent
+distributions this block reports. No cell is missing anywhere else. Two further
+items in these files, the importance of a job-related professional certification
+and of an apprenticeship, are published for only 683 of the 910 occupations and
+are not used.
 
 **Wages.** The wage is the price of the labour a substitution would replace,
 and so sets the return to replacing it; the spread of wages within an occupation
@@ -516,39 +523,40 @@ O\*NET-SOC codes once the decimal extension is truncated, so the join loses no
 information; where several O\*NET variants share a six-digit code — the
 specialisms under Physicians, for instance — each variant receives the same
 value, which is a property of the published data rather than of our handling.
-Coverage is 96.4 percent at the tenth percentile and falls to 90.8 percent at
+Coverage is 96.2 percent at the tenth percentile and falls to 90.5 percent at
 the ninetieth, and the two causes of that gap are different in kind.
 
-Thirty-two occupations have no annual wage figure of any kind. They do not look
-like a random thirty-two: they arrive in families — the three buyers and
-purchasing agents codes, the two appraisers codes, the six clinical laboratory
-technologist and technician codes, home health aides with personal care aides,
-the two teaching assistant codes, tour guides with travel guides, three
-assembler codes — which is the signature of OEWS publishing at a broader SOC
-line than the one O\*NET rates. Three of the thirty-two are different again:
-actors, dancers, and musicians and singers have an OEWS employment figure but no
-annual wage, work in those occupations being too irregular for an annual figure
-to be published.
+Thirty-five occupations have no annual wage figure of any kind. They do not look
+like a random thirty-five: they arrive in families — the three buyers and
+purchasing agents codes, the two appraisers codes, the two counsellor codes, two
+special education teacher codes, the six clinical laboratory technologist and
+technician codes, home health aides with personal care aides, the two teaching
+assistant codes, tour guides with travel guides, three assembler codes, three
+first-line supervisor codes — which is the signature of OEWS publishing at a
+broader SOC line than the one O\*NET rates. Four of the thirty-five are different
+again: actors, dancers, musicians and singers, and disc jockeys outside radio
+have an OEWS employment figure but no annual wage, work in those occupations
+being too irregular for an annual figure to be published.
 
 The second cause is top-coding, and it runs the other way: the occupation is in
 OEWS and the value is suppressed because it exceeds the cap OEWS places on
 annual wages, \$239,200. The suppression is nested and tells its own story about
-the top of the distribution. The ninetieth percentile is suppressed for fifty
-occupations — chief executives, most managerial codes, lawyers, physicists,
-airline pilots, the dental and physician specialisms; the seventy-fifth for
-twenty-five, by which point the managerial codes have dropped out and almost
-everything left is medicine; and the median for eighteen, all of them physician
-or dental specialisms, where more than half of all holders earn above the cap.
-Missingness of this kind carries information: it states that the true value lies
-above \$239,200.
+the top of the distribution. The ninetieth percentile is suppressed for
+fifty-one occupations — chief executives, most managerial codes, lawyers,
+physicists, airline and commercial pilots, the dental and physician
+specialisms; the seventy-fifth for twenty-five, by which point the managers are
+down to the two chief executive codes and almost everything left is medicine;
+and the median for eighteen, all of them physician or dental specialisms, where
+more than half of all holders earn above the cap. Missingness of this kind
+carries information: it states that the true value lies above \$239,200.
 
 **Employment.** Employment is the scale of any displacement, and it is also a
 control: a substitution measure that correlates with occupation size may be
 measuring size. It comes from the same OEWS release and joins the same way.
-Twenty-nine occupations have no employment figure, and they are the same
-occupations that have no wage, less the three performing occupations — actors,
-dancers, musicians and singers — for which OEWS reports employment but not
-annual pay.
+Thirty-one occupations have no employment figure, and they are the same
+occupations that have no wage, less the four — actors, dancers, musicians and
+singers, and disc jockeys — for which OEWS reports employment but not annual
+pay.
 
 **Union coverage.** A collective agreement can constrain what an employer may
 do with a technology irrespective of what the technology can do, which makes
@@ -556,20 +564,21 @@ union coverage the clearest case of an institution standing between technical
 feasibility and observed displacement. We take the share of employed workers
 covered by a union contract from the 2024 Current Population Survey. This is the
 one variable whose coding does not line up. The CPS occupational classification
-is coarser than the SOC: roughly 494 distinct CPS classes back the 894 O\*NET
-occupations, so the value is broadcast, and groups of occupations share a
-coverage rate. Every occupation receives a value, so coverage is complete, but
-the resolution is not: broadcasting does not bias the value, it attenuates any
-correlation the variable takes part in, and it means the number should not be
-read as a statement about the unionisation of a single occupation. The join runs
-through the BLS National Employment Matrix crosswalk.
+is coarser than the SOC: roughly 450 distinct CPS classes back the 880 O\*NET
+occupations that can be matched, so the value is broadcast, and groups of
+occupations share a coverage rate. Broadcasting does not bias the value, but it
+attenuates any correlation the variable takes part in, and it means the number
+should not be read as a statement about the unionisation of a single
+occupation. The join runs through the BLS National Employment Matrix crosswalk.
+Thirty occupations cannot be matched through it, so coverage is 96.7 percent;
+they are the same thirty that are absent from the projections tables below.
 
 **Occupational prestige.** Social standing may protect an occupation
 independently of its technical content, and prestige serves a second purpose
 here: it is a check on whether an axis recovered from the features is a status
 measure wearing another name. We take the Occupational Prestige Ratings project.
 Several rated job titles can fall under one six-digit SOC, and where they do the
-ratings are averaged. Fifty-three occupations are unrated, almost all of them
+ratings are averaged. Fifty-four occupations are unrated, almost all of them
 detailed management titles the project did not cover; coverage is 94.1 percent.
 
 **Separation rates.** How readily workers leave an occupation says how far it
@@ -578,15 +587,17 @@ been observed first, and the two ways of leaving are not the same event. We take
 both from table 1.10 of the BLS Employment Projections: the labour-force exit
 rate, the projected annual share of workers who leave employment altogether, and
 the occupational transfer rate, the share who move to a different occupation.
-The table keys on the six-digit SOC. Twenty-eight occupations are absent from
-it; coverage is 96.9 percent for both.
+The table keys on the six-digit SOC. Thirty occupations are absent from it;
+coverage is 96.7 percent for both.
 
 **Self-employment.** Where the work is done by the self-employed there is no
 employer to make the substitution decision, so the mechanism by which a
 technology displaces labour is different in kind rather than weaker. We take the
 self-employed share from table 1.2 of the same projections release, on the same
 six-digit key. Blanks in that table denote negligible self-employment rather
-than an unmeasured quantity, so every occupation carries a value.
+than an unmeasured quantity, and are read as zero. The same thirty occupations
+are absent from this table altogether, and are also set to zero; for them this
+is an assumption rather than a reading of the source.
 
 Three further variables are published in the same sources and are not carried
 into the analysis, for reasons that are worth recording because two of them are
@@ -597,11 +608,13 @@ there would give size two votes in a regression that has one variable per
 mechanism. **Typical education needed for entry**, the BLS categorical
 threshold, is recoverable from the ETE distributions at R² = 0.82, and the ETE
 distributions are the finer instrument. **Work experience needed** is populated
-for 116 of the 894 occupations and cannot support an analysis at all.
+for only about one occupation in eight and cannot support an analysis at all.
 Projections of employment growth to 2034 are excluded on a different ground:
 a forecast of an occupation's growth may already embed a judgement about
 automation, so relating it to a structure intended to inform such judgements
 would be circular.
+<!-- TODO: the 0.89 (openings vs employment) and R2 = 0.82 (typical education
+from ETE) were computed on the release 30.2 set; recompute on 31.0. -->
 
 The sources were collected at different dates, and the analysis treats them as
 one period. Wages and employment are from May 2024, union coverage from the 2024
@@ -617,14 +630,14 @@ numbers. Where a high wage percentile is missing while a lower one is present,
 the occupation is in OEWS and the value has been suppressed above the cap; it is
 filled at the cap, \$239,200. Filling it at the column median would place a
 surgeon below their own tenth percentile, which is not a conservative choice but
-an incorrect one. Ninety-three cells are filled this way. Where every wage
+an incorrect one. Ninety-four cells are filled this way. Where every wage
 percentile is missing the occupation has no anchor, and the six cells take the
-column median: 192 cells across the thirty-two occupations. The three wage
+column median: 210 cells across the thirty-five occupations. The three wage
 ratios are then recomputed from the filled levels rather than filled directly,
 which keeps them consistent with the levels and no less than one.
-Self-employment blanks are filled at zero, since that is what they mean.
-Everything else — the unrated prestige scores, the missing separation rates, the
-sixteen ETE rows — takes the column median.
+Self-employment is set to zero as described above. Everything else — the unrated
+prestige scores, the missing union coverage and separation rates, the nine ETE
+rows — takes the column median.
 
 Three considerations bound the risk this introduces. The variables carrying most
 of the imputation, the wage percentiles, are compressed to two summary columns
@@ -633,15 +646,15 @@ estimate. None of these variables enters the decomposition at all, so no
 imputation decision can be producing the axes. And the imputation is confined to
 one step rather than repeated in each script. What it cannot be defended against
 is a systematic difference between the occupations a source omits and those it
-covers: the median fill assumes absence is uninformative, and for the thirty-two
-occupations with no OEWS wage we have no evidence either way.
+covers: the median fill assumes absence is uninformative, and for the
+thirty-five occupations with no OEWS wage we have no evidence either way.
 
 Standardisation is deliberately not applied at this stage. The ridge regressions
 of Section 5.5 fit their scaler within training folds only, and storing
 standardised values would carry test-fold information into the training set.
 
 **Transformations.** Three are applied before any variable in this section is
-used. Employment spans several orders of magnitude, with a maximum sixty-nine
+used. Employment spans several orders of magnitude, with a maximum sixty-seven
 times its median, and enters as a logarithm. Wages enter as two summaries rather
 than nine percentiles — the log of the median as a level, the ninetieth-to-tenth
 ratio as a dispersion — because nine near-collinear measurements of one quantity
@@ -657,13 +670,13 @@ and takes the block from 41 columns to 37.
 
 | variable | why it might bear on substitution | source | what the coding does | coverage and treatment |
 |---|---|---|---|---|
-| education, training and experience | entry thresholds are institutional, not technical, and can hold where the work is substitutable | O\*NET 30.2, Experience Requirements | already on O\*NET-SOC; no join | 16 occupations absent as a whole block (592 cells) → column median; highest category of each scale dropped, 41 → 37 columns |
-| wage level and dispersion | the price of the labour sets the return to replacing it; spread says whether the code holds one job or several | OEWS national, May 2024 | exact on the six-digit SOC; O\*NET variants of one code share a value | 90.8–96.4% by percentile; 93 top-coded cells → the \$239,200 cap, 192 whole-row cells → column median; enters as log median and p90/p10 |
-| employment | the scale of any displacement, and a control against measuring occupation size | OEWS national, May 2024 | exact on the six-digit SOC | 96.8%; column median, then logged |
-| union coverage | a collective agreement constrains what an employer may do irrespective of what is possible | CPS 2024, via the BLS National Employment Matrix crosswalk | broadcast: ~494 CPS classes to 894 occupations | 100%, but at reduced resolution; attenuates any correlation it enters |
+| education, training and experience | entry thresholds are institutional, not technical, and can hold where the work is substitutable | O\*NET 31.0, Education and Training and Experience | already on O\*NET-SOC; no join; the RL and RQ education scales merged category by category | 9 occupations absent as a whole block (333 cells) → column median; highest category of each scale dropped, 41 → 37 columns |
+| wage level and dispersion | the price of the labour sets the return to replacing it; spread says whether the code holds one job or several | OEWS national, May 2024 | exact on the six-digit SOC; O\*NET variants of one code share a value | 90.5–96.2% by percentile; 94 top-coded cells → the \$239,200 cap, 210 whole-row cells → column median; enters as log median and p90/p10 |
+| employment | the scale of any displacement, and a control against measuring occupation size | OEWS national, May 2024 | exact on the six-digit SOC | 96.6%; column median, then logged |
+| union coverage | a collective agreement constrains what an employer may do irrespective of what is possible | CPS 2024, via the BLS National Employment Matrix crosswalk | broadcast: ~450 CPS classes to 880 occupations | 96.7%, at reduced resolution; column median; attenuates any correlation it enters |
 | occupational prestige | status may protect an occupation independently of its content; also a check on whether an axis is a status measure | Occupational Prestige Ratings project | averaged where several rated titles share one SOC | 94.1%; column median |
-| labour-force exit rate; occupational transfer rate | how readily an occupation sheds labour without dismissals, and whether leavers exit or move | BLS Employment Projections, table 1.10 | exact on the six-digit SOC | 96.9%; column median |
-| self-employment share | no employer to make the substitution decision, so the mechanism differs | BLS Employment Projections, table 1.2 | exact on the six-digit SOC | 100%; blanks mean negligible, filled at zero |
+| labour-force exit rate; occupational transfer rate | how readily an occupation sheds labour without dismissals, and whether leavers exit or move | BLS Employment Projections, table 1.10 | exact on the six-digit SOC | 96.7%; column median |
+| self-employment share | no employer to make the substitution decision, so the mechanism differs | BLS Employment Projections, table 1.2 | exact on the six-digit SOC | 96.7%; blanks mean negligible and the 30 absent occupations are assumed so, both set to zero |
 
 :::
 
@@ -1838,9 +1851,9 @@ Fan, T. (2025). *The labor market incidence of new technologies*. arXiv:2504.040
 
 #### Occupational features
 
-National Center for O\*NET Development. (2026). *O\*NET 30.2 Database* (released February 2026). Raleigh, NC: U.S. Department of Labor, Employment and Training Administration. https://www.onetcenter.org/database.html
+National Center for O\*NET Development. (2026). *O\*NET 31.0 Database* (released August 2026). Raleigh, NC: U.S. Department of Labor, Employment and Training Administration. https://www.onetcenter.org/database.html
 
-O\*NET files used: Abilities, Skills, Knowledge, Work Activities, Work Context, Education Training and Experience. Files inspected and excluded: Work Values, Work Styles, Interests, Job Zones, Occupation Level Metadata.
+O\*NET files used: Abilities, Essential Skills, Transferable Skills, Knowledge, Work Activities, Work Context, Education, Training and Experience. Files inspected and excluded: Work Styles, Career Interest Types, Specific Interest Areas, Job Zones, Occupation Level Metadata.
 
 #### Wages and employment
 
