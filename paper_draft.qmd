@@ -106,7 +106,14 @@ The closest methodological precedent is Lise and Postel-Vinay (2020), who run pr
 
 ## 4. Data
 
-### 4.1 The O\*NET occupational features
+### 4.1 O\*NET and the data we use from it
+
+The analysis needs two kinds of data: features of the occupations themselves,
+and the position each occupation holds in the labour market. O\*NET is our
+largest single source. This section introduces it briefly and sets out which of
+its data we use. Section 4.2 describes in more detail how we prepare the
+occupational features, and Section 4.3 how we obtain the labour-market
+variables, most of which O\*NET does not contain.
 
 O\*NET is the successor to the *Dictionary of Occupational Titles*, maintained for
 the US Department of Labor. It describes roughly nine hundred detailed
@@ -466,9 +473,7 @@ Thirty occupations cannot be matched through it, so coverage is 96.7 percent;
 they are the same thirty that are absent from the projections tables below.
 
 **Occupational prestige.** Social standing may protect an occupation
-independently of its technical content, and prestige serves a second purpose
-here: it is a check on whether an axis recovered from the features is a status
-measure wearing another name. We take the Occupational Prestige Ratings project.
+independently of its technical content. We take the Occupational Prestige Ratings project.
 Several rated job titles can fall under one six-digit SOC, and where they do the
 ratings are averaged. Fifty-four occupations are unrated, almost all of them
 detailed management titles the project did not cover; coverage is 94.1 percent.
