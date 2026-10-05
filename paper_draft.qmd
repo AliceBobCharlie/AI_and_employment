@@ -134,21 +134,20 @@ where it gives none, from the Content Model page of the O\*NET Resource Center
 feature matrix.
 
 **Abilities.** "Abilities are enduring attributes of the individual that
-influence performance." Analysts rate every occupation. O\*NET groups them into cognitive, psychomotor, physical
-and sensory abilities. This is the block that comes closest to stating what a
-system would have to supply in order to stand in for the worker, and the only one
-that separates those four kinds of capacity explicitly — a distinction the
-analysis later recovers on its own.
+influence performance." The ratings are made by trained occupational analysts
+for every occupation. O\*NET groups abilities into cognitive, psychomotor,
+physical and sensory. The block is a direct rating of the capacities an
+occupation demands, and so bears directly on which capacities a system would
+need in order to do the work.
 
 **Skills.** The Content Model lists three kinds. "Essential skills are skills
 you need for most jobs, such as reading, writing, math, and learning";
 "transferable skills are skills you can use across different jobs, such as
 communication, problem solving, and team work"; and software skills are "using
-specific programs and applications for work tasks." Analysts rate the essential
-and transferable skills of every occupation. Release 30.3 split the
-former Skills file into Essential and Transferable Skills, of ten and
-twenty-five elements; together they hold the same thirty-five elements as
-before, and we use them as one block. Where an ability is enduring, a skill is
+specific programs and applications for work tasks." Trained occupational
+analysts rate the essential and transferable skills of every occupation;
+together they hold thirty-five elements, which we use as one block. Where an
+ability is enduring, a skill is
 acquired, which bears on how quickly an occupation could be re-staffed or its
 workers retrained if part of the work were automated. Software Skills are
 recorded differently: as examples of software linked to each occupation, flagged
