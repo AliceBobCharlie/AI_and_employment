@@ -38,8 +38,7 @@ output/*
 # Figure 6.2 is drawn from this. It holds occupation-level shares aggregated
 # from the IPUMS extract, not the microdata, which stays in data_raw/.
 !output/acs_young_share.csv
-!figures/content model.png
-!figures/onet_content_model.png
+!assets/*.png
 
 # 6. junk
 __pycache__/
