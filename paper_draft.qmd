@@ -167,7 +167,7 @@ meaning pay, employment and outlook.
   <div class="cm-key">
     <span class="use">enters the feature matrix (§4.1)</span>
     <span class="lm">treated as a labour-market variable (§4.3)</span>
-    <span class="drop">excluded, with reasons (§4.2)</span>
+    <span class="drop">excluded, with reasons (§4.1)</span>
     <span class="na">not used</span>
   </div>
   <figcaption><b>Figure 1</b> — the O*NET Content Model, with the treatment each
@@ -181,47 +181,54 @@ meaning pay, employment and outlook.
 </figure>
 ```
 
-We draw on five of its blocks. For each we give O\*NET's definition, the scale we
-take it on, who supplied the ratings, and why the block bears on whether AI can
-substitute for the work. The blocks the Content Model contains but this paper
-does not use are dealt with in Section 4.2, with the reasons.
+We now take the blocks in turn: O\*NET's definition of each, whether we use it,
+and why. Five enter the feature matrix.
 
 **Abilities** *(Worker Characteristics, rated by analysts, taken on Importance).*
-Enduring attributes of the individual that influence performance. This is the
-block that comes closest to stating what a system would have to supply in order
-to stand in for the worker, and the only one that separates cognitive,
-psychomotor, physical and sensory capacity explicitly — a distinction the
-analysis later recovers on its own.
+In O\*NET's definition, "enduring attributes of the individual that influence
+performance", grouped into cognitive, psychomotor, physical and sensory
+abilities. This is the block that comes closest to stating what a system would
+have to supply in order to stand in for the worker, and the only one that
+separates those four kinds of capacity explicitly — a distinction the analysis
+later recovers on its own.
 
-**Skills** *(Worker Requirements, analysts, Importance).* Developed capacities
-that facilitate learning and performance. Where Abilities record what a worker
-brings, Skills record what the work has taught them; the two differ in how far
-they can be acquired, which bears on how quickly an occupation could be
-re-staffed if part of it were automated. Since release 30.3 the block is
-published as two files, Essential Skills (ten elements, such as reading,
-writing and mathematics) and Transferable Skills (twenty-five, from social to
-resource-management skills). Together they hold the same thirty-five elements
-as before, and we use them as one block.
+**Skills** *(Worker Requirements, analysts, Importance).* Capacities developed
+through education and experience. Essential Skills are, in O\*NET's words, those
+"you need for most jobs, such as reading, writing, math, and learning" (ten
+elements); Transferable Skills are those "you can use across different jobs,
+such as communication, problem solving, and team work" (twenty-five, grouped
+into complex problem solving, resource management, social, systems and
+technical skills). Release 30.3 split the former Skills file into these two;
+together they hold the same thirty-five elements, and we use them as one block.
+Where an ability is enduring, a skill is acquired, which bears on how quickly an
+occupation could be re-staffed or its workers retrained if part of the work were
+automated.
 
 **Knowledge** *(Worker Requirements, incumbents or occupation experts,
-Importance).* Organised bodies of principles and facts. Relevant with a caveat
-we state rather than resolve: what O\*NET treats as separate domains, because
-each takes a person years to acquire, may not be separate for a model trained on
-a broad corpus. The block still discriminates occupations well, which is what it
-is used for here.
+Importance).* "Organized sets of principles and facts applying in general
+domains": thirty-three domains, from administration and management to law,
+medicine and engineering. It bears on substitution with a caveat we state rather
+than resolve: what O\*NET treats as separate domains, because each takes a person
+years to acquire, may not be separate for a model trained on a broad corpus. The
+block still discriminates occupations well, which is what it is used for here.
 
 **Work Activities** *(Occupational Requirements, incumbents or occupation
-experts, Importance).* Generalised activities common across occupations. Of the
-five blocks this is the closest to what is actually done rather than to what the
-doer is like, and it is therefore the block most directly comparable to the
-task-level measures the substitution literature is built on.
+experts, Importance).* "General types of job behaviors occurring on multiple
+jobs", grouped into information input, mental processes, work output and
+interacting with others. Of the five blocks this is the closest to what is
+actually done rather than to what the doer is like, and it is therefore the
+block most directly comparable to the task-level measures the substitution
+literature is built on.
 
 **Work Context** *(Occupational Requirements, incumbents or occupation experts,
-Context scale).* Physical and social conditions of the work. It carries what the
-other blocks omit: whether the work is done in person, outdoors, under hazard,
-under time pressure, in contact with the public. These constrain what can be
-delegated to a system independently of how difficult the work is, and without
-this block an occupation's physical setting is invisible to the analysis.
+Context scale).* "Physical and social factors that influence the nature of
+work", grouped into interpersonal relationships, physical work conditions and
+structural characteristics of the job, such as its pace and the consequences of
+its decisions. It carries what the other blocks omit: whether the work is done in
+person, outdoors, under hazard, under time pressure, in contact with the public.
+These constrain what can be delegated to a system independently of how difficult
+the work is, and without this block an occupation's physical setting is
+invisible to the analysis.
 
 The raters differ by block, and O\*NET records which supplied each rating.
 Abilities and Skills are rated by analysts for every occupation. Knowledge, Work
@@ -230,52 +237,64 @@ percent of the occupations analysed here and from occupation experts for about
 27 percent. For the remaining nine, O\*NET publishes provisional analyst ratings
 until a survey is completed. None of the five blocks is generated by a model.
 
-O\*NET also publishes the distribution of education, training and prior
-experience that holders of each occupation report: education under Worker
-Requirements, training and experience under Experience Requirements. We take the
+The other blocks are not used, for reasons that differ in kind.
+
+**Work Styles, Career Interest Types and Specific Interest Areas** *(Worker
+Characteristics).* Work Styles are "personality tendencies exhibited at work,
+which can affect how well someone performs a job"; Career Interest Types are the
+broad kinds of work a person enjoys, in Holland's six types; Specific Interest
+Areas are forty-one narrower kinds of work activity a person enjoys. All three
+describe what suits a person rather than what the work requires, and all three
+are excluded because they are not observations. O\*NET produces Work Styles and
+Specific Interest Areas by what it calls a hybrid artificial intelligence–expert
+method, and Career Interest Types by a machine learning–expert method. They are
+model outputs rather than measurements of the occupation, and including them
+would put a model's judgement inside a matrix intended to hold only measured
+features.
+
+**Job Zones** *(Experience Requirements).* A Job Zone is O\*NET's grouping of
+occupations that are similar in how much education, related experience and
+on-the-job training the work needs. There were five zones; O\*NET now combines
+the first two, so none of the occupations analysed here is in Zone 1. The block
+is dropped for a reason that is not only redundancy, and it is worth stating
+plainly. It is a ready-made low-dimensional grouping of occupations, assigned by
+the same organisation that supplied the ratings. This paper asks whether such
+structure emerges from the feature data on its own. Admitting a variable that
+already encodes the answer would let the target of the analysis in through the
+front door: the leading component would partly reproduce Job Zones because Job
+Zones was in the matrix, and we would have no way to tell that from a finding.
+The numbers bear this out — it correlates 0.85 with the leading component and is
+predictable from the other blocks at R² = 0.89 — but the reason for dropping it
+is the leakage, not the correlation.
+<!-- TODO: the 0.85 and R2 = 0.89 for Job Zones were computed on release 30.2;
+recompute on 31.0 (Job Zones is not in the master table). -->
+
+**Software Skills and occupation-specific information.** Software Skills list
+examples of the software used in each occupation; the occupation-specific
+information holds each occupation's titles, task statements and detailed work
+activities. Neither is a set of ratings on scales common to all occupations:
+software is a list of products, task statements are written for one occupation
+each, and the detailed work activities that link them are recorded as present or
+absent rather than rated. None of them can enter a matrix whose columns must mean
+the same thing in every row.
+
+**Education, training and experience** *(Worker Requirements and Experience
+Requirements).* Education is, in O\*NET's definition, the "education typically
+required to perform a job", and Experience and Training "the amount of related
+work experience and training needed for a job". O\*NET publishes both as the
+distribution of answers given by respondents in each occupation. We take the
 view that this is not a description of the work, and introduce it in Section 4.3
 with the other labour-market variables; Section 5.5 gives the evidence that led
 us there.
 
-### 4.2 Screening, missing values, and the width of the matrix
+### 4.2 Scales and missing values
 
-O\*NET publishes more than can be used, some of it not observed and some of it a
-restatement of something else; and what it does publish has gaps whose causes
-differ and therefore need different treatment. This section settles what enters
-the feature matrix.
-
-Four blocks are excluded and the reasons differ in kind. Three are excluded
-because they are not observations. Work Styles and Specific Interest Areas are
-produced by what O\*NET calls a hybrid artificial intelligence–expert method,
-and Career Interest Types by a machine learning–expert method. All three are
-model outputs rather than measurements of the occupation, and including them would put
-a model's judgement inside a matrix intended to hold only measured features. The
-fourth, Job Zones, is excluded for a different reason, and it is the case worth
-arguing at length.
-
-The **Job Zones** block is dropped for a reason that is not only redundancy, and
-it is worth stating plainly. A Job Zone is O\*NET's own summary of how much
-preparation an occupation needs, on a scale that ran from one to five and that
-O\*NET is moving to a framework of four levels; none of the occupations analysed
-here is now in Zone 1. It is a ready-made
-low-dimensional grouping of occupations, assigned by the same organisation that
-supplied the ratings. This paper asks whether such structure emerges from the
-feature data on its own. Admitting a variable that already encodes the answer
-would let the target of the analysis in through the front door: the leading
-component would partly reproduce Job Zones because Job Zones was in the matrix,
-and we would have no way to tell that from a finding. The numbers bear this out
-— it correlates 0.85 with the leading component and is predictable from the
-other blocks at R² = 0.89 — but the reason for dropping it is the leakage, not
-the correlation.
-<!-- TODO: the 0.85 and R2 = 0.89 for Job Zones were computed on release 30.2;
-recompute on 31.0 (Job Zones is not in the master table). -->
-
-What remains to settle is not which blocks to keep but which **scale** to keep
-them on, because O\*NET publishes most of its blocks twice over. Work Context is
-the small case: it is published on a Context scale (CX) and, for a few items, on
-a Category scale (CT). We keep CX throughout. The two CT items duplicate items
-already present on CX, carry 0.5 percent of the variance, and add a second unit
-of measurement to the block for nothing.
+O\*NET publishes most of the blocks we keep on more than one scale, so the first
+choice is which to keep. Work Context is the small case: it is published on a
+Context scale (CX) and, for a few items, on a Category scale (CT). We keep CX
+throughout. The two CT items duplicate items already present on CX, carry 0.5
+percent of the variance, and add a second unit of measurement to the block for
+nothing.
 
 Four of the blocks — Skills, Abilities, Knowledge and Work Activities — are
 published on two scales at once. Importance records how consequential a
@@ -337,62 +356,42 @@ in its entirety. The last is legislators, who are elected rather than employed.
 Dropping these is not a judgement about which occupations matter but the absence
 of anything to measure.
 
-The remaining eleven are ordinary detailed occupations, and what they have in
-common is temporal rather than structural: they are codes created or split by
-the 2018 SOC revision, for which O\*NET's rolling survey had not, at release
-31.0, reached an independent collection. They are financial and investment
-analysts and financial risk specialists, which replaced the former financial
-analysts code; cardiologists and orthopaedic and paediatric surgeons, split
-from broader physician and surgeon codes; emergency medical technicians,
-separated from paramedics; health information technologists and medical
-registrars; hydrologic technicians; lighting technicians; crematory operators;
-and taxi drivers. Their descriptor rows are empty because collection has not
-caught up, not because the occupations are marginal. A twelfth 2018 code,
-calibration technologists and technicians, is rated on Work Activities and Work
-Context but not on Abilities, Skills or Knowledge, and cannot be placed in a
-space that needs all five blocks; it is excluded too.
+The remaining eleven are ordinary detailed occupations, created or split in the
+2018 SOC revision, which O\*NET's rolling survey has not yet reached; emergency
+medical technicians, separated from the former combined code for technicians and
+paramedics, are an example. Their descriptor rows are empty because collection
+has not caught up, not because the occupations are marginal. A twelfth code from
+the same revision, calibration technologists and technicians, is rated on Work
+Activities and Work Context but not on Abilities, Skills or Knowledge.
 
-We exclude them rather than impute them, and the objection to imputing is not
-that it would be inaccurate but that it would be circular. Every donor available
-is the occupation the new code was split from: the undivided financial analysts
-code for the two codes that replaced it, the general surgeons code for the
-surgical specialisms, the combined code for emergency medical technicians.
-Those splits were made because the parent code covered work that differs.
-Filling a child code from its parent writes that difference back out of the
-data and returns each new occupation to the position of the classification the
-revision was introduced to replace. Here it would also be self-confirming: an
-imputed occupation lands wherever its parent lands, and its position would have
-been set by the fill rather than by a measurement. The cost is small: twelve
-occupations would barely move a covariance matrix estimated on 910.
+We drop these rows rather than fill them. A code is split off because its work
+differs from that of the code it came from, and the parent is the only donor
+available; filling the new occupation from it would write that difference back
+out of the data and introduce a large bias into exactly the occupations
+concerned. Scattered gaps could be filled from a column median or a neighbouring
+occupation, with little at stake in any one cell, but an occupation with no
+measurements at all leaves nothing to anchor a fill. The loss is also small:
+twelve of the 922 ordinary detailed occupations, 1.3 percent.
 
 **910 detailed occupations remain, and this is the analysis set throughout.**
 Their 216-column feature matrix is complete as published, and the analysis rests
 on no imputed feature value. The few Importance and Context ratings that O\*NET
-flags for low precision, 69 and 121 rows respectively, are kept as published. The
-only gap in the O\*NET data the analysis uses is in education, training and
-experience, which Section 4.3 deals with.
+flags for low precision, 69 and 121 rows respectively, are kept as published.
 
-The matrix entering the principal component analysis is therefore 910
-occupations by 216 variables, all of them O\*NET descriptors. Nothing from
-Section 4.3 is in it — not the wages, not employment, not union coverage, not
-the education and training distributions. That is the design: every variable the
-axes are later compared against is a variable the axes were built without.
-
-The matrix is wide for its length, 910 occupations against 216 variables, but
-its effective dimension is far smaller. The ratings are heavily collinear: the
-first three components account for 53.8 percent of the variance, although 55
-are needed to reach 90 percent. What the width costs depends on the method. For
-principal component analysis it costs little: the estimand is the covariance
-structure rather than a set of coefficients, and collinearity concentrates that
-structure in a few directions, which a sample of this size can estimate. For clustering, many
-dimensions can blur distances until every occupation looks about equally far
-from every other, hiding groups that exist; Section 5.2 rules this out by
-repeating the clustering on the leading ten components. For regression, the
-width does bite. With 216 predictors against 910 observations, ordinary least
-squares fits the training folds almost exactly and generalises arbitrarily,
-returning large negative cross-validated R² values. The regressions of Section
-5.5 therefore use ridge, whose penalty is what makes the estimate meaningful in
-this shape, with the scaler fitted inside each fold.
+The matrix is wide for its length, 910 occupations against 216 variables, and
+the methods are chosen with that in mind. The ratings are heavily collinear, so
+the effective dimension of the matrix is far below 216 (Section 5.3), and what
+the width costs depends on the method. For principal component analysis it
+costs little: the estimand is the covariance structure rather than a set of
+coefficients, and collinearity concentrates that structure in a few directions.
+For clustering, many dimensions can blur distances until every occupation looks
+about equally far from every other, hiding groups that exist; Section 5.2 rules
+this out by repeating the clustering on the leading ten components. For
+regression, the width does bite. With 216 predictors against 910 observations,
+ordinary least squares fits the training folds almost exactly and generalises
+arbitrarily, returning large negative cross-validated R² values. The regressions
+of Section 5.5 therefore use ridge, whose penalty is what makes the estimate
+meaningful in this shape, with the scaler fitted inside each fold.
 
 **Table 4.1 — The final matrix**
 
