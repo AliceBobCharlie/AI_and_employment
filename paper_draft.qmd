@@ -119,7 +119,7 @@ that O\*NET publishes (Figure 1).
 
 ```{=html}
 <figure class="content-model">
-  <img src="assets/CM_high_res.png" style="width: 100%; height: auto;"
+  <img src="figures/onet_content_model.png" style="width: 100%; height: auto;"
        alt="The O*NET Content Model: three parts, Worker, Job and Market. Worker comprises Worker Characteristics (Career Interests, with Career Types and Specific Areas; Abilities; Work Styles), Worker Requirements (Skills, with Software, Essential and Transferable; Knowledge; Education) and Experience Requirements (Experience and Training; Licensing). Job comprises Occupational Requirements (Work Activities at general, intermediate and detailed levels; Work Context) and Occupation-Specific Info (Occupation Title, Description, Job Titles, Tasks). Market comprises Workforce Characteristics (Labor Market Information; Occupational Outlook).">
   <figcaption><b>Figure 1</b> — the O*NET® Content Model. Source: National Center
   for O*NET Development, O*NET Resource Center. Used under the CC BY 4.0
@@ -140,14 +140,19 @@ system would have to supply in order to stand in for the worker, and the only on
 that separates those four kinds of capacity explicitly — a distinction the
 analysis later recovers on its own.
 
-**Skills.** "Essential skills are skills you need for most jobs, such as
-reading, writing, math, and learning"; "transferable skills are skills you can
-use across different jobs, such as communication, problem solving, and team
-work." Release 30.3 split the former Skills file into these two, of ten and
+**Skills.** The Content Model lists three kinds. "Essential skills are skills
+you need for most jobs, such as reading, writing, math, and learning";
+"transferable skills are skills you can use across different jobs, such as
+communication, problem solving, and team work"; and software skills are "using
+specific programs and applications for work tasks." Release 30.3 split the
+former Skills file into Essential and Transferable Skills, of ten and
 twenty-five elements; together they hold the same thirty-five elements as
 before, and we use them as one block. Where an ability is enduring, a skill is
 acquired, which bears on how quickly an occupation could be re-staffed or its
-workers retrained if part of the work were automated.
+workers retrained if part of the work were automated. Software Skills are
+recorded differently: as examples of software linked to each occupation, flagged
+where employer job postings frequently ask for them, but not rated. They are not
+used in the present analysis.
 
 **Knowledge.** "Knowledge is organized sets of principles and facts applying in
 general domains." There are thirty-three domains, from administration and
@@ -194,19 +199,6 @@ what it calls a hybrid artificial intelligence–expert method, and Career
 Interest Types by a machine learning–expert method. They are model outputs
 rather than measurements of the occupation, and including them would put a
 model's judgement inside a matrix intended to hold only measured features.
-
-**Job Zones.** "A Job Zone is a group of occupations that are similar in: how
-much education people need to do the work, how much related experience people
-need to do the work, and how much on-the-job training people need to do the
-work." The database publishes Job Zones alongside the Content Model blocks; there
-were five, and O\*NET now combines the first two. We drop the block to prevent
-data leakage. A Job Zone is a ready-made grouping of occupations, assigned by the
-same organisation that supplied the ratings, and a grouping fixed in advance may
-carry its own biases; this paper asks instead whether structure emerges from the
-feature data on its own. Admitting a variable that already encodes the answer
-would let the target of the analysis in through the front door: the leading
-component would partly reproduce Job Zones because Job Zones was in the matrix,
-and we would have no way to tell that from a finding.
 
 **Occupation-Specific Info.** "Details about a specific job": each occupation's
 title, description, job titles and tasks, where "tasks are specific work
