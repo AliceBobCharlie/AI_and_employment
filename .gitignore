@@ -39,6 +39,7 @@ output/*
 # from the IPUMS extract, not the microdata, which stays in data_raw/.
 !output/acs_young_share.csv
 !figures/content model.png
+!figures/onet_content_model.png
 
 # 6. junk
 __pycache__/

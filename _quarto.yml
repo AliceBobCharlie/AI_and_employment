@@ -11,6 +11,7 @@ project:
     - figures.js
     - output/plot_data.csv
     - output/acs_young_share.csv
+    - figures/onet_content_model.png
 
 format:
   html:

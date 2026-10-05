@@ -113,122 +113,67 @@ the US Department of Labor. It describes roughly nine hundred detailed
 occupations on several hundred numeric scales, rated by job incumbents surveyed
 within each occupation, by occupation experts and by trained occupational
 analysts. We use release 31.0, published in August 2026. Its organising scheme,
-the Content Model, is arranged in three parts: the **worker**, meaning what the person in the job brings to it and must have
-acquired; the **job**, meaning what the work involves; and the **market**,
-meaning pay, employment and outlook.
+the Content Model, is arranged in three parts — the worker, the job and the
+market — each divided into areas, and the areas into the blocks of descriptors
+that O\*NET publishes (Figure 1).
 
 ```{=html}
 <figure class="content-model">
-  <div class="cm-grid">
-    <div class="cm-col">
-      <h4>Worker</h4>
-      <div class="cm-domain">
-        <b>Worker Characteristics</b>
-        <span class="use">Abilities</span>
-        <span class="drop">Work Styles</span>
-        <span class="drop">Career Interest Types</span>
-        <span class="drop">Specific Interest Areas</span>
-      </div>
-      <div class="cm-domain">
-        <b>Worker Requirements</b>
-        <span class="use">Essential Skills</span>
-        <span class="use">Transferable Skills</span>
-        <span class="use">Knowledge</span>
-        <span class="lm">Education</span>
-        <span class="na">Software Skills</span>
-      </div>
-      <div class="cm-domain">
-        <b>Experience Requirements</b>
-        <span class="lm">Training and Experience</span>
-        <span class="drop">Job Zones</span>
-      </div>
-    </div>
-    <div class="cm-col">
-      <h4>Job</h4>
-      <div class="cm-domain">
-        <b>Occupational Requirements</b>
-        <span class="use">Work Activities</span>
-        <span class="use">Work Context (Context scale)</span>
-        <span class="drop">Work Context (Category scale)</span>
-      </div>
-      <div class="cm-domain">
-        <b>Occupation-Specific Information</b>
-        <span class="na">titles, tasks, detailed work activities</span>
-      </div>
-    </div>
-    <div class="cm-col">
-      <h4>Market</h4>
-      <div class="cm-domain">
-        <b>Labor Market Information and Occupational Outlook</b>
-        <span class="lm">pay, employment, outlook (from the BLS sources directly)</span>
-      </div>
-    </div>
-  </div>
-  <div class="cm-key">
-    <span class="use">enters the feature matrix (§4.1)</span>
-    <span class="lm">treated as a labour-market variable (§4.3)</span>
-    <span class="drop">excluded, with reasons (§4.1)</span>
-    <span class="na">not used</span>
-  </div>
-  <figcaption><b>Figure 1</b> — the O*NET Content Model, with the treatment each
-  block receives here. The three parts and their
-  contents follow the Content Model documentation; Job Zones, which that
-  documentation does not list, are placed with the experience requirements, as
-  the database dictionary groups them. The shading is ours. This figure includes
-  information from O*NET Resource Center by the U.S. Department of Labor,
-  Employment and Training Administration (USDOL/ETA). Used under the CC BY 4.0
+  <img src="assets/CM_high_res.png" style="width: 100%; height: auto;"
+       alt="The O*NET Content Model: three parts, Worker, Job and Market. Worker comprises Worker Characteristics (Career Interests, with Career Types and Specific Areas; Abilities; Work Styles), Worker Requirements (Skills, with Software, Essential and Transferable; Knowledge; Education) and Experience Requirements (Experience and Training; Licensing). Job comprises Occupational Requirements (Work Activities at general, intermediate and detailed levels; Work Context) and Occupation-Specific Info (Occupation Title, Description, Job Titles, Tasks). Market comprises Workforce Characteristics (Labor Market Information; Occupational Outlook).">
+  <figcaption><b>Figure 1</b> — the O*NET® Content Model. Source: National Center
+  for O*NET Development, O*NET Resource Center. Used under the CC BY 4.0
   license.</figcaption>
 </figure>
 ```
 
-We now take the blocks in turn: O\*NET's definition of each, whether we use it,
-and why. Five enter the feature matrix.
+We take the blocks in turn, quoting O\*NET's definition of each and saying
+whether we use it and why. The definitions are quoted from O\*NET OnLine or,
+where it gives none, from the Content Model page of the O\*NET Resource Center
+(National Center for O\*NET Development, n.d.-a, n.d.-b). Five blocks enter the
+feature matrix.
 
-**Abilities** *(Worker Characteristics, rated by analysts, taken on Importance).*
-In O\*NET's definition, "enduring attributes of the individual that influence
-performance", grouped into cognitive, psychomotor, physical and sensory
-abilities. This is the block that comes closest to stating what a system would
-have to supply in order to stand in for the worker, and the only one that
-separates those four kinds of capacity explicitly — a distinction the analysis
-later recovers on its own.
+**Abilities.** "Abilities are enduring attributes of the individual that
+influence performance." O\*NET groups them into cognitive, psychomotor, physical
+and sensory abilities. This is the block that comes closest to stating what a
+system would have to supply in order to stand in for the worker, and the only one
+that separates those four kinds of capacity explicitly — a distinction the
+analysis later recovers on its own.
 
-**Skills** *(Worker Requirements, analysts, Importance).* Capacities developed
-through education and experience. Essential Skills are, in O\*NET's words, those
-"you need for most jobs, such as reading, writing, math, and learning" (ten
-elements); Transferable Skills are those "you can use across different jobs,
-such as communication, problem solving, and team work" (twenty-five, grouped
-into complex problem solving, resource management, social, systems and
-technical skills). Release 30.3 split the former Skills file into these two;
-together they hold the same thirty-five elements, and we use them as one block.
-Where an ability is enduring, a skill is acquired, which bears on how quickly an
-occupation could be re-staffed or its workers retrained if part of the work were
-automated.
+**Skills.** "Essential skills are skills you need for most jobs, such as
+reading, writing, math, and learning"; "transferable skills are skills you can
+use across different jobs, such as communication, problem solving, and team
+work." Release 30.3 split the former Skills file into these two, of ten and
+twenty-five elements; together they hold the same thirty-five elements as
+before, and we use them as one block. Where an ability is enduring, a skill is
+acquired, which bears on how quickly an occupation could be re-staffed or its
+workers retrained if part of the work were automated.
 
-**Knowledge** *(Worker Requirements, incumbents or occupation experts,
-Importance).* "Organized sets of principles and facts applying in general
-domains": thirty-three domains, from administration and management to law,
-medicine and engineering. It bears on substitution with a caveat we state rather
-than resolve: what O\*NET treats as separate domains, because each takes a person
-years to acquire, may not be separate for a model trained on a broad corpus. The
-block still discriminates occupations well, which is what it is used for here.
+**Knowledge.** "Knowledge is organized sets of principles and facts applying in
+general domains." There are thirty-three domains, from administration and
+management to law, medicine and engineering. The block bears on substitution
+with a caveat we state rather than resolve: what O\*NET treats as separate
+domains, because each takes a person years to acquire, may not be separate for a
+model trained on a broad corpus. It still discriminates occupations well, which
+is what it is used for here.
 
-**Work Activities** *(Occupational Requirements, incumbents or occupation
-experts, Importance).* "General types of job behaviors occurring on multiple
-jobs", grouped into information input, mental processes, work output and
-interacting with others. Of the five blocks this is the closest to what is
-actually done rather than to what the doer is like, and it is therefore the
-block most directly comparable to the task-level measures the substitution
-literature is built on.
+**Work Activities.** "Work activities are general types of job behaviors
+occurring on multiple jobs." O\*NET groups them into information input, mental
+processes, work output and interacting with others. We use the general level,
+the forty-one activities rated for every occupation; the intermediate and
+detailed levels below it classify task statements and are not rated. Of the
+five blocks this is the closest to what is actually done rather than to what the
+doer is like, and it is therefore the block most directly comparable to the
+task-level measures the substitution literature is built on.
 
-**Work Context** *(Occupational Requirements, incumbents or occupation experts,
-Context scale).* "Physical and social factors that influence the nature of
-work", grouped into interpersonal relationships, physical work conditions and
-structural characteristics of the job, such as its pace and the consequences of
-its decisions. It carries what the other blocks omit: whether the work is done in
-person, outdoors, under hazard, under time pressure, in contact with the public.
-These constrain what can be delegated to a system independently of how difficult
-the work is, and without this block an occupation's physical setting is
-invisible to the analysis.
+**Work Context.** "Work context is physical and social factors that influence
+the nature of work." O\*NET groups it into interpersonal relationships, physical
+work conditions and structural characteristics of the job, such as its pace and
+the consequences of its decisions. It carries what the other blocks omit:
+whether the work is done in person, outdoors, under hazard, under time pressure,
+in contact with the public. These constrain what can be delegated to a system
+independently of how difficult the work is, and without this block an
+occupation's physical setting is invisible to the analysis.
 
 The raters differ by block, and O\*NET records which supplied each rating.
 Abilities and Skills are rated by analysts for every occupation. Knowledge, Work
@@ -239,53 +184,47 @@ until a survey is completed. None of the five blocks is generated by a model.
 
 The other blocks are not used, for reasons that differ in kind.
 
-**Work Styles, Career Interest Types and Specific Interest Areas** *(Worker
-Characteristics).* Work Styles are "personality tendencies exhibited at work,
-which can affect how well someone performs a job"; Career Interest Types are the
-broad kinds of work a person enjoys, in Holland's six types; Specific Interest
-Areas are forty-one narrower kinds of work activity a person enjoys. All three
-describe what suits a person rather than what the work requires, and all three
-are excluded because they are not observations. O\*NET produces Work Styles and
-Specific Interest Areas by what it calls a hybrid artificial intelligence–expert
-method, and Career Interest Types by a machine learning–expert method. They are
-model outputs rather than measurements of the occupation, and including them
-would put a model's judgement inside a matrix intended to hold only measured
-features.
+**Career Interests and Work Styles.** Career Interests comprise Career Interest
+Types, "broad types of work you enjoy", and Specific Interest Areas, "work
+activities you enjoy"; "work styles are personality tendencies exhibited at
+work, which can affect how well someone performs a job." Both describe what suits
+a person rather than what the work requires, and both are excluded because they
+are not observations. O\*NET produces Work Styles and Specific Interest Areas by
+what it calls a hybrid artificial intelligence–expert method, and Career
+Interest Types by a machine learning–expert method. They are model outputs
+rather than measurements of the occupation, and including them would put a
+model's judgement inside a matrix intended to hold only measured features.
 
-**Job Zones** *(Experience Requirements).* A Job Zone is O\*NET's grouping of
-occupations that are similar in how much education, related experience and
-on-the-job training the work needs. There were five zones; O\*NET now combines
-the first two, so none of the occupations analysed here is in Zone 1. The block
-is dropped for a reason that is not only redundancy, and it is worth stating
-plainly. It is a ready-made low-dimensional grouping of occupations, assigned by
-the same organisation that supplied the ratings. This paper asks whether such
-structure emerges from the feature data on its own. Admitting a variable that
-already encodes the answer would let the target of the analysis in through the
-front door: the leading component would partly reproduce Job Zones because Job
-Zones was in the matrix, and we would have no way to tell that from a finding.
-The numbers bear this out — it correlates 0.85 with the leading component and is
-predictable from the other blocks at R² = 0.89 — but the reason for dropping it
-is the leakage, not the correlation.
-<!-- TODO: the 0.85 and R2 = 0.89 for Job Zones were computed on release 30.2;
-recompute on 31.0 (Job Zones is not in the master table). -->
+**Job Zones.** "A Job Zone is a group of occupations that are similar in: how
+much education people need to do the work, how much related experience people
+need to do the work, and how much on-the-job training people need to do the
+work." The database publishes Job Zones alongside the Content Model blocks; there
+were five, and O\*NET now combines the first two. We drop the block to prevent
+data leakage. A Job Zone is a ready-made grouping of occupations, assigned by the
+same organisation that supplied the ratings, and a grouping fixed in advance may
+carry its own biases; this paper asks instead whether structure emerges from the
+feature data on its own. Admitting a variable that already encodes the answer
+would let the target of the analysis in through the front door: the leading
+component would partly reproduce Job Zones because Job Zones was in the matrix,
+and we would have no way to tell that from a finding.
 
-**Software Skills and occupation-specific information.** Software Skills list
-examples of the software used in each occupation; the occupation-specific
-information holds each occupation's titles, task statements and detailed work
-activities. Neither is a set of ratings on scales common to all occupations:
-software is a list of products, task statements are written for one occupation
-each, and the detailed work activities that link them are recorded as present or
-absent rather than rated. None of them can enter a matrix whose columns must mean
-the same thing in every row.
+**Occupation-Specific Info.** "Details about a specific job": each occupation's
+title, description, job titles and tasks, where "tasks are specific work
+activities that can be unique for each occupation." This is descriptive text
+that documents an occupation for reference rather than measuring it, and it is
+not used.
 
-**Education, training and experience** *(Worker Requirements and Experience
-Requirements).* Education is, in O\*NET's definition, the "education typically
-required to perform a job", and Experience and Training "the amount of related
-work experience and training needed for a job". O\*NET publishes both as the
-distribution of answers given by respondents in each occupation. We take the
-view that this is not a description of the work, and introduce it in Section 4.3
-with the other labour-market variables; Section 5.5 gives the evidence that led
-us there.
+**Education, training, experience and licensing.** Education is the "education
+typically required to perform a job", Experience and Training "the amount of
+related work experience and training needed for a job", and Licensing the
+"required licenses, certifications, or registrations needed to perform a job."
+O\*NET publishes education, training and experience as the distribution of
+answers given by respondents in each occupation; for licensing, the nearest
+measures in the database are two importance ratings, of a job-related
+professional certification and of an apprenticeship. We take the view that this
+group is not a description of the work, and introduce it in Section 4.3 with the
+other labour-market variables and the market part of the Content Model; Section
+5.5 gives the evidence that led us there.
 
 ### 4.2 Scales and missing values
 
@@ -1815,9 +1754,15 @@ Fan, T. (2025). *The labor market incidence of new technologies*. arXiv:2504.040
 
 #### Occupational features
 
-National Center for O\*NET Development. (2026). *O\*NET 31.0 Database* (released August 2026). Raleigh, NC: U.S. Department of Labor, Employment and Training Administration. https://www.onetcenter.org/database.html
+National Center for O\*NET Development. (n.d.-a). *The O\*NET® Content Model*. O\*NET Resource Center. Retrieved October 4, 2026, from https://www.onetcenter.org/content.html
+
+National Center for O\*NET Development. (n.d.-b). *O\*NET OnLine*. Retrieved October 4, 2026, from https://www.onetonline.org/
+
+National Center for O\*NET Development. (2026). *O\*NET® 31.0 database* [Data set]. U.S. Department of Labor, Employment and Training Administration. https://www.onetcenter.org/database.html
 
 O\*NET files used: Abilities, Essential Skills, Transferable Skills, Knowledge, Work Activities, Work Context, Education, Training and Experience. Files inspected and excluded: Work Styles, Career Interest Types, Specific Interest Areas, Job Zones, Occupation Level Metadata.
+
+This paper includes information from the O\*NET 31.0 Database, O\*NET OnLine and the O\*NET Resource Center by the U.S. Department of Labor, Employment and Training Administration (USDOL/ETA). Used under the CC BY 4.0 license. O\*NET® is a trademark of USDOL/ETA. The authors have modified all or some of this information. USDOL/ETA has not approved, endorsed, or tested these modifications.
 
 #### Wages and employment
 
