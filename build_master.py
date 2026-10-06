@@ -1,27 +1,46 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-build_master.py -- one script, one output: assemble the lean O*NET skill matrix
-AND the social-structural variables into a single master table keyed by
-O*NET-SOC, then drop near-empty occupations.
+build_master.py -- assemble the raw master table:
 
-O*NET side (all observed, single-scale, redundancy-pruned):
-  Skills / Abilities / Knowledge / Work Activities -> IM only
-  Work Context                                     -> CX only
-  Education/Training/Experience (ETE)              -> RL/RW/PT/OJ percent
-      distributions, with the LAST (highest) category of each scale DROPPED to
-      remove the compositional collinearity (categories sum to 100, so one is
-      redundant; the dropped column is implied by the rest).
-Dropped blocks: LV (redundant with IM), Work Values, Work Styles, Interests,
-  Job Zones, Work Context CT.
+    data_raw/onet/db_31_0_text + the external sources  ->  output/master.csv
 
-External side (prefix ext_):
-  OEWS wages/employment, CPS union coverage (via crosswalk), OPR prestige,
-  BLS separation rates (labor-force exit, occupational transfer) + % self-
-  employed.
+One row per O*NET-SOC code listed in O*NET's Occupation Data, rated or not.
+One column per block, scale, element and (where the scale has them) category,
+holding the Data Value as O*NET publishes it, followed by the labour-market
+variables joined on the six-digit SOC code.
 
-No row filtering / no imputation on the O*NET values; only the >90%-empty
-occupation drop at the end. Self-employment blanks -> 0 (negligible).
+This script only reads and joins. It drops no occupation and no scale, fills
+no gap and derives no variable; all of that is done in clean_master.py. In
+particular it keeps Importance and Level for Abilities, Skills, Knowledge and
+Work Activities; CX, CT, CXP and CTP for Work Context; and every category of
+every education, training and experience scale, with required education on
+both the RL and the RQ scale. Ratings that O*NET flags Not Relevant or
+Recommend Suppress are kept as published; the flags are not carried over.
+
+O*NET column names: <block>_<scale>__<Element Name>, with __c<category> added
+for scales that have categories, e.g. abilities_lv__Oral Comprehension,
+workctx_cxp__Public Speaking__c3, ete_rl__Required Level of Education__c6.
+
+External columns (prefix ext_), and how their source codes are read:
+
+  OEWS national, May 2024: employment, and the mean, median and 10th, 25th,
+    75th and 90th percentiles of annual pay. OEWS marks a wage at or above
+    $239,200 a year with "#"; it is read as 239200. The value is a lower
+    bound, and since OEWS publishes no exact value at or above the cap, a
+    value of exactly 239200 always means "at least this much". The other
+    marks ("*" and "**", estimate not available; "~", fewer than 0.5 percent
+    of establishments report the occupation) are read as missing.
+  CPS 2024 union coverage, joined through the BLS National Employment Matrix
+    crosswalk from CPS occupation codes to SOC codes.
+  Occupational Prestige Ratings, averaged where several rated titles share a
+    six-digit SOC code.
+  BLS Employment Projections: labour-force exit and occupational transfer
+    rates (table 1.10) and the self-employed share (table 1.2). In table 1.2 a
+    blank or a dash means negligible self-employment and is read as 0.
+    Occupations absent from the table are left missing.
+
+Files are read one at a time, only the columns needed.
 """
 
 import re
@@ -30,25 +49,40 @@ import pandas as pd
 from pathlib import Path
 
 RAW = Path("data_raw")
-ONET_DIR = RAW / "onet" / "O*NET_30_2_excel"
-OUT = Path("output/master_wide.xlsx")
-OUT.parent.mkdir(exist_ok=True)
+ONET_DIR = RAW / "onet" / "db_31_0_text"
+OUT = Path("output/master.csv")
 
-CROSSWALK  = RAW / "nem-occcode-cps-crosswalk.xlsx"
-OEWS_FILE  = RAW / "national_M2024_dl.xlsx"
+CROSSWALK = RAW / "nem-occcode-cps-crosswalk.xlsx"
+OEWS_FILE = RAW / "national_M2024_dl.xlsx"
 UNION_FILE = RAW / "occ_2024.xlsx"
 PRESTIGE_FILE = RAW / "OccupationalPrestigeRatings.csv"
-BLS_FILE   = RAW / "bls_projections.xlsx"
-OCCUPATION_FILE = "Occupation Data.xlsx"
+BLS_FILE = RAW / "bls_projections.xlsx"
 
-DROP_THRESHOLD = 0.90
+# Column prefix -> the O*NET files that hold the block.
+BLOCKS = {
+    "abilities": ["Abilities"],
+    "skills":    ["Essential Skills", "Transferable Skills"],
+    "knowledge": ["Knowledge"],
+    "workact":   ["Work Activities"],
+    "workctx":   ["Work Context"],
+    "ete":       ["Education", "Training and Experience"],
+}
+FEATURE_BLOCKS = ["abilities", "skills", "knowledge", "workact", "workctx"]
 
-POINT_BLOCKS = [
-    ("Skills", "IM", "skills"), ("Abilities", "IM", "abilities"),
-    ("Knowledge", "IM", "knowledge"), ("Work Activities", "IM", "workact"),
-    ("Work Context", "CX", "workctx"),
-]
-ETE_SCALES = ["RL", "RW", "PT", "OJ"]
+RATING_COLUMNS = {
+    "O*NET-SOC Code": "soc", "Element Name": "element", "Scale ID": "scale",
+    "Category": "category", "Data Value": "value",
+}
+
+# OEWS columns kept, and their names in the master table.
+OEWS_COLUMNS = {
+    "TOT_EMP": "ext_employment", "A_MEAN": "ext_wage_mean",
+    "A_MEDIAN": "ext_wage_median", "A_PCT10": "ext_wage_p10",
+    "A_PCT25": "ext_wage_p25", "A_PCT75": "ext_wage_p75", "A_PCT90": "ext_wage_p90",
+}
+OEWS_TOP_CODE = "#"           # annual wage at or above the cap
+OEWS_CAP = 239200
+OEWS_NOT_AVAILABLE = {"*", "**", "~"}
 
 
 def soc6(code):
@@ -58,63 +92,90 @@ def soc6(code):
     return m.group(1) if m else None
 
 
-# ------------------------- O*NET wide ------------------------------------- #
+# --------------------------------------------------------------------------- #
+# O*NET
+# --------------------------------------------------------------------------- #
+def read_text(path, columns):
+    """Read only the named columns of a tab-separated O*NET file, renamed."""
+    df = pd.read_csv(path, sep="\t", dtype=str, encoding="utf-8",
+                     usecols=lambda c: c in columns)
+    return df.rename(columns=columns)
+
+
+def block_wide(prefix):
+    """One block as an occupation x column table of published values."""
+    paths = [ONET_DIR / f"{stem}.txt" for stem in BLOCKS[prefix]]
+    df = pd.concat([read_text(p, RATING_COLUMNS) for p in paths], ignore_index=True)
+
+    df["value"] = pd.to_numeric(df["value"], errors="coerce")
+    if "category" in df.columns:
+        category = pd.to_numeric(df["category"], errors="coerce")
+    else:
+        category = pd.Series(np.nan, index=df.index)
+    suffix = category.map(lambda c: "" if pd.isna(c) else f"__c{int(c)}")
+    df["column"] = prefix + "_" + df["scale"].str.lower() + "__" + df["element"] + suffix
+
+    duplicated = df.duplicated(["soc", "column"])
+    wide = df[~duplicated].pivot(index="soc", columns="column", values="value")
+    return wide, [p.name for p in paths], int(duplicated.sum())
+
+
+def report_block(prefix, wide, files, duplicates):
+    """Columns per scale, occupations covered, and holes inside rated rows."""
+    print(f"\n  [{prefix}] from {', '.join(files)}"
+          + (f"  ({duplicates} duplicate ratings, first kept)" if duplicates else ""))
+    scales = wide.columns.str.extract(rf"^{prefix}_([a-z]+)__", expand=False)
+    for scale in sorted(scales.unique()):
+        cols = wide.columns[scales == scale]
+        sub = wide[cols]
+        rated = sub.notna().any(axis=1)
+        print(f"    {scale:4s} {len(cols):4d} columns | {int(rated.sum()):4d} occupations "
+              f"| {int(sub[rated].isna().sum().sum()):6d} missing cells inside rated rows")
+
+
 def onet_wide():
-    base = pd.read_excel(ONET_DIR / OCCUPATION_FILE).rename(columns={
-        "O*NET-SOC Code": "onet_soc", "Title": "title"})
-    wide = base[["onet_soc", "title"]].set_index("onet_soc")
-
-    for stem, scale, prefix in POINT_BLOCKS:
-        df = pd.read_excel(ONET_DIR / f"{stem}.xlsx").rename(columns={
-            "O*NET-SOC Code": "soc", "Element Name": "element", "Data Value": "val"})
-        df["val"] = pd.to_numeric(df["val"], errors="coerce")
-        sub = df[df["Scale ID"] == scale]
-        w = sub.pivot_table(index="soc", columns="element", values="val", aggfunc="mean")
-        w.columns = [f"{prefix}_{scale.lower()}__{c}" for c in w.columns]
-        wide = wide.join(w, how="left")
-        print(f"[onet] {stem:24s} {scale}: {w.shape[1]} cols")
-
-    # ETE percent distributions, dropping each scale's highest category
-    ete = pd.read_excel(ONET_DIR / "Education, Training, and Experience.xlsx").rename(
-        columns={"O*NET-SOC Code": "soc", "Element Name": "element",
-                 "Data Value": "val", "Category": "cat"})
-    ete["val"] = pd.to_numeric(ete["val"], errors="coerce")
-    ete["cat"] = pd.to_numeric(ete["cat"], errors="coerce").astype("Int64")
-    for scale in ETE_SCALES:
-        sub = ete[ete["Scale ID"] == scale].copy()
-        max_cat = int(sub["cat"].max())          # highest category -> drop as reference
-        sub = sub[sub["cat"] != max_cat]
-        sub["colkey"] = sub["element"].astype(str) + "__c" + sub["cat"].astype(str)
-        w = sub.pivot_table(index="soc", columns="colkey", values="val", aggfunc="mean")
-        w.columns = [f"ete_{scale.lower()}__{c}" for c in w.columns]
-        wide = wide.join(w, how="left")
-        print(f"[onet] ETE {scale}: {w.shape[1]} cols (dropped category c{max_cat})")
-
-    wide = wide.reset_index()
+    occ = read_text(ONET_DIR / "Occupation Data.txt",
+                    {"O*NET-SOC Code": "onet_soc", "Title": "title"})
+    wide = occ.set_index("onet_soc")
+    print(f"[O*NET] {ONET_DIR}: {len(wide)} O*NET-SOC codes in Occupation Data")
+    for prefix in BLOCKS:
+        block, files, duplicates = block_wide(prefix)
+        report_block(prefix, block, files, duplicates)
+        unknown = block.index.difference(wide.index)
+        if len(unknown):
+            print(f"    note: {len(unknown)} rated codes not in Occupation Data: "
+                  f"{', '.join(unknown)}")
+        wide = wide.join(block, how="left")
+    wide = wide.rename_axis("onet_soc").reset_index()
     wide["soc6"] = wide["onet_soc"].map(soc6)
-    print(f"[onet] wide: {wide.shape[0]} occ x "
-          f"{len([c for c in wide.columns if '__' in c])} features")
     return wide
 
 
-# ------------------------- external sources ------------------------------- #
+# --------------------------------------------------------------------------- #
+# External sources
+# --------------------------------------------------------------------------- #
+def read_oews_value(series):
+    """OEWS cell -> number: '#' -> the cap, the not-available marks -> missing."""
+    s = series.astype(str).str.strip()
+    s = s.where(s != OEWS_TOP_CODE, str(OEWS_CAP))
+    s = s.where(~s.isin(OEWS_NOT_AVAILABLE))
+    return pd.to_numeric(s.str.replace(",", "", regex=False), errors="coerce")
+
+
 def load_oews():
     df = pd.read_excel(OEWS_FILE, dtype=str)
     df = df[df["O_GROUP"].str.lower() == "detailed"].copy()
     df["soc6"] = df["OCC_CODE"].map(soc6)
-    for c in ["TOT_EMP", "A_MEAN", "A_MEDIAN", "A_PCT10", "A_PCT25", "A_PCT75", "A_PCT90"]:
-        df[c] = pd.to_numeric(df[c].replace({"*": None, "**": None, "#": None, "~": None}),
-                              errors="coerce")
-    df["ext_wage_p90p10"] = df["A_PCT90"] / df["A_PCT10"]
-    df["ext_wage_p90p50"] = df["A_PCT90"] / df["A_MEDIAN"]
-    df["ext_wage_p50p10"] = df["A_MEDIAN"] / df["A_PCT10"]
-    keep = df[["soc6", "TOT_EMP", "A_MEAN", "A_MEDIAN", "A_PCT10", "A_PCT25",
-               "A_PCT75", "A_PCT90", "ext_wage_p90p10", "ext_wage_p90p50",
-               "ext_wage_p50p10"]].rename(columns={
-        "TOT_EMP": "ext_employment", "A_MEAN": "ext_wage_mean",
-        "A_MEDIAN": "ext_wage_median", "A_PCT10": "ext_wage_p10",
-        "A_PCT25": "ext_wage_p25", "A_PCT75": "ext_wage_p75", "A_PCT90": "ext_wage_p90"})
-    return keep.drop_duplicates("soc6")
+
+    print("\n[OEWS] marks read per column: '#' -> 239200 | not available -> missing")
+    for col, name in OEWS_COLUMNS.items():
+        cell = df[col].astype(str).str.strip()
+        n_top = int((cell == OEWS_TOP_CODE).sum())
+        n_na = int(cell.isin(OEWS_NOT_AVAILABLE).sum())
+        df[name] = read_oews_value(df[col])
+        print(f"    {name:18s} {n_top:4d} top-coded | {n_na:4d} not available")
+
+    return df[["soc6"] + list(OEWS_COLUMNS.values())].drop_duplicates("soc6")
 
 
 def load_crosswalk():
@@ -156,7 +217,7 @@ def load_prestige():
 
 
 def load_bls():
-    def read_li(sheet):
+    def read_line_items(sheet):
         d = pd.read_excel(BLS_FILE, sheet_name=sheet, skiprows=1)
         d.columns = [re.sub(r"\s+", " ", str(c)).strip() for c in d.columns]
         code = next(c for c in d.columns if "code" in c.lower())
@@ -168,13 +229,14 @@ def load_bls():
     def find(d, *kw):
         return next((c for c in d.columns if all(k in c.lower() for k in kw)), None)
 
-    t110 = read_li("Table 1.10")
+    t110 = read_line_items("Table 1.10")
     S = pd.DataFrame({"soc6": t110["soc6"]})
     S["ext_sep_exit_rate"] = pd.to_numeric(t110[find(t110, "exit", "rate")], errors="coerce")
     S["ext_sep_transfer_rate"] = pd.to_numeric(t110[find(t110, "transfer", "rate")], errors="coerce")
     S = S.drop_duplicates("soc6")
 
-    t12 = read_li("Table 1.2")
+    # In table 1.2 a blank or a dash is the published value 'negligible'.
+    t12 = read_line_items("Table 1.2")
     T = pd.DataFrame({"soc6": t12["soc6"]})
     T["ext_self_employed_pct"] = pd.to_numeric(
         t12[find(t12, "self employed")].replace("—", 0), errors="coerce").fillna(0)
@@ -182,9 +244,7 @@ def load_bls():
     return S.merge(T, on="soc6", how="outer")
 
 
-# ------------------------- assemble --------------------------------------- #
-def main():
-    onet = onet_wide()
+def join_external(onet):
     n0 = len(onet)
     M = onet.merge(load_oews(), on="soc6", how="left")
     M = M.merge(load_crosswalk(), on="soc6", how="left")
@@ -193,27 +253,38 @@ def main():
     M = M.merge(load_bls(), on="soc6", how="left")
     M = M.drop(columns=["cps"], errors="ignore")
     assert len(M) == n0, f"row count changed {n0}->{len(M)}"
+    return M
 
-    if "ext_self_employed_pct" in M.columns:
-        M["ext_self_employed_pct"] = M["ext_self_employed_pct"].fillna(0)
 
-    onet_feats = [c for c in M.columns if "__" in c]
-    ext_feats = [c for c in M.columns if c.startswith("ext_")]
-    all_feats = onet_feats + ext_feats
+# --------------------------------------------------------------------------- #
+def summarise(M):
+    """Coverage of every block and external variable, over all codes and over
+    the codes rated in all five feature blocks."""
+    def block_rated(prefix):
+        cols = [c for c in M.columns if c.startswith(f"{prefix}_")]
+        return M[cols].notna().any(axis=1)
 
-    keep = M[M[all_feats].isna().mean(axis=1) <= DROP_THRESHOLD].copy()
-    print(f"\n[merge] {len(onet_feats)} skill + {len(ext_feats)} external")
-    print(f"[drop ] {n0 - len(keep)} occ >90% empty | [keep] {len(keep)}")
-    keep.to_excel(OUT, index=False)
-    print(f"[ok] wrote {OUT} ({keep.shape[0]} x {keep.shape[1]})")
+    rated = pd.concat([block_rated(p) for p in FEATURE_BLOCKS], axis=1).all(axis=1)
+    print(f"\n{len(M)} O*NET-SOC codes, {int(rated.sum())} rated in all five feature blocks")
+    for prefix in BLOCKS:
+        print(f"    {prefix:10s} rated for {int(block_rated(prefix).sum())} codes")
 
-    print("\n--- external coverage ---")
-    for c in ext_feats:
-        print(f"  {c:22s} {keep[c].notna().mean()*100:5.1f}%")
-    print("\n--- ETE blocks (should be n-1 cols each) ---")
-    for s in ETE_SCALES:
-        cols = [c for c in onet_feats if c.startswith(f"ete_{s.lower()}__")]
-        print(f"  ete_{s.lower()}: {len(cols)} cols")
+    ext_cols = [c for c in M.columns if c.startswith("ext_")]
+    print("\nexternal coverage: all codes | codes rated in all five feature blocks")
+    for c in ext_cols:
+        print(f"    {c:24s} {M[c].notna().mean() * 100:5.1f}% | "
+              f"{M.loc[rated, c].notna().mean() * 100:5.1f}%")
+
+
+def main():
+    OUT.parent.mkdir(exist_ok=True)
+    M = join_external(onet_wide())
+    M.to_csv(OUT, index=False, encoding="utf-8")
+    n_onet = len([c for c in M.columns if "__" in c])
+    n_ext = len([c for c in M.columns if c.startswith("ext_")])
+    print(f"\n[ok] wrote {OUT}: {M.shape[0]} rows x {M.shape[1]} columns "
+          f"({n_onet} O*NET, {n_ext} external)")
+    summarise(M)
 
 
 if __name__ == "__main__":
