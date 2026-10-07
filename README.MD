@@ -23,7 +23,7 @@ python pca_rotated.py           #  5. two tiers, six rotated axes     (Sections 
 python validate_tier1.py        #  6. do the tier-1 names hold up?     (Section 5.3; needs 4 and 5)
 python validate_tier2.py        #  7. R4-R6 without tier-1 curvature   (Section 5.5; needs 5)
 python content_model_halves.py  #  8. job and worker halves           (Section 5.4; needs 5)
-python check_curvature.py       #  9. curvature at both tier boundaries (Section 5.5)
+python check_curvature.py       #  9. non-linear relations among the axes (Sections 5.3, 5.5)
 python rating_error.py          # 10. rating error beyond the axes    (Section 5.5)
 python check_orthogonality.py   # 11. what the features can predict   (Section 5.6)
 python plot_axes.py             # 12. data for the figures             (needs 5)
@@ -156,9 +156,14 @@ each half's own rotated axes against the other's.
 
 **`check_curvature.py`** → `curvature_check.xlsx`
 
-The same question at both tier boundaries: how much of what comes after is
-curvature of the components before it, and is what is left still structure?
-Part 1, the boundary at 3: how much of R4-R6 R1-R3 predict non-linearly (out of
+Whether the axes are related non-linearly. Part 0, within tier 1: whether
+R1, R2 and R3 depend on one another beyond the linear, under varimax and under
+promax (conditional means out of fold with permutation nulls, distance
+correlation, changes in spread, the shape of the joint distribution), and
+whether the pattern "physical work needs less judgement" belongs to physical
+effort or to physical skill. Then the same question at both tier boundaries:
+how much of what comes after is curvature of the components before it, and is
+what is left still structure? Part 1, the boundary at 3: how much of R4-R6 R1-R3 predict non-linearly (out of
 fold, with permutation nulls), which squares and products do it, and whether
 tier 2 still reproduces once that is removed, each half of a split decomposed
 and cleaned on its own (the residual of the 4-6 scores, which `validate_tier2.py`

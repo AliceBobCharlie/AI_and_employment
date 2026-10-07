@@ -227,7 +227,8 @@ def varimax(Phi, gamma=1.0, q=100, tol=1e-6):
 
 def promax(A, m=4):
     """Oblique rotation of an already varimax-rotated loading matrix A.
-    Returns the pattern matrix and the factor correlation matrix.
+    Returns the pattern matrix, the factor correlation matrix and the
+    transformation U (pattern = A U; oblique scores = varimax scores U^-T).
     Follows the standard Hendrickson-White construction."""
     Q = A * np.abs(A) ** (m - 1)          # sharpened target
     U = np.linalg.lstsq(A, Q, rcond=None)[0]
@@ -238,7 +239,7 @@ def promax(A, m=4):
     Phi = Uinv @ Uinv.T
     dg = np.sqrt(np.diag(Phi))
     Phi = Phi / np.outer(dg, dg)          # to correlation form
-    return pattern, Phi
+    return pattern, Phi, U
 
 
 def rotate_tier(V, ev, idx):
@@ -455,7 +456,7 @@ def promax_check(L, feats, names):
     """Does the data prefer orthogonal axes, or does varimax impose them?
     Promax starts from the varimax solution and lets the axes tilt."""
     k = L.shape[1]
-    Lp, Phi = promax(L)
+    Lp, Phi, _ = promax(L)
     for j in range(k):
         if np.dot(L[:, j], Lp[:, j]) < 0:
             Lp[:, j] *= -1

@@ -1,15 +1,17 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-check_curvature.py -- how much of what comes after each tier is curvature of
-the tiers before it, and is what is left still structure? (Section 5.5)
+check_curvature.py -- are the axes related non-linearly: within tier 1, and
+how much of what comes after each tier is curvature of the tiers before it,
+and is what is left still structure? (Sections 5.3 and 5.5)
 
 PCA describes linear structure. If occupations lie on a curved surface -- and
 the 1-5 rating scales have a floor, a common cause of curvature -- PCA needs
 extra linear directions to describe the bend, and those directions carry no
 information of their own: they are functions of the leading components. The
 classic case is the arch or horseshoe effect. The same question is asked at
-both tier boundaries: after component 3 and after component 6.
+both tier boundaries, after component 3 and after component 6, and first
+among the tier-1 axes themselves.
 
 Everything is computed on the paper's matrix: the 910 occupations and 216
 feature columns of output/master_clean.csv (Importance for Abilities, Skills,
@@ -37,6 +39,34 @@ Models for the predictions:
   kNN         k-nearest-neighbour regression on the raw scores (distances in
               the data), k chosen within each training fold from 10, 20, 40
 Ridge penalties are chosen within each training fold.
+
+PART 0 -- WITHIN TIER 1: do R1, R2 and R3 depend on one another beyond the
+           linear? Varimax makes them uncorrelated, not independent, and the
+           promax refit lets them correlate (about -0.2 to +0.3); both are
+           tested. R1-R3 are rebuilt here exactly as in pca_rotated.py, and
+           kNN distances are in the unit-variance axis scores.
+  0a  The conditional mean: each axis predicted from each other axis alone
+      and from the other two, by the three models, with nulls. Under varimax
+      the linear part is zero by construction; under promax it is the factor
+      correlation.
+  0b  Beyond the mean: distance correlation of each pair (zero only under
+      independence), before and after removing the linear relation, with
+      permutation p-values (the smallest possible p is 1 / (N_PERM + 1));
+      and whether the spread of one axis changes along another (R2 of the
+      absolute kNN residual, cubic, out of fold, null).
+  0c  The shape: R2 by decile of R1 (mean, p10, median, p90, sd, share
+      positive); the four corner cells of the R1 x R2 quarters against the
+      910 / 16 independence would give, with examples; mean and sd of R3 over
+      the R1 x R2 terciles.
+  0d  The stereotype that physical work needs less judgement: is it about
+      physical effort or physical skill? Mean z-scores of exertion items
+      (strength, stamina, standing, bending, handling objects), skilled
+      physical items (depth perception, control precision, reaction time,
+      operating vehicles and equipment, inspecting, hazardous equipment) and
+      judgement items (complex problem solving, judgement and decision
+      making, deductive reasoning, critical thinking, making decisions); their
+      correlations with R1-R3, and judgement against each kind of physical
+      work holding the other fixed (partial correlation).
 
 PART 1 -- THE BOUNDARY AT 3: is the second tier curvature of the first?
   1a  R4, R5 and R6 (varimax within 4-6, as in the paper) predicted from R1-R3
@@ -121,7 +151,7 @@ from sklearn.preprocessing import PolynomialFeatures, StandardScaler
 
 from pca_rotated import (STABLE_THRESH, N_SPLIT_SUB, TIER1_ANCHORS, TIER2_ANCHORS,
                          split_statistics, subspace_cosines, varimax, congruence,
-                         sign_and_order, match_axes)
+                         sign_and_order, match_axes, rotate_tier, promax)
 
 CLEAN = Path("output/master_clean.csv")
 OUT = Path("output/curvature_check.xlsx")
@@ -247,7 +277,176 @@ def refit_in_fold(Xraw, kind, seed=SEED):
 
 
 # --------------------------------------------------------------------------- #
-# Sections
+# Part 0: within tier 1
+# --------------------------------------------------------------------------- #
+AXIS_NAMES = ["R1", "R2", "R3"]
+# Item composites for 0d: two kinds of physical work, and judgement.
+EXERTION = ["abilities_im__Static Strength", "abilities_im__Dynamic Strength",
+            "abilities_im__Trunk Strength", "abilities_im__Stamina",
+            "workctx_cx__Spend Time Standing", "workctx_cx__Spend Time Bending or Twisting Your Body",
+            "workact_im__Handling and Moving Objects"]
+SKILLED_PHYSICAL = ["abilities_im__Depth Perception", "abilities_im__Control Precision",
+                    "abilities_im__Reaction Time",
+                    "workact_im__Operating Vehicles, Mechanized Devices, or Equipment",
+                    "workact_im__Inspecting Equipment, Structures, or Materials",
+                    "workctx_cx__Exposed to Hazardous Equipment"]
+JUDGEMENT = ["skills_im__Complex Problem Solving", "skills_im__Judgment and Decision Making",
+             "abilities_im__Deductive Reasoning", "skills_im__Critical Thinking",
+             "workact_im__Making Decisions and Solving Problems"]
+
+
+def tier1_scores(ev, V, T, cols):
+    """R1-R3 as in pca_rotated.py (varimax within PC1-3, ordered by variance,
+    signed by the anchors), and their promax version: pattern = A U, scores =
+    varimax scores U^-T, standardised, each signed to agree with its varimax
+    axis."""
+    A, R = rotate_tier(V, ev, list(range(K1)))
+    A, R = sign_and_order(A, R, cols, TIER1_ANCHORS, 0, verbose=False)
+    S = T[:, :K1] @ R
+    P, Phi, U = promax(A)
+    So = S @ np.linalg.inv(U).T
+    for j in range(K1):
+        if A[:, j] @ P[:, j] < 0:
+            So[:, j] *= -1
+    So = (So - So.mean(axis=0)) / So.std(axis=0)
+    return {"varimax": S, "promax": So}
+
+
+def distance_correlation(x, y):
+    """Szekely's distance correlation of two 1-d samples: zero only under
+    independence, whatever the form of the dependence."""
+    def centred(v):
+        d = np.abs(v[:, None] - v[None, :])
+        return d - d.mean(axis=0) - d.mean(axis=1)[:, None] + d.mean()
+    a, b = centred(x), centred(y)
+    return np.sqrt(max((a * b).mean(), 0) / np.sqrt((a * a).mean() * (b * b).mean()))
+
+
+def part_0_mean(scores, rng):
+    """0a: each axis predicted from each other axis alone and from the other
+    two, out of fold, with the permutation nulls."""
+    rows = []
+    for rot, M in scores.items():
+        for j in range(K1):
+            others = [i for i in range(K1) if i != j]
+            for preds in [[i] for i in others] + [others]:
+                X, y = M[:, preds], M[:, j]
+                row = {"rotation": rot, "target": AXIS_NAMES[j],
+                       "predictors": " + ".join(AXIS_NAMES[i] for i in preds),
+                       "Pearson r": np.corrcoef(X[:, 0], y)[0, 1] if len(preds) == 1 else np.nan}
+                for kind in ("quadratic", "cubic", "kNN"):
+                    r2 = oof_r2(kind, X, y)[:, 0]
+                    row[f"{kind} R2 mean"] = r2.mean()
+                row["cubic null p95"] = null_p95("cubic", X, y, rng, N_PERM)
+                row["kNN null p95"] = null_p95("kNN", X, y, rng, N_PERM_KNN)
+                rows.append(row)
+    return pd.DataFrame(rows)
+
+
+def part_0_beyond_mean(scores, rng):
+    """0b: dependence the conditional mean misses. Distance correlation of
+    each pair, before and after removing the linear relation, with
+    permutation p-values; and whether the spread of one axis changes with the
+    other (R2 of the absolute kNN residual on the predictor, cubic, out of
+    fold)."""
+    rows = []
+    for rot, M in scores.items():
+        for i in range(K1):
+            for j in range(K1):
+                if i == j:
+                    continue
+                x, y = M[:, i], M[:, j]
+                row = {"rotation": rot, "target": AXIS_NAMES[j], "predictor": AXIS_NAMES[i]}
+                if i < j:
+                    ry = y - np.polyval(np.polyfit(x, y, 1), x)
+                    for label, v in (("", y), (" after removing linear", ry)):
+                        d = distance_correlation(x, v)
+                        null = np.array([distance_correlation(x, rng.permutation(v))
+                                         for _ in range(N_PERM)])
+                        row[f"distance corr{label}"] = d
+                        row[f"null p95{label}"] = np.percentile(null, 95)
+                        row[f"p{label}"] = ((null >= d).sum() + 1) / (N_PERM + 1)
+                X = x[:, None]
+                fit = np.empty_like(y)
+                for train, test in KFold(N_FOLDS, shuffle=True, random_state=SEED).split(X):
+                    fit[test] = model("kNN").fit(X[train], y[train]).predict(X[test])
+                spread = np.abs(y - fit)
+                row["spread: R2 of |residual| on predictor (cubic)"] = oof_r2("cubic", X, spread)[:, 0].mean()
+                row["spread: null p95"] = null_p95("cubic", X, spread, rng, N_PERM)
+                rows.append(row)
+    return pd.DataFrame(rows)
+
+
+def part_0_shape(scores, titles):
+    """0c: the shape of the joint distribution. R2 by decile of R1; the four
+    corner cells of the R1 x R2 quarters against the count independence would
+    give; mean and sd of R3 over the R1 x R2 terciles."""
+    deciles, corners, grid = [], [], []
+    n = len(titles)
+    for rot, M in scores.items():
+        r1, r2, r3 = M[:, 0], M[:, 1], M[:, 2]
+        d = pd.DataFrame({"bin": pd.qcut(r1, 10, labels=False), "R1": r1, "R2": r2})
+        g = d.groupby("bin")
+        t = g.agg(**{"R1 mean": ("R1", "mean"), "R2 mean": ("R2", "mean"),
+                     "R2 p10": ("R2", lambda v: v.quantile(.1)), "R2 median": ("R2", "median"),
+                     "R2 p90": ("R2", lambda v: v.quantile(.9)), "R2 sd": ("R2", "std"),
+                     "share R2 > 0": ("R2", lambda v: (v > 0).mean())}).reset_index()
+        deciles.append(t.assign(rotation=rot))
+        q1, q2 = np.quantile(r1, [.25, .75]), np.quantile(r2, [.25, .75])
+        for lab1, m1 in (("R1 top quarter", r1 >= q1[1]), ("R1 bottom quarter", r1 <= q1[0])):
+            for lab2, m2 in (("R2 top quarter", r2 >= q2[1]), ("R2 bottom quarter", r2 <= q2[0])):
+                m = m1 & m2
+                far = np.argsort(-(np.abs(r1[m]) + np.abs(r2[m])))[:6]
+                corners.append({"rotation": rot, "cell": f"{lab1} x {lab2}", "n": int(m.sum()),
+                                "expected if independent": n / 16,
+                                "examples": "; ".join(titles[m][far])})
+        c = pd.DataFrame({"R1 tercile": pd.qcut(r1, 3, labels=["R1 low", "R1 mid", "R1 high"]),
+                          "R2 tercile": pd.qcut(r2, 3, labels=["R2 low", "R2 mid", "R2 high"]),
+                          "R3": r3})
+        for stat in ("mean", "std"):
+            t = c.pivot_table(index="R1 tercile", columns="R2 tercile", values="R3",
+                              aggfunc=stat, observed=True).reset_index()
+            grid.append(t.assign(rotation=rot, statistic=f"R3 {stat}"))
+    return (pd.concat(deciles, ignore_index=True), pd.DataFrame(corners),
+            pd.concat(grid, ignore_index=True))
+
+
+def part_0_composites(Z, cols, scores):
+    """0d: is the 'physical work needs less judgement' pattern about physical
+    effort or about physical skill? Mean z-scores of exertion items, skilled
+    physical items and judgement items; their correlations with R1-R3, and
+    the correlation of judgement with each kind of physical work holding the
+    other fixed."""
+    idx = {c: j for j, c in enumerate(cols)}
+    comp = {name: Z[:, [idx[c] for c in items if c in idx]].mean(axis=1)
+            for name, items in (("exertion", EXERTION), ("skilled physical", SKILLED_PHYSICAL),
+                                ("judgement", JUDGEMENT))}
+
+    def partial(y, x, c):
+        rx = x - np.polyval(np.polyfit(c, x, 1), c)
+        ry = y - np.polyval(np.polyfit(c, y, 1), c)
+        return np.corrcoef(rx, ry)[0, 1]
+
+    S = scores["varimax"]
+    rows = [{"composite": name, "items": "; ".join(c.split("__")[1] for c in items),
+             **{f"r with {a}": np.corrcoef(comp[name], S[:, j])[0, 1]
+                for j, a in enumerate(AXIS_NAMES)}}
+            for name, items in (("exertion", EXERTION), ("skilled physical", SKILLED_PHYSICAL),
+                                ("judgement", JUDGEMENT))]
+    E, K, J = comp["exertion"], comp["skilled physical"], comp["judgement"]
+    pairs = pd.DataFrame([
+        {"pair": "exertion, skilled physical", "correlation": np.corrcoef(E, K)[0, 1],
+         "held fixed": "", "partial correlation": np.nan},
+        {"pair": "judgement, exertion", "correlation": np.corrcoef(J, E)[0, 1],
+         "held fixed": "skilled physical", "partial correlation": partial(J, E, K)},
+        {"pair": "judgement, skilled physical", "correlation": np.corrcoef(J, K)[0, 1],
+         "held fixed": "exertion", "partial correlation": partial(J, K, E)},
+    ])
+    return pd.DataFrame(rows), pairs
+
+
+# --------------------------------------------------------------------------- #
+# Parts 1 to 3
 # --------------------------------------------------------------------------- #
 def section_a(ev, V, T, Xraw, rng, label="observed"):
     X_poly = T[:, :N_LEAD]
@@ -622,6 +821,16 @@ def main():
     ev, V, T = pca(Z)
     print(f"[data] {CLEAN}: {Z.shape[0]} occupations x {Z.shape[1]} columns")
 
+    print("[0] within tier 1, varimax and promax")
+    scores = tier1_scores(ev, V, T, cols)
+    phi = np.corrcoef(scores["promax"].T)
+    print("    promax score correlations R1-R2, R1-R3, R2-R3: "
+          + ", ".join(f"{phi[i, j]:+.3f}" for i, j in ((0, 1), (0, 2), (1, 2))))
+    mean0 = part_0_mean(scores, rng)
+    beyond0 = part_0_beyond_mean(scores, rng)
+    deciles0, corners0, grid0 = part_0_shape(scores, clean["title"].to_numpy())
+    composites0, pairs0 = part_0_composites(Z, cols, scores)
+
     print("[1a] tier 2 from tier 1")
     b_table = section_b(ev, V, T, rng, cols)
     print("[1b, 2c] which squares and products carry the curvature")
@@ -654,7 +863,11 @@ def main():
                                "variance in first 14, original": d_share["original, first 14"],
                                "variance in first 14, normal scores": d_share["normal scores, first 14"]}])
 
-    sheets = {"1a_tier2_from_tier1": b_table, "1b_tier1_terms": tier1_terms,
+    sheets = {"0a_mean_dependence": mean0, "0b_beyond_the_mean": beyond0,
+              "0c_R2_by_R1_decile": deciles0, "0c_R1_R2_corners": corners0,
+              "0c_R3_on_R1_R2_grid": grid0, "0d_physical_composites": composites0,
+              "0d_judgement_partials": pairs0,
+              "1a_tier2_from_tier1": b_table, "1b_tier1_terms": tier1_terms,
               "1c_variance_removed": removed, "1c_residual_spectrum": spectrum,
               "1c_same_space": same, "1c_split_half_subspaces": subspaces,
               "1c_split_half_axes": axes,
