@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-check_curvature.py -- are components 7 to 14, and the second tier itself,
-new directions, or curvature of the components before them?
+check_curvature.py -- how much of what comes after each tier is curvature of
+the tiers before it, and is what is left still structure? (Section 5.5)
 
 PCA describes linear structure. If occupations lie on a curved surface -- and
 the 1-5 rating scales have a floor, a common cause of curvature -- PCA needs
 extra linear directions to describe the bend, and those directions carry no
 information of their own: they are functions of the leading components. The
-classic case is the arch or horseshoe effect.
+classic case is the arch or horseshoe effect. The same question is asked at
+both tier boundaries: after component 3 and after component 6.
 
 Everything is computed on the paper's matrix: the 910 occupations and 216
 feature columns of output/master_clean.csv (Importance for Abilities, Skills,
@@ -16,70 +17,93 @@ Knowledge and Work Activities, Context for Work Context), z-scored with the
 population sd as in pca_rotated.py. PC scores are divided by the square root
 of their eigenvalue, so every score has unit variance.
 
-  A  Harmonics. Each of PC7 ... PC14 is regressed on non-linear functions of
-     PC1 ... PC6. Because any quadratic or cubic polynomial in PC1-6 is also a
-     polynomial of the same degree in any rotation of them, the varimax
-     rotation does not matter here: the result is the same for R1-R6.
-       quadratic   PC1-6, their squares and pairwise products (27 terms)
-       cubic       all monomials up to degree 3 (83 terms)
-       kNN         k-nearest-neighbour regression in the 6-dimensional score
-                   space (raw scores, so distances are distances in the data);
-                   k chosen within each training fold from 10, 20, 40
-     Polynomial terms are fitted by ridge with the penalty chosen within each
-     training fold. R2 is out-of-fold, five folds repeated four times; the
-     mean over repeats is reported with its range.
-     Null: the target is permuted against the predictors, which keeps both
-     distributions and removes any relation; N_PERM permutations give the 95th
-     percentile of R2 under no relation.
-     In-fold refit (honesty check): PCA is refitted on each training fold and
-     the test occupations are projected onto it, so nothing about a test
-     occupation enters the components it is scored on.
+Two rules hold throughout.
+  - "How much can be predicted" is always an out-of-fold R2 (five folds,
+    repeated four times) with a permutation null: the target is permuted
+    against the predictors, N_PERM times, and the 95th percentile of R2 is
+    what chance gives.
+  - "Take it out" is always an in-sample least-squares fit, with a baseline
+    from the same fit on row-permuted predictors (what the regressors remove
+    by chance), or an out-of-fold nearest-neighbour fit as the check.
+  - The polynomial degree keeps the regressors few against half the sample
+    (455): cubic in PC1-3 (19 regressors), quadratic in PC1-6 (27; cubic
+    would be 83).
+Any polynomial in PC1-k is also a polynomial of the same degree in any
+rotation of them, so the varimax rotations do not affect any of this.
 
-  B  Is the second tier curvature of the first? R4, R5 and R6 (varimax within
-     4-6, as in the paper) are regressed on the same non-linear functions of
-     R1, R2 and R3. The span of degree-2 or degree-3 polynomials in R1-R3
-     equals that in PC1-3, so tier-1 rotation does not matter. The 4-6 block
-     is also scored as a whole (one R2 over the three targets), which does not
-     depend on the rotation within it.
+Models for the predictions:
+  quadratic   the predictors, their squares and pairwise products, ridge
+  cubic       all monomials up to degree 3, ridge
+  kNN         k-nearest-neighbour regression on the raw scores (distances in
+              the data), k chosen within each training fold from 10, 20, 40
+Ridge penalties are chosen within each training fold.
 
-  C  Spectrum after removing curvature. Each of the 216 columns is regressed,
-     in sample, on [PC1-6, their squares and products]; the eigenvalues of the
-     residual matrix are compared with the eigenvalues after removing PC1-6
-     linearly (which are simply eigenvalues 7, 8, ...). 21 extra regressors
-     remove some variance from any column by chance, so the same is done with
-     the squares and products of row-permuted scores, N_PERM times: the
-     shrinkage beyond that baseline is what curvature accounts for.
+PART 1 -- THE BOUNDARY AT 3: is the second tier curvature of the first?
+  1a  R4, R5 and R6 (varimax within 4-6, as in the paper) predicted from R1-R3
+      by the three models, with nulls; the 4-6 block is also scored as a whole
+      (one R2 over the three targets, which does not depend on the rotation
+      within it).
+  1b  Which bends: each square and product of R1-R3, the share of its
+      variance lying in the span of PC1-3, PC4-6, PC7-14 and PC15-216 (in
+      sample), against the share a random vector would have, m / (n - 1) for
+      a span of m directions. A term in PC1-3 is mostly skewness of the axes
+      themselves; a term in PC4-6 is tier-1 curvature absorbed by tier 2.
+  1c  Take it out and test again. Everything is done separately in each half
+      of a split, so the halves share nothing: each half is z-scored and
+      decomposed on its own, and its own PC1-3 define and remove its own
+      curvature (cubic least squares; or the linear part removed exactly and
+      then a 20-nearest-neighbour fit out of fold). The halves are compared by
+      principal angles, agreement being the root mean square (RMS) of the
+      cosines, p05 over N_SPLIT_SUB split-halves, against 0.90 as in
+      pca_rotated.py; the original 4-6 block is scored on the same splits.
+        A  the PC4-6 scores with the curvature removed; the covariances of
+           the residual scores with the 216 columns are the residual's
+           directions, which validate_tier2.py interprets. Compared as a
+           subspace, and axis by axis: each half is varimax-rotated on its
+           own, its residual axes are paired one to one with the full-sample
+           R4-R6 (labelling only), and the halves' versions are compared.
+        B  every column with PC1-3 and their curvature removed, the residual
+           matrix decomposed again (unstandardised). Tier 2 is more than
+           curvature if the residual matrix leads with a stable
+           three-dimensional block (B 1-3) in the space of the original 4-6,
+           and the boundary after it holds (B 1-4 and B 4-11 fail).
+      Also, on the full sample: the share of the 4-6 block each method
+      removes, with the chance share; the eigenvalues of the residual matrix
+      with North's gap ratio; and principal cosines between the residual
+      spaces and the original 4-6.
 
-  D  Rank-based inverse normal transform. Each column is replaced by the
-     normal scores of its ranks, which removes most of the non-linearity a
-     floor produces while keeping the order of occupations. Reported:
-     eigenvalues, parallel analysis, the principal angles between the original
-     and transformed leading-k subspaces, and the nested split-half stability
-     curve of pca_rotated.py on the transformed matrix.
+PART 2 -- THE BOUNDARY AT 6: are components 7-14 curvature of 1-6?
+  2a  Each of PC7 ... PC14 predicted from PC1 ... PC6 by the three models
+      (quadratic 27 terms, cubic 83), with nulls, and the 7-14 block as a
+      whole. Honesty check: PCA refitted on each training fold and the test
+      occupations projected onto it, so nothing about a test occupation
+      enters the components it is scored on. Robustness: the block R2
+      without the 2 percent of occupations furthest from the centre in
+      PC1-6. Positive control: synthetic data with the real data's
+      six-component structure and no curvature, then censored at each
+      column's 10th or 25th percentile to create a floor; the test should
+      find nothing without the floor and something with it.
+  2b  Spectrum after removing curvature: each column regressed on [PC1-6,
+      their squares and products]; the eigenvalues of the residual matrix
+      against the eigenvalues after removing PC1-6 linearly (eigenvalues 7,
+      8, ...), and against the same removal with row-permuted squares and
+      products. The shrinkage beyond that baseline is what curvature accounts
+      for. No stability test is repeated here: no block within 7-14 holds
+      even with the curvature in (pca_rotated.py), and removing variance
+      cannot make one hold.
+  2c  Which bends: the same span shares as 1b for all 21 squares and products
+      of R1-R6, sorted by the share in PC7-14.
 
-  E  Positive control. Synthetic data with the real data's six-factor
-     structure and no curvature (loadings of PC1-6, unique variance making
-     each column variance 1), then censored at each column's 10th or 25th
-     percentile to create a floor. Test A is run on each; it should find
-     nothing without the floor and something with it, which shows the test
-     can detect curvature at this sample size.
+PART 3 -- ROBUSTNESS: is the curvature the floor of the rating scales?
+      Each column replaced by the normal scores of its ranks, which removes
+      most of the non-linearity a floor produces while keeping the order of
+      occupations. Eigenvalues, parallel analysis, the principal angles
+      between the original and transformed leading-k subspaces, and the
+      nested split-half stability curve of pca_rotated.py on the transformed
+      matrix.
 
-  F  Where components 7-14 load: the share of each component's squared
-     loadings that falls in each block, against the block's share of columns.
-     A component confined to one block is a candidate method factor (shared
-     rating error within one questionnaire) rather than a dimension.
-
-  G  Which bends. For each of the 21 squares and products of the rotated
-     axes R1-R6, the share of its variance lying in the span of PC1-3, PC4-6,
-     PC7-14 and PC15-216 (in sample), against the share a random vector would
-     have (m / (n - 1) for a span of m directions). A tier-1 term in PC1-3 is
-     mostly skewness of the axes themselves (R1^2 correlates with R1 when R1 is
-     skewed); a tier-1 term in PC4-6 is tier-1 curvature absorbed by the
-     second tier; a term in PC7-14 is curvature the tail components describe.
-
-  Robustness for A: the 7-14 block R2 recomputed without the 2 percent of
-  occupations furthest from the centre in PC1-6, keeping the full-sample PCA,
-  since a few extreme occupations can make products of scores look predictive.
+Where components 7-14 load by block (candidate method factors) is in
+rating_error.py, with the rest of the rating-error analysis.
 
 Run from the project root:  python check_curvature.py
 Writes output/curvature_check.xlsx and prints every sheet.
@@ -90,12 +114,14 @@ import pandas as pd
 from pathlib import Path
 from scipy.stats import norm, rankdata
 from sklearn.linear_model import RidgeCV
-from sklearn.model_selection import GridSearchCV, KFold, RepeatedKFold
+from sklearn.model_selection import GridSearchCV, KFold
 from sklearn.neighbors import KNeighborsRegressor
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import PolynomialFeatures, StandardScaler
 
-from pca_rotated import split_statistics, subspace_cosines, varimax
+from pca_rotated import (STABLE_THRESH, N_SPLIT_SUB, TIER1_ANCHORS, TIER2_ANCHORS,
+                         split_statistics, subspace_cosines, varimax, congruence,
+                         sign_and_order, match_axes)
 
 CLEAN = Path("output/master_clean.csv")
 OUT = Path("output/curvature_check.xlsx")
@@ -112,6 +138,11 @@ N_SPLIT_D = 50           # split-half runs for the transformed matrix in D
 ALPHAS = np.logspace(-4, 4, 30)
 KNN_K = [10, 20, 40]
 FLOORS = [0.0, 0.10, 0.25]
+K1 = len(TIER1_ANCHORS)          # tier 1: components 1-3
+K2 = K1 + len(TIER2_ANCHORS)     # tier 2: components 4-6
+REMOVAL_METHODS = ("cubic", "kNN")
+REMOVAL_KNN_K = 20               # neighbours for the kNN removal in 1c
+B_BLOCKS = {"B 1-3": (0, 3), "B 1-2": (0, 2), "B 1-4": (0, 4), "B 4-11": (3, 11)}
 
 
 # --------------------------------------------------------------------------- #
@@ -420,17 +451,163 @@ def outlier_check(T, rng_seed=SEED, drop_share=0.02):
     return r.mean(), int((~keep).sum())
 
 
-def section_f(V, cols):
-    blocks = np.array([c.split("__")[0] for c in cols])
-    names = list(dict.fromkeys(blocks))
-    rows = [{"component": "share of columns", **{b: (blocks == b).mean() for b in names}}]
-    for t in TARGETS:
-        sq = V[:, t] ** 2
-        row = {"component": f"PC{t + 1}", **{b: sq[blocks == b].sum() for b in names}}
-        row["largest block share / its column share"] = max(
-            row[b] / (blocks == b).mean() for b in names)
-        rows.append(row)
-    return pd.DataFrame(rows)
+# --------------------------------------------------------------------------- #
+# Part 1c: remove the curvature of tier 1 and test again
+# --------------------------------------------------------------------------- #
+def decompose(X):
+    """X z-scored, its eigenvalues and eigenvectors, unit-variance scores and
+    raw scores."""
+    Z = standardize(X)
+    ev, V, T = pca(Z)
+    return Z, ev, V, T, T * np.sqrt(ev)
+
+
+def project_out(Y, B):
+    """Y minus its least-squares fit on the columns of B."""
+    Q, _ = np.linalg.qr(B)
+    return Y - Q @ (Q.T @ Y)
+
+
+def remove_curvature(Y, T1, T1_raw, method):
+    """Y with PC1-3 and their curvature removed (see the docstring)."""
+    linear = np.column_stack([np.ones(len(Y)), T1])
+    if method == "cubic":
+        return project_out(Y, np.column_stack(
+            [linear, PolynomialFeatures(3, include_bias=False).fit_transform(T1)[:, K1:]]))
+    Y = project_out(Y, linear)
+    pred = np.empty_like(Y)
+    for train, test in KFold(N_FOLDS, shuffle=True, random_state=SEED).split(T1_raw):
+        pred[test] = KNeighborsRegressor(REMOVAL_KNN_K).fit(T1_raw[train], Y[train]).predict(T1_raw[test])
+    return Y - pred
+
+
+def orthonormal(W):
+    Q, _ = np.linalg.qr(W)
+    return Q
+
+
+def analyse(X):
+    """Everything compared between halves, for one sample."""
+    Z, ev, V, T, raw = decompose(X)
+    T1, T1_raw = T[:, :K1], raw[:, :K1]
+    Y = T[:, K1:K2]
+    _, R = varimax(V[:, K1:K2] * np.sqrt(ev[K1:K2]))
+    out = {"raw block": V[:, K1:K2], "Z": Z, "V": V, "ev": ev, "rotation": R, "Y": Y}
+    for m in REMOVAL_METHODS:
+        Yr = remove_curvature(Y, T1, T1_raw, m)
+        W = Z.T @ Yr / len(Z)                  # covariances with the columns
+        out[f"A {m}"] = orthonormal(W)
+        out[f"A-axes {m}"] = W @ R             # one column per rotated axis
+        out[f"Yr {m}"] = Yr
+        E = remove_curvature(Z, T1, T1_raw, m)
+        _, s, vt = np.linalg.svd(E - E.mean(axis=0), full_matrices=False)
+        out[f"B {m}"] = vt.T
+        out[f"B ev {m}"] = s ** 2 / (len(Z) - 1)
+    return out
+
+
+def rms(c):
+    return np.sqrt((c ** 2).mean())
+
+
+# --------------------------------------------------------------------------- #
+# Part 1c, full sample
+# --------------------------------------------------------------------------- #
+def part_1c_full_sample(X, feats):
+    full = analyse(X)
+    Y = full["Y"]
+
+    _, ev, V, T, _ = decompose(X)
+    rng = np.random.default_rng(SEED)
+    chance = np.mean([1 - (remove_curvature(Y, rng.permutation(T[:, :K1]), None, "cubic") ** 2).sum()
+                      / (Y ** 2).sum() for _ in range(N_PERM)])
+    rows = [{"method": m, "share of block variance removed":
+             1 - (full[f"Yr {m}"] ** 2).sum() / (Y ** 2).sum()} for m in REMOVAL_METHODS]
+    rows.append({"method": "cubic, PC1-3 rows permuted (chance)",
+                 "share of block variance removed": chance})
+    removed = pd.DataFrame(rows)
+
+    # anchored order and signs of R4-R6, as in pca_rotated.py
+    L_var = V[:, K1:K2] * np.sqrt(ev[K1:K2]) @ full["rotation"]
+    L, _ = sign_and_order(L_var, full["rotation"], feats, TIER2_ANCHORS, K1, verbose=False)
+    order = [int(np.argmax([congruence(L[:, j], L_var[:, i]) for i in range(K2 - K1)]))
+             for j in range(K2 - K1)]
+    axes = {m: full[f"A-axes {m}"][:, order] for m in REMOVAL_METHODS}
+
+    half_error = np.sqrt(2 / (len(X) / 2))
+    spec = pd.DataFrame({"position": range(1, 13),
+                         "original eigenvalue (component k+3)": ev[K1:K1 + 12]})
+    for m in REMOVAL_METHODS:
+        e = full[f"B ev {m}"][:13]
+        spec[f"{m} eigenvalue"] = e[:12]
+        spec[f"{m} gap to next / half-sample error"] = (e[:12] - e[1:13]) / (e[:12] * half_error)
+    spec["original gap to next / half-sample error"] = (
+        (ev[K1:K1 + 12] - ev[K1 + 1:K1 + 13]) / (ev[K1:K1 + 12] * half_error))
+
+    rows = []
+    for m in REMOVAL_METHODS:
+        for name, sub in ((f"A {m}", full[f"A {m}"]), (f"B 1-3 {m}", full[f"B {m}"][:, :3])):
+            c = subspace_cosines(full["raw block"], sub)
+            # where the residual space lies in the original components
+            share = (V.T @ sub) ** 2
+            rows.append({"space": name, "cosines": ", ".join(f"{v:.3f}" for v in c),
+                         "RMS cosine": rms(c),
+                         "share in PC4-6": share[K1:K2].sum() / 3,
+                         "share in PC7-14": share[K2:14].sum() / 3,
+                         "share beyond PC14": share[14:].sum() / 3})
+        c = subspace_cosines(full[f"A {m}"], full[f"B {m}"][:, :3])
+        rows.append({"space": f"A {m} against B 1-3 {m}",
+                     "cosines": ", ".join(f"{v:.3f}" for v in c), "RMS cosine": rms(c)})
+    same = pd.DataFrame(rows)
+    return axes, removed, spec, same
+
+
+# --------------------------------------------------------------------------- #
+# Part 1c, split-halves
+# --------------------------------------------------------------------------- #
+def part_1c_split_halves(X, full_axes):
+    rng = np.random.default_rng(SEED)
+    n = len(X)
+    sub = {}         # measure -> list of (rms, min) per split
+    axis = {}        # (method, axis) -> list of congruences
+    single = {m: [] for m in REMOVAL_METHODS}
+    names = [f"R{K1 + j + 1}" for j in range(K2 - K1)]
+    for _ in range(N_SPLIT_SUB):
+        perm = rng.permutation(n)
+        h1, h2 = analyse(X[perm[: n // 2]]), analyse(X[perm[n // 2:]])
+
+        def add(name, A, B):
+            c = subspace_cosines(A, B)
+            sub.setdefault(name, []).append((rms(c), c.min()))
+
+        add("original 4-6", h1["raw block"], h2["raw block"])
+        for m in REMOVAL_METHODS:
+            add(f"A {m}", h1[f"A {m}"], h2[f"A {m}"])
+            for label, (a, z) in B_BLOCKS.items():
+                add(f"{label} {m}", h1[f"B {m}"][:, a:z], h2[f"B {m}"][:, a:z])
+            single[m].append(np.abs(h1[f"B {m}"][:, :4].T @ h2[f"B {m}"][:, :4]).max(axis=1))
+            matched = [match_axes(full_axes[m], h[f"A-axes {m}"]) for h in (h1, h2)]
+            for j, a in enumerate(names):
+                axis.setdefault((m, a), []).append(congruence(matched[0][:, j], matched[1][:, j]))
+
+    rows = []
+    for name, v in sub.items():
+        v = np.array(v)
+        rows.append({"measure": name, "RMS cosine p05": np.percentile(v[:, 0], 5),
+                     "RMS cosine median": np.median(v[:, 0]),
+                     "smallest cosine p05": np.percentile(v[:, 1], 5),
+                     "passes (RMS p05 >= 0.90)": np.percentile(v[:, 0], 5) >= STABLE_THRESH})
+    subs = pd.DataFrame(rows)
+
+    rows = [{"measure": f"A-axes {m}", "axis": a, "congruence p05": np.percentile(v, 5),
+             "congruence median": np.median(v)} for (m, a), v in axis.items()]
+    for m in REMOVAL_METHODS:
+        s = np.array(single[m])
+        rows += [{"measure": f"B {m}", "axis": f"component {j + 1}",
+                  "congruence p05": np.percentile(s[:, j], 5),
+                  "congruence median": np.median(s[:, j])} for j in range(s.shape[1])]
+    ax = pd.DataFrame(rows)
+    return subs, ax
 
 
 # --------------------------------------------------------------------------- #
@@ -445,7 +622,18 @@ def main():
     ev, V, T = pca(Z)
     print(f"[data] {CLEAN}: {Z.shape[0]} occupations x {Z.shape[1]} columns")
 
-    print("[A] harmonics of PC1-6 in PC7-14")
+    print("[1a] tier 2 from tier 1")
+    b_table = section_b(ev, V, T, rng, cols)
+    print("[1b, 2c] which squares and products carry the curvature")
+    g_table, g_chance, g_key = section_g(ev, V, T, cols)
+    g_key = g_key.assign(**{k: v for k, v in g_chance.items()})
+    tier1_terms = g_table[~g_table["term"].str.contains("R[4-9]")].sort_values(
+        "in span of PC4-6 (tier 2)", ascending=False)
+    print("[1c] tier 2 with the curvature of tier 1 removed, split-halves")
+    full_axes, removed, spectrum, same = part_1c_full_sample(Xraw, cols)
+    subspaces, axes = part_1c_split_halves(Xraw, full_axes)
+
+    print("[2a] harmonics of PC1-6 in PC7-14")
     a_table, a_block, a_refit = section_a(ev, V, T, Xraw, rng)
     trimmed, n_dropped = outlier_check(T)
     a_summary = pd.DataFrame([{
@@ -454,28 +642,26 @@ def main():
         "7-14 block R2, quadratic, PCA refitted in fold": a_refit["quadratic"],
         "7-14 block R2, kNN, PCA refitted in fold": a_refit["kNN"],
         f"7-14 block R2, quadratic, without the {n_dropped} most extreme occupations": trimmed}])
-    print("[B] tier 2 from tier 1")
-    b_table = section_b(ev, V, T, rng, cols)
-    print("[C] spectrum after removing curvature")
+    print("[2a] positive control")
+    e_table = section_e(ev, V, rng)
+    print("[2b] spectrum after removing the curvature of PC1-6")
     c_table = section_c(Z, T, rng)
-    print("[D] normal-score transform")
+
+    print("[3] normal-score transform")
     d_table, d_pa, d_share = section_d(Xraw, Z, rng)
     d_summary = pd.DataFrame([{"parallel analysis, original": d_pa["original"],
                                "parallel analysis, normal scores": d_pa["normal scores"],
                                "variance in first 14, original": d_share["original, first 14"],
                                "variance in first 14, normal scores": d_share["normal scores, first 14"]}])
-    print("[E] positive control")
-    e_table = section_e(ev, V, rng)
-    print("[F] block concentration of PC7-14")
-    f_table = section_f(V, cols)
-    print("[G] which squares and products carry the curvature")
-    g_table, g_chance, g_key = section_g(ev, V, T, cols)
-    g_key = g_key.assign(**{k: v for k, v in g_chance.items()})
 
-    sheets = {"A_harmonics": a_table, "A_block": a_summary, "B_tier2_from_tier1": b_table,
-              "C_residual_spectrum": c_table, "D_normal_scores": d_table, "D_summary": d_summary,
-              "E_positive_control": e_table, "F_block_concentration": f_table,
-              "G_terms": g_table, "G_axes_and_chance": g_key}
+    sheets = {"1a_tier2_from_tier1": b_table, "1b_tier1_terms": tier1_terms,
+              "1c_variance_removed": removed, "1c_residual_spectrum": spectrum,
+              "1c_same_space": same, "1c_split_half_subspaces": subspaces,
+              "1c_split_half_axes": axes,
+              "2a_harmonics": a_table, "2a_block": a_summary, "2a_positive_control": e_table,
+              "2b_residual_spectrum": c_table, "2c_all_terms": g_table,
+              "2c_axes_and_chance": g_key,
+              "3_normal_scores": d_table, "3_summary": d_summary}
     OUT.parent.mkdir(exist_ok=True)
     with pd.ExcelWriter(OUT) as writer:
         for name, df in sheets.items():

@@ -48,7 +48,7 @@ Tier 2 (Section 5.5):
 
 Tier-2 loadings read directly here still mix in the curvature of tier 1;
 validate_tier2.py removes it before the axes are interpreted, and
-tier2_residual_stability.py checks that what is left still reproduces.
+check_curvature.py (part 1) checks that what is left still reproduces.
 
 The helpers (varimax, congruence, the tier rotation, the subspace measures,
 the anchors) are imported by the other scripts from here.

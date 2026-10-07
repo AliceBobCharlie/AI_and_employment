@@ -74,6 +74,13 @@ output/master_clean.csv:
                      correlated within a questionnaire, because shared error is
                      predictable from the other items.
 
+  where components 7-14 load
+                     The share of each component's squared loadings that falls
+                     in each block, against the block's share of columns. A
+                     component confined to one block is a candidate method
+                     factor: errors shared within one questionnaire, which the
+                     within-group correlation rho above stands for.
+
 Reads data_raw/onet/db_31_0_text and output/master_clean.csv. Files are read
 one at a time, only the columns needed.
 
@@ -308,6 +315,21 @@ def items_vs_axes(cols, X, items):
 
 
 # --------------------------------------------------------------------------- #
+def block_concentration(V, cols):
+    """For components 7-14: the share of the squared loadings in each block,
+    and the largest block share over that block's share of columns."""
+    blocks = np.array([c.split("__")[0] for c in cols])
+    names = list(dict.fromkeys(blocks))
+    rows = [{"component": "share of columns", **{b: (blocks == b).mean() for b in names}}]
+    for t in TIERS["components 7-14"]:
+        sq = V[:, t] ** 2
+        row = {"component": f"PC{t + 1}", **{b: sq[blocks == b].sum() for b in names}}
+        row["largest block share / its column share"] = max(
+            row[b] / (blocks == b).mean() for b in names)
+        rows.append(row)
+    return pd.DataFrame(rows)
+
+
 def main():
     rng = np.random.default_rng(SEED)
     clean = pd.read_csv(CLEAN)
@@ -355,12 +377,15 @@ def main():
         "reduced matrix: negative eigenvalues (sum)": ev_reduced[ev_reduced < 0].sum(),
     }])
 
+    concentration = block_concentration(V, cols)
+
     print("[items against the six axes] 216 leave-one-out fits")
     vs_axes, vs_summary, vs_band, vs_block = items_vs_axes(cols, X, items)
 
     sheets = {"checks": checks, "blocks": blocks, "tail_summary": tail,
               "components": components, "error_spectrum": spectrum,
               "error_spectrum_summary": spectrum_summary, "reduced_matrix": reduced,
+              "block_concentration_7_14": concentration,
               "items": items.sort_values("error share e_j", ascending=False),
               "axes_vs_reliability": vs_summary, "axes_by_reliability_band": vs_band,
               "axes_by_block": vs_block, "items_vs_axes": vs_axes}

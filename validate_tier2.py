@@ -13,7 +13,7 @@ whatever is new. So the order here is: remove first, then interpret.
   1. REMOVE THE CURVATURE OF TIER 1. Each tier-2 axis is predicted from R1-R3
      out of fold (five folds, repeated four times, the prediction averaged
      over the repeats), by three models with the settings of
-     check_curvature.py section B:
+     check_curvature.py part 1a:
        quadratic   R1-R3, their squares and products, ridge
        cubic       all monomials up to degree 3, ridge
        kNN         k-nearest neighbours in the space of the raw PC1-3 scores
@@ -26,7 +26,8 @@ whatever is new. So the order here is: remove first, then interpret.
      uncorrelated with R1-R3. Which squares and products drive the fitted
      part is shown by their correlations with each axis.
      Whether the predictability exceeds chance is tested in
-     check_curvature.py (permutation nulls); here it is only removed.
+     check_curvature.py part 1a (permutation nulls), and whether what is
+     left still reproduces in part 1c; here it is only removed.
 
   2. WHAT THE RESIDUAL IS. The correlation of each of the 216 feature columns
      with the axis (equal to its loading), with the fitted part and with the

@@ -22,14 +22,13 @@ python cluster_onet.py          #  4. are there clusters at all?       (Section 
 python pca_rotated.py           #  5. two tiers, six rotated axes     (Sections 5.3 and 5.5, Figure 5.1)
 python validate_tier1.py        #  6. do the tier-1 names hold up?     (Section 5.3; needs 4 and 5)
 python validate_tier2.py        #  7. R4-R6 without tier-1 curvature   (Section 5.5; needs 5)
-python tier2_residual_stability.py  # 8. does that residual reproduce? (Section 5.5)
-python content_model_halves.py  #  9. job and worker halves           (Section 5.4; needs 5)
-python check_curvature.py       # 10. curvature beyond the six axes   (Section 5.5)
-python rating_error.py          # 11. rating error beyond the axes    (Section 5.5)
-python check_orthogonality.py   # 12. what the features can predict   (Section 5.6)
-python plot_axes.py             # 13. data for the figures             (needs 5)
-python corner_table.py          # 14. Table 6.1                        (needs 5)
-python acs_young_share.py       # 15. data for Figure 6.2              (needs 5 and the ACS extract)
+python content_model_halves.py  #  8. job and worker halves           (Section 5.4; needs 5)
+python check_curvature.py       #  9. curvature at both tier boundaries (Section 5.5)
+python rating_error.py          # 10. rating error beyond the axes    (Section 5.5)
+python check_orthogonality.py   # 11. what the features can predict   (Section 5.6)
+python plot_axes.py             # 12. data for the figures             (needs 5)
+python corner_table.py          # 13. Table 6.1                        (needs 5)
+python acs_young_share.py       # 14. data for Figure 6.2              (needs 5 and the ACS extract)
 ```
 
 Steps 1 and 2 run in that order; every analysis afterwards reads
@@ -147,19 +146,6 @@ error and automation (and the Eloundou et al. exposure measures, if
 `data_raw/eloundou_occ_level.csv` is present). Last, whether the labour-market
 variables change the tier-2 axes.
 
-**`tier2_residual_stability.py`** → `tier2_residual_stability.xlsx`
-
-Whether tier 2 still reproduces once the curvature of tier 1 is taken out.
-Each half of a split is decomposed on its own and has its own curvature removed
-(cubic least squares, or nearest neighbours out of fold). Two versions: the
-residual of the 4-6 scores, whose directions in column space are what
-`validate_tier2.py` interprets, compared between halves as a subspace and axis
-by axis; and the data matrix with PC1-3 and their curvature removed from every
-column, decomposed again, to see whether it still leads with a stable
-three-dimensional block in the space of the original components 4-6, and
-whether the boundary after it holds. The original 4-6 block is scored on the
-same splits as the baseline.
-
 **`content_model_halves.py`** → `content_model_halves.xlsx`
 
 Whether the job half of the Content Model (Work Activities, Work Context) and
@@ -170,18 +156,28 @@ each half's own rotated axes against the other's.
 
 **`check_curvature.py`** → `curvature_check.xlsx`
 
-Whether components 7 to 14, and the second tier itself, are new directions or
-curvature of the components before them: non-linear functions of the leading
-components predicting the later ones, a permutation null, refits inside each
-fold, normal scores against the floor of the rating scales, and synthetic data
-with a known floor as a positive control.
+The same question at both tier boundaries: how much of what comes after is
+curvature of the components before it, and is what is left still structure?
+Part 1, the boundary at 3: how much of R4-R6 R1-R3 predict non-linearly (out of
+fold, with permutation nulls), which squares and products do it, and whether
+tier 2 still reproduces once that is removed, each half of a split decomposed
+and cleaned on its own (the residual of the 4-6 scores, which `validate_tier2.py`
+interprets, as a subspace and axis by axis; and the data matrix with PC1-3 and
+their curvature removed, decomposed again, to see whether it still leads with a
+stable three-dimensional block in the space of the original 4-6 and whether the
+boundary after it holds). Part 2, the boundary at 6: how much of PC7-14 PC1-6
+predict non-linearly, with refits inside each fold and synthetic data with a
+known floor as a positive control, the spectrum after that curvature is
+removed, and which bends carry it. Part 3: normal scores against the floor of
+the rating scales.
 
 **`rating_error.py`** → `rating_error.xlsx`
 
 How much of each item, and of each principal component, is sampling error in
 O*NET's ratings, from the published standard errors; an error-only spectrum as
-a measured null for parallel analysis; and whether the items the six axes
-explain poorly are simply the unreliable ones.
+a measured null for parallel analysis; where components 7-14 load by block
+(candidate method factors: errors shared within one questionnaire); and whether
+the items the six axes explain poorly are simply the unreliable ones.
 
 **`check_orthogonality.py`** → `orthogonality.xlsx`
 
