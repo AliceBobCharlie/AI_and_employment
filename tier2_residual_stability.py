@@ -33,9 +33,9 @@ rotation within tier 1 nor that within tier 2 affects the subspace results.
      columns give the residual's directions in column space -- what
      validate_tier2.py interprets. The two halves' three directions are
      compared as a subspace (A) and, after varimax within 4-6 on each half,
-     axis by axis (A-axes): each full-sample axis R4-R6 is matched to the most
-     congruent residual axis of each half, and the halves' versions are
-     compared by congruence.
+     axis by axis (A-axes): each half is rotated on its own, its residual axes
+     are paired one to one with the full-sample R4-R6 (labelling only), and
+     the halves' versions are compared by congruence.
 
   B  THE DATA WITHOUT THE CURVATURE. Every column has PC1-3 and their
      curvature removed (the same two methods), and the residual matrix is
@@ -68,7 +68,8 @@ from sklearn.preprocessing import PolynomialFeatures
 
 from pca_rotated import (MASTER, OUTDIR, SEED, STABLE_THRESH, N_SPLIT_SUB,
                          FEATURE_PREFIXES, TIER1_ANCHORS, TIER2_ANCHORS, standardize,
-                         subspace_cosines, congruence, varimax, sign_and_order, banner)
+                         subspace_cosines, congruence, varimax, sign_and_order, banner,
+                         match_axes)
 
 OUT = OUTDIR / "tier2_residual_stability.xlsx"
 K1 = len(TIER1_ANCHORS)          # tier 1: components 1-3
@@ -224,14 +225,9 @@ def split_halves(X, full_axes):
             for label, (a, z) in B_BLOCKS.items():
                 add(f"{label} {m}", h1[f"B {m}"][:, a:z], h2[f"B {m}"][:, a:z])
             single[m].append(np.abs(h1[f"B {m}"][:, :4].T @ h2[f"B {m}"][:, :4]).max(axis=1))
-            matched = []
-            for h in (h1, h2):
-                cand = h[f"A-axes {m}"]
-                matched.append([cand[:, int(np.argmax([congruence(full_axes[m][:, j], cand[:, i])
-                                                       for i in range(cand.shape[1])]))]
-                                for j in range(len(names))])
+            matched = [match_axes(full_axes[m], h[f"A-axes {m}"]) for h in (h1, h2)]
             for j, a in enumerate(names):
-                axis.setdefault((m, a), []).append(congruence(matched[0][j], matched[1][j]))
+                axis.setdefault((m, a), []).append(congruence(matched[0][:, j], matched[1][:, j]))
 
     banner(f"SPLIT-HALF AGREEMENT (x{N_SPLIT_SUB}): subspaces, RMS principal cosine")
     rows = []
