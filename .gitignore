@@ -35,7 +35,6 @@ output/*
 !output/master.csv
 !output/master_clean.csv
 !output/rotated_axes.csv
-!output/clu
 !output/plot_data.csv
 # Figure 6.2 is drawn from this. It holds occupation-level shares aggregated
 # from the IPUMS extract, not the microdata, which stays in data_raw/.
