@@ -1,7 +1,7 @@
 ---
 title: "The dimensional structure of occupational space: a coordinate system for AI substitution measures"
 abstract: |
-  We recover the dimensions of occupational space from the O*NET descriptors of 910 occupations, to ask which characteristics of an occupation bear on whether AI can substitute for human labour, and which variables lie outside them. Occupations do not fall into types; they occupy a continuous space with two tiers of structure. Three broad axes — physical intensity, judgement and person-facing work — each reproduce on independent halves of the occupations and carry 54 percent of the variance. Three narrower axes — where the work takes place, whether its output has a fixed correct standard, and commercial against specialist work — reproduce as a set and carry a further 10 percent; no direction beyond the sixth reproduces. The same axes are recovered from two releases of O*NET, Ridge regression finds four labour-market
+  We recover the dimensions of occupational space from the O\*NET descriptors of 910 occupations, to ask which characteristics of an occupation bear on whether AI can substitute for human labour, and which variables lie outside them. Occupations do not fall into types; they occupy a continuous space with two tiers of structure. Three broad axes — **physical intensity, judgement and person-facing work** — each reproduce on independent halves of the occupations and carry 54 percent of the variance, and they emerge separately from the job-oriented and the worker-oriented descriptors of O\*NET's Content Model. The next three components carry a further 10 percent and reproduce as a subspace but not one by one, because their eigenvalues are nearly equal; rotated within that subspace they give three narrower axes that do reproduce — where the work is done, whether its output has a fixed correct standard, and commercial against specialist work. No direction beyond the sixth reproduces: about a quarter of each later component is curvature of the first six, and most of the variance beyond the fourteenth is error in the ratings. Ridge regression finds four labour-market
   variables that no description of the work can recover: union coverage, education
   and training requirements, self-employment and employment size. A regression of
   employment outcomes on a substitution measure alone is therefore under-specified:
@@ -13,7 +13,7 @@ abstract: |
   that demands judgement is paid well above routine office work. We propose the
   three axes together with these four as a coordinate system in which occupations
   can be placed and substitution measures compared, and conjecture that work is
-  harder to substitute the higher it stands on each axis. The six axes predict 76 percent of the variance in the headline measure of Eloundou et al.Locating two published exposure measures in the space shows
+  harder to substitute the higher it stands on each axis. The six axes predict 76 percent of the variance in the headline measure of Eloundou et al. Locating two published exposure measures in the space shows
   them pointing in opposite directions along the judgement axis, which accounts
   for their disagreement without adjudicating between them.
 output-file: index.html
@@ -725,7 +725,9 @@ case the largest null eigenvalue sits at 2.22 and the fourteenth at 1.87, agains
 real values of 69.22 and 2.11. **Fourteen components exceed the ninety-fifth
 percentile of the null**, together accounting for 75.5 percent of variance; the
 fifteenth (1.84, against a null of 1.85) falls below it. So the tail is not noise, and any criterion that
-discards it owes an account of what it is discarding.
+discards it owes an account of what it is discarding; the end of Section 5.4
+gives one, and shows that the count of fourteen is itself a property of the
+matrix as much as of occupations.
 
 That still does not settle how many components to keep, and the literature does
 not agree on the answer. Studies of this database have retained anything from
@@ -749,36 +751,99 @@ component survives resampling the same occupations; the split-half asks whether
 it survives estimation on occupations the original never saw. The second is
 stricter and is the criterion used.
 
-**Three components reproduce and no more.**
+**Three components reproduce one by one, and no more.**
 
 | component | bootstrap p05 | split-half p05 | verdict |
 |---|---|---|---|
 | 1 | 0.997 | 0.989 | stable |
 | 2 | 0.991 | 0.968 | stable |
 | 3 | 0.988 | 0.948 | stable |
-| 4 | 0.949 | 0.823 | not stable |
-| 5 | 0.716 | 0.679 | not stable |
-| 6 | 0.723 | 0.664 | not stable |
+| 4 | 0.949 | 0.823 | not stable on its own |
+| 5 | 0.716 | 0.679 | not stable on its own |
+| 6 | 0.723 | 0.664 | not stable on its own |
 
 The break is abrupt rather than gradual: split-half congruence falls from 0.948
-to 0.823 between the third and fourth components, and no later component
-recovers — the fifth reaches 0.679 and the eighth 0.166. This matters for
-reading the literature, where solutions with six to eight factors on this
-database are common. Nothing about those solutions is wrong arithmetically, and
-the parallel analysis above would license as many as fourteen; the question of
-whether their later factors would be recovered on a different sample of
-occupations has not generally been asked.
+to 0.823 between the third and fourth components, and the fifth and sixth reach
+only 0.679 and 0.664. But a component can fail this test for two quite
+different reasons. It may describe nothing that a second sample would find. Or
+it may be one of several components whose eigenvalues are so close that the
+sample cannot decide how to divide the variance among them: each half then finds
+the same plane, or the same three-dimensional space, and draws its axes through
+it at a different angle. Matching components one at a time cannot tell the two
+apart, because it asks for the same line and is offered the same plane turned.
+The eigenvalues point to the second reason here. The gap between the third and
+fourth eigenvalues is 7.2 times the sampling error of an eigenvalue at half the
+sample size (North et al., 1982), and the gap between the sixth and seventh is
+4.7 times; the gaps inside, between the fourth, fifth and sixth, are only 3.2
+and 1.4 times.
 
-The three retained components account for 53.8 percent of the variance.
+The direct test compares subspaces rather than components. For each k from 1 to
+14, the leading k components of one random half of the occupations are compared
+with the leading k of the other half by the principal angles between the two
+subspaces (Björck and Golub, 1973). Principal angles do not depend on how either
+subspace is rotated within itself, so a block of near-equal components that each
+half orients differently still counts as reproduced when the block is taken
+whole. The smallest cosine among the angles, the worst-aligned direction, is the
+strictest summary, and its 5th percentile over 100 random splits is set beside
+the single-component congruence of the table above. A block of near-equal
+components then shows as a dip at the k that cuts through it and a recovery at
+the k that completes it.
 
-Three axes leave 46.2 percent of the variance unaccounted for, and parallel
-analysis has already said that much of it is more than chance. The two results
-are not in conflict: parallel analysis asks whether a component is larger than
-sampling noise would produce, the stability criterion asks whether it is the same
-component in a sample it was not fitted on, and a direction can pass the first
-and fail the second. What the criterion establishes is that nothing excluded here
-reproduces as a direction on an independent half of the occupations — not that
-what is excluded is nothing.
+```{=html}
+<figure class="plot-figure">
+  <img src="assets/subspace_stability.png" style="width: 100%; height: auto;"
+       alt="Line chart over k from 1 to 14 of two split-half stability measures. The leading-k subspace measure is about 0.97 to 0.99 for k from 1 to 3, falls to 0.86 at k = 4 and 0.25 at k = 5, recovers to 0.88 at k = 6, and stays at or below 0.68 from k = 7 to 14. The single-component measure follows it to k = 4 and then declines steadily from 0.68 to 0.42.">
+  <figcaption><b>Figure 5.1</b> — split-half stability of nested subspaces. For
+  each k, the 5th percentile over 100 random half-splits of the smallest
+  principal-angle cosine between the two halves' leading-k subspaces (blue), and
+  of the congruence of component k on its own (orange). Dotted line: the 0.90
+  criterion. Grey band: the k at which the half-sample eigenvalue falls below
+  the 95th percentile of eigenvalues from column-permuted halves. The
+  single-component values differ slightly from the table above, which uses 50
+  splits and matches each component among the first eight; the figure uses 100
+  splits and the first fourteen.</figcaption>
+</figure>
+```
+
+The curve has the shape a two-tier structure predicts (Figure 5.1). Up to k = 3
+the subspace and the single components are the same thing, and both reproduce
+at 0.97 or better. At k = 4 both fall to 0.86. At k = 5 the subspace collapses
+to 0.25, because five components cut the second block in two, and at k = 6 it
+recovers to 0.88, with a median over splits of 0.93, while the fifth and sixth
+components on their own stay below 0.70. Nothing after the sixth recovers in the
+same way: the best later value, at k = 9, is 0.68. Every half-sample eigenvalue
+through the thirteenth lies above the permutation noise floor, so the failure
+beyond the sixth is not a matter of components too small to estimate at half the
+sample.
+
+**Three axes reproduce one by one; the next three reproduce together.** The
+second tier is a three-dimensional subspace that the data identifies as a whole,
+with no preferred axes inside it as estimated. It can still be given readable
+axes by rotating within it, and the rotated axes do reproduce: each half of the
+occupations, decomposed and rotated on its own, recovers each of them at a
+congruence of 0.91 or better in 95 percent of splits (Section 5.4). The two tiers
+are nevertheless not of one kind. The first carries 53.8 percent of the variance
+and its axes exist before any rotation; the second carries 10.2 percent, and its
+axes are a choice of coordinates within a subspace that the data does fix. At its
+strictest summary the six-dimensional subspace falls just short of the 0.90
+criterion (0.88), and we report it as a second tier rather than as three more
+axes of the same standing as the first.
+
+This bears on reading the literature, where solutions with six to eight factors
+on this database are common. Their first six factors span a space that
+reproduces; the individual factors after the third, as estimated, do not, and
+whether any factor beyond the sixth would be recovered on a different sample of
+occupations has not generally been asked. Here none is.
+
+The six components leave 36.0 percent of the variance unaccounted for, and
+parallel analysis has already said that some of it is more than chance. The two
+results are not in conflict: parallel analysis asks whether a component is larger
+than sampling noise would produce, the stability criterion asks whether it is the
+same component in a sample it was not fitted on, and a direction can pass the
+first and fail the second. What the criterion establishes is that nothing beyond
+the sixth component reproduces on an independent half of the occupations, alone
+or together with its neighbours — not that what is excluded is nothing. The end
+of Section 5.4 sets out what it is.
 
 That distinction matters, and the way a real dimension can fail this test is
 worth setting out, because it recurs in Section 5.5.
@@ -794,12 +859,13 @@ This is a property of what a principal component is rather than a defect of the
 estimate, and it has a consequence we return to: **a variable that matters for a
 question can be invisible to any method that locates structure by maximising
 variance, and its absence from the components is not evidence that it is
-unimportant.** The three axes should be read as the global structure of the
+unimportant.** The six axes should be read as the global structure of the
 occupational space, not as an exhaustive description of any one occupation.
 
-### 5.4 What the three axes are
+### 5.4 What the axes are
 
-We have three directions that survive re-estimation. What they mean is a separate
+We have three directions that survive re-estimation one by one, and a
+three-dimensional subspace that survives as a whole. What they mean is a separate
 question, and this section answers it by rotating them into a form that can be
 read, then checking the reading against evidence the decomposition did not see.
 
@@ -810,26 +876,33 @@ anything substantive: it leaves the subspace spanned by the three components
 exactly as it was, and alters only which directions within that subspace are
 reported, choosing ones on which each variable loads either heavily or near
 zero. We apply varimax, which maximises the variance of the squared loadings
-within each component.
+within each component. The two tiers are rotated separately — the first three
+components among themselves, the next three among themselves — so that each
+tier's subspace stays as the data fixes it and no variance moves between tiers.
+For the first tier, rotation is a matter of readability; for the second, whose
+axes are not identified before rotation, it is what supplies the axes.
 
 Two conventions are fixed at this point. Because an eigenvector is defined only
 up to sign, each axis is anchored on a marker variable — manual dexterity,
 complex problem solving, and assisting and caring for others — and its sign set
 so the marker loads positively; without an anchor a small change in the input
-can flip an axis and silently invert every statement about it. And occupation
+can flip an axis and silently invert every statement about it. The second-tier
+axes are anchored the same way, on medicine and dentistry, on the importance of
+being exact or accurate, and on sales and marketing, but their signs carry no
+claim about which pole is harder to substitute. And occupation
 scores are computed by standardising the unrotated scores and then rotating,
 rather than by using the loadings as weights: loadings carry a
 square-root-of-eigenvalue scaling, and because the eigenvalues differ, using
 them as weights yields correlated scores where an orthogonal rotation should
 yield uncorrelated ones. The maximum absolute correlation among the resulting
-three sets of scores is 0.00.
+six sets of scores is 0.00.
 
 Rotation buys interpretability at a price that has to be paid explicitly.
 Varimax constrains the reported axes to remain orthogonal, so it cannot itself
 tell us whether the axes are orthogonal in the data or only by construction. The
 question matters, because a coordinate system whose axes are correlated is a
 different object from one whose axes are not: positions in it cannot be read
-independently. We therefore refit with promax, an oblique rotation which begins
+independently. We therefore refit the first tier with promax, an oblique rotation which begins
 from the varimax solution and fits a transformation to a sharpened target without
 requiring orthogonality. The resulting factor correlations are **−0.207** between
 R1 and R2, **−0.168** between R1 and R3 and **0.267** between R2 and R3, and the
@@ -892,11 +965,99 @@ positive pole is not care in the emotional-labour sense — conflict handling
 loads nearly as heavily as caring. What its occupations share is direct public contact with responsibility
 attached.
 
+**The second tier.** The second-tier axes are narrower in two senses. Each
+carries about a third of the variance of R3, and each draws on a few blocks of
+descriptors rather than on all five. Each reproduces when the decomposition and
+the rotation are redone on independent halves of the occupations, at split-half
+congruences of 0.92, 0.93 and 0.91 in the worst 5 percent of splits.
+
+**R4 (3.5 percent): fixed site against field work.** The positive pole loads on
+medicine and dentistry (0.54), exposure to disease or infection (0.48), assisting
+and caring for others (0.40), finger dexterity (0.37), physical proximity (0.37)
+and indoor, environmentally controlled conditions (0.36); its extremes are oral
+and maxillofacial surgeons, anaesthesiologists, general dentists, surgical
+assistants, nurse anaesthetists and surgical technologists. The negative pole
+loads on working in an enclosed vehicle (−0.66), outdoors in all weather (−0.60),
+geography (−0.52), outdoors under cover (−0.51), transportation (−0.51) and
+spatial orientation (−0.46); its extremes are heavy truck drivers, real estate
+appraisers and sales agents, fish and game wardens, and bus drivers. The axis
+separates work done at a fixed station on something within arm's reach, very
+often a patient's body, from work done by moving between places. Work Context
+holds 44 percent of its squared loadings, against 25 percent of the columns.
+
+**R5 (3.4 percent): a fixed correct standard against open-ended output.** The
+positive pole loads on the importance of repeating the same tasks (0.72), the
+importance of being exact or accurate (0.61), the degree of automation (0.53),
+the frequency of decisions (0.47) and their impact on the results of others
+(0.43); its extremes are word processors and typists, court reporters, credit
+authorisers, court and licence clerks, public safety telecommunicators and
+switchboard operators. The negative pole loads on history and archaeology
+(−0.47), thinking creatively (−0.44), fine arts (−0.40), public speaking (−0.37)
+and learning strategies (−0.36); its extremes are choreographers and
+postsecondary teachers of the arts, languages, anthropology and architecture.
+What the positive pole shares is not repetition alone but output with a correct
+form fixed in advance, against which it is checked; what the negative pole
+shares is output for which no such form exists. Like R4, the axis lies mostly in
+Work Context (44 percent of its squared loadings).
+
+**R6 (3.3 percent): commercial against specialist work.** The positive pole
+loads on sales and marketing (0.59), selling or influencing others (0.56),
+monitoring and controlling resources (0.54), administration and management
+(0.53), management of financial and material resources (0.50) and economics and
+accounting (0.49); its extremes are spa managers, food service managers,
+information technology project managers, supervisors of housekeeping workers,
+general and operations managers and sales managers. The negative pole loads on
+exposure to disease (−0.34), flexibility of closure (−0.34), selective attention
+(−0.33), science (−0.33) and medicine and dentistry (−0.32); its extremes are
+airline pilots, anaesthesiologist assistants, air traffic controllers, judicial
+law clerks, family medicine physicians and subway operators. One pole runs an
+operation for revenue, through resources, staff and customers; the other applies
+sustained, specialised attention to a technical standard set from outside. It is
+the one second-tier axis that draws mainly on Knowledge and Work Activities (28
+and 30 percent of its squared loadings) rather than on Work Context.
+
+**The two halves of the Content Model, decomposed separately.** The Content
+Model divides O\*NET's descriptors into those of the worker and those of the job
+(Section 4.1). The two halves share no column, so decomposing each on its own
+asks whether two disjoint sets of descriptors arrive at the same structure. The
+job half, Work Activities and Work Context (96 columns), has five leading
+components that reproduce together; the worker half, Skills, Abilities and
+Knowledge (120 columns), has four. The smallest principal-angle cosine of those
+leading subspaces is 0.92 for both halves at the 5th percentile of splits, and
+falls to 0.56 and 0.48 once one more component is added. How well each half's
+reproducing components recover each axis of the full matrix:
+
+| R² of the full-matrix axis | R1 | R2 | R3 | R4 | R5 | R6 |
+|---|---|---|---|---|---|---|
+| from the job half (5 components) | 0.96 | 0.86 | 0.91 | 0.83 | 0.73 | 0.21 |
+| from the worker half (4 components) | 0.96 | 0.96 | 0.91 | 0.32 | 0.02 | 0.62 |
+
+The first tier is in both halves: each recovers R1, R2 and R3 at R² of 0.86 or
+more. The full-matrix axes are built from both halves, so this check is not
+independent of either, and the stricter comparison is between the halves
+directly. Their leading three components share canonical correlations of 0.96,
+0.80 and 0.77. Matched one to one, the physical axis of the job half and that of
+the worker half correlate at 0.91, and the two person-facing axes at 0.71.
+Judgement is where the halves differ in grain rather than in content: the worker
+half finds it as a single axis of reasoning and decision-making, while the job
+half divides it between directing and developing other people, which correlates
+0.60 with the worker half's judgement axis, and processing and evaluating
+information, which correlates 0.51.
+
+The second tier is not in both halves. R4 and R5 belong to the job half, which
+recovers them at 0.83 and 0.73 while the worker half barely recovers them at all;
+that fits their location in Work Context. R6 needs the worker half, which
+recovers it at 0.62 through an axis of management and commercial knowledge,
+against 0.21 for the job half. The broad axes are therefore properties of
+occupations that both kinds of description register, and the narrow ones are
+properties that one kind registers — the same difference in kind that the two
+tiers showed in their stability.
+
 
 **What the structure turns out to match.** The method of Section 2 was to
 recover the structure first and compare it with theory afterwards, so this is
 the point at which the comparison can be made without having steered the result.
-Three axes were found; two of them are the distinctions Autor, Levy and Murnane
+Three broad axes were found; two of them are the distinctions Autor, Levy and Murnane
 (2003) crossed to organise the task literature — manual against cognitive,
 routine against non-routine — and the third is the social dimension along which
 Deming (2017) established a wage return. An unsupervised procedure run on 216
@@ -909,12 +1070,15 @@ than fitting noise: noise does not land on a theory.
 The second correspondence needs qualifying in the way the last paragraph
 described. R2 recovers the *non-routine* side of the routine/non-routine
 distinction — analytic problem solving, discretion over what is done — but it
-does not recover routineness as repetition, and the O\*NET item that measures
-repetition directly is orthogonal to all three axes. If the routine/non-routine
+does not recover routineness as repetition. The O\*NET item that measures
+repetition directly is orthogonal to all three axes of the first tier, and is
+instead the leading item of R5 in the second. If the routine/non-routine
 distinction is read as a distinction about who decides, our data supports it as
 one of the two leading dimensions of occupational structure. If it is read as a
 distinction about how repetitive the tasks are, our data says that is a separate
-dimension, and a smaller one.
+dimension, and a smaller one: R5, where repetition is joined by exactness and the
+degree of automation, and which is better described as output held to a fixed
+correct standard than as repetition alone.
 
 Where the result departs from the framework is in the weighting, not the
 content. In the task literature the manual/cognitive distinction carries much of
@@ -928,8 +1092,10 @@ keeping. Physical work that calls for continual on-the-spot decisions sits at
 R2's positive pole and is paid accordingly; symbolic work performed to a given
 procedure sits at the negative pole and is not.
 
-**Checking the names.** The names were then checked three times over, each check
-using evidence that took no part in the estimation. The first is O\*NET's own
+**Checking the names.** The names of the first tier were then checked three times
+over, each check using evidence that took no part in the estimation; the second
+tier rests on its loadings, its endpoints and the halves of the Content Model
+above. The first is O\*NET's own
 taxonomy. The Content Model arranges descriptors in a
 hierarchy whose element identifiers encode position: O\*NET's authors group
 abilities into cognitive, psychomotor, physical and sensory, and work activities
@@ -986,8 +1152,116 @@ judgement-intensive occupations, the physically light ones pay about \$19,000 mo
 
 **Endpoints.** The occupations at each extreme, listed with the axes above, are
 the least formal check and the most direct: a name that does not fit its own
-extreme cases is wrong whatever the loadings say. All three survive it, with the
+extreme cases is wrong whatever the loadings say. All six survive it, with the
 qualification about R1's negative pole recorded above.
+
+#### What lies beyond the six axes
+
+The six axes leave 36.0 percent of the variance: 11.5 percent in components 7 to
+14, which parallel analysis counts as more than chance, and 24.5 percent beyond
+the fourteenth. Three questions about it can be put to the data: how many further
+dimensions it holds, how much of it is the six axes bent rather than new
+directions, and how much is error in the ratings themselves.
+
+**How many dimensions: not a number the data fixes.** Parallel analysis gives
+fourteen for the matrix analysed here, but the count depends on what the matrix
+contains as much as on the occupations it describes.
+
+| input | columns | components above the permutation null | variance in them |
+|---|---|---|---|
+| Importance, and Context for Work Context (the matrix analysed here) | 216 | 14 | 75.6% |
+| Level instead of Importance | 216 | 14 | 78.5% |
+| Importance and Level together | 377 | 18 | 80.3% |
+| without Knowledge | 183 | 12 | 76.0% |
+| job half: Work Activities and Work Context | 96 | 10 | 73.6% |
+| worker half: Skills, Abilities and Knowledge | 120 | 10 | 77.1% |
+| Work Context alone | 55 | 7 | 72.2% |
+
+The same occupations described on the Level scale give fourteen components, as
+on Importance; described on both scales at once, which nearly duplicates the
+information (Section 4.2), they give eighteen. Measuring the same thing twice
+makes every direction louder against a null of the same width, and so pushes
+more of them over the line. The permutation null also sets a particular bound.
+It treats every column as wholly noise, which is the most noise a column could
+carry, so it errs towards too few components. The opposite bound comes from
+measuring the noise directly. O\*NET publishes a standard error for most ratings,
+and matrices of pure rating error simulated from those standard errors produce
+eigenvalues that each of the first thirty observed eigenvalues exceeds, even
+when errors among the items of one questionnaire are allowed to correlate at
+0.3. The number of components that are more than noise therefore lies somewhere
+between fourteen and more than thirty, according to what is counted as noise. We
+report no dimensionality, only the structure that reproduces.
+
+**How much is curvature.** Principal component analysis describes linear
+structure. If occupations lie on a curved surface, and rating scales with a
+floor are a common cause of curvature, the decomposition needs further linear
+directions to describe the bend, and those directions are functions of the
+leading components rather than new ones. Each of components 7 to 14 was
+therefore predicted from non-linear functions of the first six: their squares
+and products, all terms up to the third degree, and a nearest-neighbour
+regression in the six-dimensional space, each scored by out-of-fold R² over five
+folds repeated four times. The squares and products predict between 16 and 35
+percent of each component, the cubic terms between 18 and 40 percent, against a
+95th percentile of 0.002 when the component is permuted. Taken together, a
+quarter of the variance in components 7 to 14 is curvature of the first six
+(R² of 0.25 for the quadratic terms, 0.29 for the cubic, 0.24 for the
+nearest-neighbour regression). The figure holds when the decomposition is
+refitted inside each training fold (0.26) and when the 2 percent of occupations
+farthest from the centre are left out (0.25). The bends that matter most are the
+squares of physical intensity and of judgement and the products of person-facing
+work with each: between 20 and 28 percent of the variance of each of these four
+terms lies in components 7 to 14, against 0.9 percent for a direction drawn at
+random.
+
+The curvature does not come from the floor of individual rating scales.
+Replacing every column by the normal scores of its ranks, which removes most of
+what a floor does to a single scale, leaves the eigenvalues and the leading
+subspaces almost unchanged. And synthetic data built with the six-axis structure
+and a hard floor at each column's 25th percentile produce curvature concentrated
+in the first three components after the sixth (R² of 0.67, 0.21 and 0.18), not
+spread across eight as here; with a floor at the 10th percentile they produce
+almost none. The same test applied to the second tier finds that 13 to 16 percent of
+its variance is a non-linear function of the first: 17 to 21 percent of R4 and
+of R5, 7 to 8 percent of R6. The second tier is mostly not a bend in the first.
+
+**How much is rating error.** Every O\*NET rating is a mean over a sample of
+incumbents, occupation experts or analysts, and O\*NET publishes the standard
+error of incumbent and analyst ratings, which make up 83 percent of the cells in
+the matrix. The mean squared standard error of an item, divided by the item's
+variance across occupations, is the share of the item that is sampling error in
+its ratings. Over the 216 items it averages 16.7 percent: 8 percent in Skills,
+10 in Abilities, 18 in Knowledge, 19 in Work Context and 28 in Work Activities,
+with the ratings that carry no standard error assumed to be as precise as those
+that do. Projected onto the components, rating error is almost absent from the
+six axes and dominant beyond the fourteenth component.
+
+| components | share of variance | of which rating error |
+|---|---|---|
+| 1–3 (first tier) | 53.8% | 0.4–2.4% |
+| 4–6 (second tier) | 10.2% | 2.6–5.9% |
+| 7–14 | 11.5% | 6.4–23% |
+| 15–216 | 24.5% | 50–63% |
+
+Each range runs from errors independent across items to errors correlated at 0.3
+among the items of one questionnaire, which would follow from a response style
+shared by one occupation's respondents and which the published data can neither
+confirm nor rule out. Two components in the middle range, the eighth and the
+eleventh, are the most sensitive to that correlation, and they are also the two
+whose loadings lean most on a single block, Work Activities and Knowledge
+respectively. They are the likeliest to be partly the style of one questionnaire
+rather than a property of occupations.
+
+**What remains.** The six axes are neither rating error nor a by-product of
+curvature. Of components 7 to 14, about a quarter is curvature of the six and
+between 6 and 23 percent is rating error; the remaining half to two thirds is
+more than error, yet no second sample of occupations recovers it in the same
+orientation. Beyond the fourteenth component, half to two thirds of the variance
+is rating error, and the rest, about 9 to 12 percent of the total, is what is
+specific to individual items. Food production knowledge is an example: its
+ratings are reliable (0.85), and the six axes barely predict it (cross-validated
+R² of 0.06), because it describes a few occupations sharply and the rest not at
+all. That is the kind of characteristic Section 5.3 described, real and
+invisible to any method that looks for directions of maximum variance.
 
 ### 5.5 Which labour-market variables are not already in the work?
 
@@ -1249,7 +1523,7 @@ every occupation in the data has a position in it.
 <figure class="plot-figure">
   <div class="plot plot-3d" id="plot-space" role="img"
        aria-label="Three-dimensional scatter plot of 910 occupations on the physical intensity, judgement and person-facing axes, coloured by union coverage."></div>
-  <figcaption><b>Figure 5.1</b> — the 910 occupations in the three-axis space,
+  <figcaption><b>Figure 5.2</b> — the 910 occupations in the three-axis space,
   coloured by union coverage. Drag to rotate; hold ⌘ or Ctrl and scroll to
   zoom. Marker size is log employment; hover for the occupation. On every axis,
   + means harder to automate.
@@ -1278,7 +1552,7 @@ dataset can be placed in a single figure and located by eye.
 
 
 
-The space is the one drawn in Figure 5.1. Occupations fill it rather than
+The space is the one drawn in Figure 5.2. Occupations fill it rather than
 gathering into groups, there is no region of concentration,
 and no partition of them into types is supported by the data. This matters for
 how the rest of the discussion should be read. Any boundary drawn in this space
@@ -1653,6 +1927,8 @@ Autor, D., & Thompson, N. (2025). Expertise. *Journal of the European Economic A
 
 Benzell, S., Brynjolfsson, E., MacCrory, F., & Westerman, G. (2019). *Identifying the multiple skills in skill-biased technical change*. MIT Initiative on the Digital Economy. [WP]
 
+Björck, Å., & Golub, G. H. (1973). Numerical methods for computing angles between linear subspaces. *Mathematics of Computation*, 27(123), 579–594. https://doi.org/10.1090/S0025-5718-1973-0348991-3
+
 Brynjolfsson, E. (2022). The Turing trap: The promise and peril of human-like artificial intelligence. *Daedalus*, 151(2), 272–287.
 
 Brynjolfsson, E., Chandar, B., & Chen, R. (2025). *Canaries in the coal mine? Six facts about the recent employment effects of artificial intelligence*. Stanford Digital Economy Lab. [WP] [cite with data vintage; updated through June 2026]
@@ -1712,6 +1988,8 @@ Lise, J., & Postel-Vinay, F. (2020). *Replication package for: Multidimensional 
 Lordan, G., & Neumark, D. (2018). People versus machines: The impact of minimum wages on automatable jobs. *Labour Economics*, 52, 40–53.
 
 McElheran, K., Li, J. F., Brynjolfsson, E., Kroff, Z., Dinlersoz, E., Foster, L., & Zolas, N. (2024). AI adoption in America: Who, what, and where. *Journal of Economics & Management Strategy*, 33(2), 374–415.
+
+North, G. R., Bell, T. L., Cahalan, R. F., & Moeng, F. J. (1982). Sampling errors in the estimation of empirical orthogonal functions. *Monthly Weather Review*, 110(7), 699–706. https://doi.org/10.1175/1520-0493(1982)110%3C0699:SEITEO%3E2.0.CO;2
 
 Noy, S., & Zhang, W. (2023). Experimental evidence on the productivity effects of generative artificial intelligence. *Science*, 381(6654), 187–192. https://doi.org/10.1126/science.adh2586
 
