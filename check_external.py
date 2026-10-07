@@ -8,19 +8,23 @@ check_external.py -- inspect the external (ext_*) variables in the master table:
      quartiles, max, skew) to decide whether any need a log transform before
      standardized PCA.
 
-Reads master_wide.xlsx. Terminal output + external_report.xlsx (two sheets).
+Reads the raw values from output/master.csv, restricted to the occupations
+kept in output/master_clean.csv. Terminal output + output/qc_external.xlsx
+(two sheets).
 """
 
 import numpy as np
 import pandas as pd
 from pathlib import Path
 
-MASTER = Path("output/master_wide.xlsx")
+RAW = Path("output/master.csv")
+MASTER = Path("output/master_clean.csv")
 OUT = Path("output/qc_external.xlsx")
 
 
 def main():
-    df = pd.read_excel(MASTER).set_index("onet_soc")
+    kept = pd.read_csv(MASTER, usecols=["onet_soc"])["onet_soc"]
+    df = pd.read_csv(RAW, index_col="onet_soc", low_memory=False).reindex(kept)
     title = df["title"] if "title" in df.columns else pd.Series("", index=df.index)
     ext = [c for c in df.columns if c.startswith("ext_")]
     if not ext:

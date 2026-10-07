@@ -15,7 +15,7 @@ harder to automate:
   R2  cognitive load routine execution (-)   <->  complex reasoning (+)
   R3  interpersonal  technical/systems (-)   <->  care/people (+)
 
-Reads output/rotated_axes.csv (from pca_rotated.py) and output/master_clean.xlsx.
+Reads output/rotated_axes.csv (from pca_rotated.py) and output/master_clean.csv.
 Writes output/plot_data.csv.
 """
 
@@ -23,14 +23,13 @@ import pandas as pd
 from pathlib import Path
 
 AXES_CSV = Path("output/rotated_axes.csv")
-MASTER = Path("output/master_clean.xlsx")
+MASTER = Path("output/master_clean.csv")
 OUT = Path("output/plot_data.csv")
 
 
 def main():
     axes = pd.read_csv(AXES_CSV, index_col="onet_soc")
-    master = pd.read_excel(MASTER, index_col="onet_soc",
-                           usecols=["onet_soc", "ext_union_cov_pct", "ext_employment"])
+    master = pd.read_csv(MASTER, index_col="onet_soc")[["ext_union_cov_pct", "ext_employment"]]
 
     df = axes[["title", "R1", "R2", "R3"]].join(master, how="inner")
     df = df.rename(columns={"ext_union_cov_pct": "union",

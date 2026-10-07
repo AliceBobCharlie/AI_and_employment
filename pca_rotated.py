@@ -30,7 +30,7 @@ of the content of the work; that is a statement about independence, not about
 importance, and Section 5.5 of the paper makes the distinction with a ridge
 regression instead.
 
-Reads output/master_clean.xlsx. Terminal + output/.
+Reads output/master_clean.csv. Terminal + output/.
 """
 
 import numpy as np
@@ -42,7 +42,7 @@ from pathlib import Path
 from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import PCA
 
-MASTER = Path("output/master_clean.xlsx")
+MASTER = Path("output/master_clean.csv")
 OUTDIR = Path("output"); OUTDIR.mkdir(exist_ok=True)
 SEED = 0
 N_PC = 8          # components examined for stability
@@ -50,21 +50,25 @@ TOP = 12
 B = 200
 N_SPLIT = 50
 STABLE_THRESH = 0.90
+N_PERM = 50       # permutations for parallel analysis
+
+# The feature matrix: Importance for four blocks, the Context scale for Work Context.
+FEATURE_PREFIXES = ("skills_im__", "abilities_im__", "knowledge_im__",
+                    "workact_im__", "workctx_cx__")
 
 
 # --------------------------------------------------------------------------- #
 def load_and_prep():
-    """master_clean.xlsx is already imputed and carries the derived wage columns
+    """The clean table is already imputed and carries the derived wage columns
     (see clean_master.py), so this only selects columns and standardizes.
 
     ONLY the O*NET descriptor blocks enter the decomposition. Education,
     training and experience and the economic/institutional columns are held out
     and correlated against the axes afterwards, so that nothing the axes are
     later compared with has helped to form them."""
-    df = pd.read_excel(MASTER).set_index("onet_soc")
-    title = df["title"] if "title" in df.columns else pd.Series("", index=df.index)
-
-    feats = [c for c in df.columns if "__" in c and not c.startswith("ete_")]
+    df = pd.read_csv(MASTER, index_col="onet_soc")
+    title = df["title"]
+    feats = [c for c in df.columns if c.startswith(FEATURE_PREFIXES)]
 
     # held out of the PCA, used only as supplementary variables below. Wages
     # appear as a level and a dispersion: the nine raw wage columns are
@@ -84,8 +88,9 @@ def load_and_prep():
     return Xz, feats, title, supp
 
 
-def block_of(c):
-    return c.split("__", 1)[0]
+def block_of(col):
+    """'abilities_im__Oral Comprehension' -> 'abilities_im'."""
+    return col.split("__", 1)[0]
 
 
 # ------------------------- stability (unrotated) -------------------------- #
@@ -128,6 +133,40 @@ def stability(X, ref, k):
         print(f"PC{j+1:<2d} {bp:9.3f} {sp:9.3f}  {'STABLE' if ok else 'unstable'}")
     print(f"\n-> {last} stable axes (split-half criterion)")
     return last
+
+
+def eigen_table(pca, p):
+    ev, share = pca.explained_variance_, pca.explained_variance_ratio_
+    cum = np.cumsum(share)
+    print("\n" + "=" * 66)
+    print("EIGENVALUES")
+    print("=" * 66)
+    print(f"{'':4s} {'eigenvalue':>10s} {'% var':>7s} {'cum %':>7s}")
+    for j in range(10):
+        print(f"PC{j+1:<2d} {ev[j]:10.2f} {share[j]*100:7.1f} {cum[j]*100:7.1f}")
+    print(f"components to reach 90% of variance: {int(np.argmax(cum >= .9)) + 1}")
+
+
+def parallel_analysis(Xz, ev):
+    """Horn's parallel analysis: each column permuted independently, which keeps
+    every column's distribution and destroys only the relations between them."""
+    rng = np.random.default_rng(SEED)
+    n, p = Xz.shape
+    null = np.empty((N_PERM, 30))
+    for b in range(N_PERM):
+        Xp = rng.permuted(Xz, axis=0)
+        Xp = Xp - Xp.mean(axis=0)
+        null[b] = np.linalg.svd(Xp, compute_uv=False)[:30] ** 2 / (n - 1)
+    q95 = np.percentile(null, 95, axis=0)
+    above = ev[:30] > q95
+    k = int(np.argmin(above)) if not above.all() else 30
+    print("\n" + "=" * 66)
+    print(f"PARALLEL ANALYSIS ({N_PERM} column-wise permutations, 95th percentile)")
+    print("=" * 66)
+    print(f"largest null eigenvalue {q95[0]:.2f}; component {k}: real {ev[k-1]:.2f} "
+          f"vs null {q95[k-1]:.2f}; component {k+1}: real {ev[k]:.2f} vs null {q95[k]:.2f}")
+    print(f"-> {k} components exceed the null, together {ev[:k].sum() / ev.sum():.1%} of variance")
+    return k
 
 
 # ------------------------- varimax ---------------------------------------- #
@@ -178,6 +217,9 @@ def main():
     a2.set_title("Cumulative"); fig.tight_layout()
     fig.savefig(OUTDIR / "rotated_scree.png", dpi=130); plt.close(fig)
     print(f"\nPC1={ev[0]:.1%}, PC1-4={cum[3]:.1%}, to90%={int(np.argmax(cum>=.9))+1} PCs")
+
+    eigen_table(pca, Xz.shape[1])
+    parallel_analysis(Xz, pca.explained_variance_)
 
     ref = pca.components_[:N_PC]
     k = stability(Xz, ref, N_PC)

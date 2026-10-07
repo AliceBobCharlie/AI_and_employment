@@ -842,9 +842,7 @@ from the varimax solution and fits a transformation to a sharpened target withou
 requiring orthogonality. The resulting factor correlations are **−0.207** between
 R1 and R2, **−0.168** between R1 and R3 and **0.267** between R2 and R3, and the
 axes are the same axes: congruence between the varimax and promax solutions is
-0.990, 0.989 and 0.989. The implementation was checked on synthetic data of the
-same shape with a known factor correlation of 0.5, which it recovered as 0.49 on
-average over twenty replications (range 0.45 to 0.53).
+0.990, 0.989 and 0.989.
 
 Those correlations are small but they are not zero, and we report them as
 measured rather than rounding them away. Orthogonality is therefore close to
@@ -1026,9 +1024,10 @@ a variable with small variance and an independent direction those have different
 answers. This is the situation Section 5.3 anticipated.
 
 There is also nothing to gain by including them. The whole procedure was refitted
-with the labour-market variables added back, with wages entered as two summaries
-and as all nine raw percentiles, and congruence with the reported axes is 1.000,
-1.000 and 0.999 in every case. They neither create the structure nor disturb it.
+with the labour-market variables added to the 216 feature columns, with wages
+entered as two summaries and as all nine wage columns. Congruence with the
+reported axes is 1.000 on all three axes in the first case, and 1.000, 0.999 and
+0.998 in the second. They neither create the structure nor disturb it.
 
 The question is therefore put directly by regression: for each labour-market
 variable, how much of it can the 216 feature columns predict? At that width the

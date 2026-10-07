@@ -34,8 +34,16 @@ clustering on the similarity matrix, so the comparison between representations
 is like for like. The point is the contrast between the two columns, not the
 absolute numbers.
 
-Reads output/master_clean.xlsx -> terminal, output/cluster_*.png,
-output/cluster_assignments.csv
+Nothing here uses the axes, which are estimated afterwards (pca_rotated.py).
+The comparisons that do need them -- how the two-cluster split of occupations
+and the two skill clusters line up with the axes, and the SOC major groups in
+the space of the leading components -- are in validate_axes.py, which reads the
+two assignment files written here.
+
+Reads output/master_clean.csv -> terminal, output/cluster_occupations.png,
+output/cluster_skill_similarity.png, output/cluster_assignments.csv (the k = 2
+split of occupations), output/cluster_skills.csv (the two skill clusters on
+the correlation construction)
 """
 
 import numpy as np
@@ -50,7 +58,7 @@ from sklearn.decomposition import PCA
 from sklearn.cluster import KMeans, AgglomerativeClustering
 from sklearn.metrics import silhouette_score
 
-MASTER = Path("output/master_clean.xlsx")
+MASTER = Path("output/master_clean.csv")
 OUTDIR = Path("output"); OUTDIR.mkdir(exist_ok=True)
 K_RANGE = range(2, 11)
 THETA_CUT = 0.6          # the threshold used to draw the published network
@@ -60,6 +68,9 @@ SEED = 0
 # out here: it records the conditions work happens under, not skills, and was
 # not part of the original skill network.
 SKILL_PREFIXES = ("skills_im__", "abilities_im__", "knowledge_im__", "workact_im__")
+# Part A uses the feature matrix the axes are estimated from: the four blocks
+# above on Importance, plus Work Context on the Context scale.
+FEATURE_PREFIXES = SKILL_PREFIXES + ("workctx_cx__",)
 
 
 # --------------------------------------------------------------------------- #
@@ -129,40 +140,7 @@ def part_a_occupations(M):
     return cont, curves
 
 
-def describe_clusters(names, lab, prefixes):
-    """Which expert categories do the two skill clusters correspond to, and do
-    they line up with the embodiment axis? If the skills split into the two
-    groups the published work reports, and that split coincides with R1, then
-    a dichotomy in skill space and a continuum in occupation space are two
-    readings of one structure rather than competing claims."""
-    try:
-        from validate_axes import element_categories
-        name2cat = element_categories()
-    except Exception as e:
-        print(f"  (cannot map to O*NET categories: {e})")
-        return
-    cats = [name2cat.get((p, n), "?") for p, n in zip(prefixes, names)]
-
-    print("\n  cluster composition by O*NET expert category:")
-    tab = pd.crosstab(pd.Series(cats, name="category"),
-                      pd.Series(lab, name="cluster"))
-    tab = tab.loc[tab.sum(1).sort_values(ascending=False).index]
-    print("\n" + tab.to_string())
-
-    load = Path("output/rotated_loadings.csv")
-    if load.exists():
-        L = pd.read_csv(load, index_col=0)
-        key = [f"{p}__{n}" for p, n in zip(prefixes, names)]
-        r1 = pd.Series([L["R1"].get(k, np.nan) for k in key])
-        print("\n  mean R1 (embodiment) loading per cluster:")
-        for c in sorted(set(lab)):
-            m = np.array(lab) == c
-            print(f"    cluster {c} (n={m.sum():3d}): R1 = {r1[m].mean():+.2f}")
-        print("  Clusters separated on R1 mean the skill dichotomy IS the")
-        print("  embodiment axis, seen from the skill side instead of the job side.")
-
-
-def part_b_skills(M, names, prefixes):
+def part_b_skills(M):
     print("\n" + "=" * 66)
     print("PART B -- do SKILLS fall into two clusters, and does that depend")
     print("          on how skill-skill similarity is built?")
@@ -200,8 +178,6 @@ def part_b_skills(M, names, prefixes):
         print(f"    2-cluster split   : sizes {sizes.tolist()}, "
               f"silhouette {sil:.3f}")
         results[label] = dict(w=w, bc=bc, sil=sil, lab=lab)
-        if label.startswith("correlation"):
-            describe_clusters(names, lab, prefixes)
 
     # the published network is read after thresholding, so check that step too
     keep = theta > THETA_CUT
@@ -245,30 +221,31 @@ def figures(curves, results):
 
 
 def main():
-    df = pd.read_excel(MASTER).set_index("onet_soc")
+    df = pd.read_csv(MASTER, index_col="onet_soc")
     # Part A asks about OCCUPATIONS, so it uses the same 216-column feature
     # matrix the axes are estimated from -- otherwise the silhouettes and the
     # axes would describe different spaces.
-    feats = [c for c in df.columns if "__" in c and not c.startswith("ete_")]
+    feats = [c for c in df.columns if c.startswith(FEATURE_PREFIXES)]
     F = df[feats].values
     # Part B asks about SKILLS, where the object of comparison is the 161
     # element ratings; Work Context is a condition of the job, not a skill.
     skill = [c for c in df.columns if c.startswith(SKILL_PREFIXES)]
     M = df[skill].values
-    names = [c.split("__", 1)[1] for c in skill]
-    prefixes = [c.split("__", 1)[0] for c in skill]
     print(f"{F.shape[0]} occupations x {len(feats)} features "
           f"(of which {len(skill)} skill ratings)")
 
     cont, curves = part_a_occupations(F)
-    results = part_b_skills(M, names, prefixes)
+    results = part_b_skills(M)
     figures(curves, results)
 
     km = KMeans(n_clusters=2, n_init=10, random_state=SEED).fit(cont)
     pd.DataFrame({"title": df["title"], "cluster_k2": km.labels_},
                  index=df.index).to_csv(OUTDIR / "cluster_assignments.csv")
+    pd.DataFrame({"column": skill,
+                  "cluster": results["correlation on published values"]["lab"]}
+                 ).to_csv(OUTDIR / "cluster_skills.csv", index=False)
     print("\n[ok] wrote cluster_occupations.png, cluster_skill_similarity.png, "
-          "cluster_assignments.csv")
+          "cluster_assignments.csv, cluster_skills.csv")
 
 
 if __name__ == "__main__":

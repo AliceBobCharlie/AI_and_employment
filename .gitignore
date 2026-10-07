@@ -25,8 +25,9 @@ data_raw/*
 !data_raw/README.md
 
 # 5. output: the data tables other people need, nothing else.
-#    master_clean.xlsx is the single input every analysis script reads, so with
-#    it alone a reader can reproduce the axes without rebuilding from source.
+#    master_clean.csv is the input every analysis script reads, so with it a
+#    reader can reproduce the axes without rebuilding from source; master.csv
+#    holds the raw values it was made from.
 #    rotated_axes.csv and plot_data.csv are shipped so that the axes can be
 #    downloaded directly and the web paper can draw its figures from them.
 #    Figures are not stored: the web paper draws them in the browser.
@@ -34,6 +35,7 @@ output/*
 !output/master.csv
 !output/master_clean.csv
 !output/rotated_axes.csv
+!output/clu
 !output/plot_data.csv
 # Figure 6.2 is drawn from this. It holds occupation-level shares aggregated
 # from the IPUMS extract, not the microdata, which stays in data_raw/.

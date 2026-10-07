@@ -238,8 +238,9 @@ def load_bls():
     # In table 1.2 a blank or a dash is the published value 'negligible'.
     t12 = read_line_items("Table 1.2")
     T = pd.DataFrame({"soc6": t12["soc6"]})
+    cell = t12[find(t12, "self employed")].astype(str).str.strip()
     T["ext_self_employed_pct"] = pd.to_numeric(
-        t12[find(t12, "self employed")].replace("—", 0), errors="coerce").fillna(0)
+        cell.mask(cell == "—", "0"), errors="coerce").fillna(0)
     T = T.drop_duplicates("soc6")
     return S.merge(T, on="soc6", how="outer")
 

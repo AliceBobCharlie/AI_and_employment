@@ -1,126 +1,223 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-check_orthogonality.py -- can O*NET information predict each external variable?
-High R^2 => that external variable is collinear with skills (status-consistent);
-near-zero R^2 => it is orthogonal, a dimension of its own.
+check_orthogonality.py -- how much of each labour-market variable can the
+description of the work predict? (Section 5.5)
 
-Regressor: Ridge (RidgeCV to pick alpha). Ridge has a closed-form solution, is
-stable under the heavy collinearity of O*NET features, and has no convergence
-issues. Honest generalization R^2 comes from a plain 5-fold split done ONCE in
-this function (inside each fold RidgeCV picks alpha by its own fast leave-one-
-out CV) -- no nested cross_val_score wrapping.
+Each target is regressed on the 216 feature columns by ridge regression, and
+scored by five-fold cross-validated R2: the penalty is chosen and the scaler
+fitted inside each training fold. A high R2 means the variable restates
+occupational content; a low one means it carries information the features do
+not contain.
 
-Inputs come from master_clean.xlsx, which has no missing cells (all
-imputation lives in clean_master.py). Features are z-scored inside each fold.
+Values that clean_master.py filled in are left out of each regression rather
+than predicted, so every R2 is computed on published values only.
 
-For each target we report:
-  A) all raw O*NET features
-  B) leading O*NET PCA axes (3/6/10)
-  C) per-block R^2 (which block tracks the target)
-  D) incremental R^2 adding workctx_cx, ct, ete, jobzone to classic skills
-  E) ETE distributions alone -> each external variable
+Sections:
+  A  Table 5.5: R2 from all 216 features, and from each feature block alone
+  B  the education, training and experience block column by column: median R2,
+     counts below 0.3 and above 0.6, and the variance-weighted R2 of the block
+  C  descriptive figures quoted in Section 5.5: employment, self-employment
+     and union coverage, and union coverage's loading on the leading direction
+     of the eight labour-market variables
 
-Targets: union coverage, wage median, prestige, log employment.
-Reads output/master_clean.xlsx. Terminal output only.
+Reads output/master.csv (to tell published values from filled ones) and
+output/master_clean.csv. Writes output/orthogonality.xlsx and prints every sheet.
 """
 
 import numpy as np
 import pandas as pd
 from pathlib import Path
-from sklearn.preprocessing import StandardScaler
-from sklearn.decomposition import PCA
 from sklearn.linear_model import RidgeCV
 from sklearn.model_selection import KFold
-from sklearn.metrics import r2_score
+from sklearn.pipeline import make_pipeline
+from sklearn.preprocessing import StandardScaler
 
-MASTER = Path("output/master_clean.xlsx")
+RAW = Path("output/master.csv")
+MASTER = Path("output/master_clean.csv")
+OUT = Path("output/orthogonality.xlsx")
 SEED = 0
-ALPHAS = np.logspace(-2, 4, 25)      # ridge penalty grid
+ALPHAS = np.logspace(-2, 5, 30)
 
-CLASSIC_PREFIXES = ["skills_", "abilities_", "knowledge_", "workact_"]
-CX_PREFIX = ["workctx_cx"]
-CT_PREFIX = ["workctx_ct"]
-ETE_PREFIXES = ["ete_"]
-JOBZONE = ["jobzone"]
+# The feature matrix: Importance for four blocks, the Context scale for Work Context.
+FEATURE_PREFIXES = ("skills_im__", "abilities_im__", "knowledge_im__",
+                    "workact_im__", "workctx_cx__")
+
+# The eight labour-market variables, each with the raw columns it is computed
+# from (used to tell published values from filled ones).
+WAGES = ["ext_wage_p10", "ext_wage_median", "ext_wage_p90"]
+LABOUR = {
+    "ext_wage_level_log": WAGES,
+    "ext_wage_disp_p90p10": WAGES,
+    "ext_prestige": ["ext_prestige"],
+    "ext_sep_exit_rate": ["ext_sep_exit_rate"],
+    "ext_sep_transfer_rate": ["ext_sep_transfer_rate"],
+    "ext_union_cov_pct": ["ext_union_cov_pct"],
+    "ext_self_employed_pct": ["ext_self_employed_pct"],
+    "ext_employment_log": ["ext_employment"],
+}
+
+TARGETS = {
+    "ext_prestige": "occupational prestige",
+    "ext_wage_level_log": "log median wage",
+    "ext_sep_exit_rate": "labour-force exit rate",
+    "ext_sep_transfer_rate": "occupational transfer rate",
+    "ext_union_cov_pct": "union coverage",
+    "ext_self_employed_pct": "self-employment share",
+    "ext_employment_log": "log employment",
+    "ext_wage_disp_p90p10": "wage dispersion, p90/p10",
+}
 
 
-def cols_with(df, prefixes):
+def cv_r2(X, y):
+    """Out-of-fold R2 of a ridge regression, scaler and penalty fitted in-fold.
+    Rows where y is NaN are left out."""
+    ok = ~np.isnan(y)
+    X, y = X[ok], y[ok]
+    pred = np.empty_like(y)
+    for train, test in KFold(5, shuffle=True, random_state=SEED).split(X):
+        model = make_pipeline(StandardScaler(), RidgeCV(alphas=ALPHAS))
+        model.fit(X[train], y[train])
+        pred[test] = model.predict(X[test])
+    return 1 - ((y - pred) ** 2).sum() / ((y - y.mean()) ** 2).sum()
+
+
+def observed(clean, raw, col):
+    """True for occupations whose value of `col` in the clean table rests on a
+    published value, False where clean_master.py filled it in.
+
+    A wage summary counts as published if any of its percentiles is (a wage at
+    the OEWS cap is read from the source). Required education counts as
+    published on either the RL or the RQ scale.
+    """
+    raw = raw.reindex(clean.index)
+    if col in LABOUR:
+        sources = LABOUR[col]
+    elif col.startswith("ete_rl__"):
+        sources = [c for c in raw.columns if c.startswith(("ete_rl__", "ete_rq__"))]
+    elif col.startswith("ete_"):
+        prefix = col.split("__", 1)[0] + "__"
+        sources = [c for c in raw.columns if c.startswith(prefix)]
+    else:
+        sources = [col]
+    return raw[sources].notna().any(axis=1).to_numpy()
+
+
+def published(clean, raw, col):
+    """The clean column with filled-in values set to NaN."""
+    return np.where(observed(clean, raw, col), clean[col].to_numpy(float), np.nan)
+
+
+def ete_by_column(clean, raw, X):
+    rows = []
+    for col in [c for c in clean.columns if c.startswith("ete_")]:
+        y = published(clean, raw, col)
+        rows.append({"column": col, "occupations": int((~np.isnan(y)).sum()),
+                     "variance": np.nanvar(y), "R2": cv_r2(X, y)})
+    return pd.DataFrame(rows)
+
+
+def descriptives(clean, raw):
+    raw = raw.reindex(clean.index)
+    title = clean["title"]
     out = []
-    for c in df.columns:
-        base = c.split("__", 1)[0]
-        if any(c == p or c.startswith(p) or base.startswith(p.rstrip("_"))
-               for p in prefixes):
-            out.append(c)
-    return out
 
+    emp = raw["ext_employment"].dropna()
+    out += [("employment: occupations with a figure", len(emp)),
+            ("employment: median", emp.median()),
+            ("employment: minimum", emp.min()),
+            ("employment: occupation with the minimum", title[emp.idxmin()]),
+            ("employment: occupations above one million", int((emp > 1e6).sum())),
+            ("employment: those occupations", "; ".join(title[emp[emp > 1e6].index]))]
 
-def ridge_r2(X, y):
-    """Honest 5-fold R^2 with RidgeCV (alpha chosen inside each fold).
-    X is z-scored with the scaler fit on the train fold only."""
-    Xf, yy = X, y
-    if len(yy) < 60 or Xf.shape[1] == 0:
-        return np.nan
-    kf = KFold(n_splits=5, shuffle=True, random_state=SEED)
-    preds, truth = [], []
-    for tr, te in kf.split(Xf):
-        sc = StandardScaler().fit(Xf[tr])
-        model = RidgeCV(alphas=ALPHAS).fit(sc.transform(Xf[tr]), yy[tr])
-        preds.append(model.predict(sc.transform(Xf[te])))
-        truth.append(yy[te])
-    return r2_score(np.concatenate(truth), np.concatenate(preds))
+    se = raw["ext_self_employed_pct"].dropna()
+    top = se.sort_values(ascending=False).head(8)
+    out += [("self-employment: occupations with a figure", len(se)),
+            ("self-employment: median %", se.median()),
+            ("self-employment: mean %", se.mean()),
+            ("self-employment: maximum %", se.max()),
+            ("self-employment: highest eight",
+             "; ".join(f"{title[i]} {v:.1f}" for i, v in top.items())),
+            ("self-employment: corr with log employment",
+             clean["ext_self_employed_pct"].corr(clean["ext_employment_log"])),
+            ("self-employment: corr with log median wage",
+             clean["ext_self_employed_pct"].corr(clean["ext_wage_level_log"]))]
+
+    un = raw["ext_union_cov_pct"].dropna() * 100     # stored as a share
+    out += [("union: occupations with a figure", len(un)),
+            ("union: median %", un.median()),
+            ("union: lower quartile %", un.quantile(.25)),
+            ("union: upper quartile %", un.quantile(.75)),
+            ("union: share below 20%", (un < 20).mean()),
+            ("union: occupations above 50%", int((un > 50).sum())),
+            ("union: those occupations", "; ".join(title[un[un > 50].index])),
+            ("union: distinct values (CPS classes behind them)", un.nunique())]
+
+    # The eight labour-market variables decomposed on their own.
+    L = clean[list(LABOUR)]
+    Z = ((L - L.mean()) / L.std()).to_numpy()
+    ev, vec = np.linalg.eigh(np.corrcoef(Z, rowvar=False))
+    lead = vec[:, -1] * np.sign(vec[:, -1].sum())
+    j = list(LABOUR).index("ext_union_cov_pct")
+    out += [("labour-market PCA: leading share of variance", ev[-1] / ev.sum()),
+            ("labour-market PCA: union eigenvector weight", lead[j]),
+            ("labour-market PCA: union correlation with the component",
+             lead[j] * np.sqrt(ev[-1]))]
+    return pd.DataFrame(out, columns=["quantity", "value"])
 
 
 def main():
-    df = pd.read_excel(MASTER).set_index("onet_soc")
+    clean = pd.read_csv(MASTER, index_col="onet_soc")
+    raw = pd.read_csv(RAW, index_col="onet_soc", low_memory=False)
+    feats = [c for c in clean.columns if c.startswith(FEATURE_PREFIXES)]
+    X = clean[feats].to_numpy(float)
+    # each feature block alone, e.g. the 55 Work Context columns
+    blocks = {}
+    for c in feats:
+        blocks.setdefault(c.split("__", 1)[0], []).append(c)
+    print(f"{len(clean)} occupations, {len(feats)} feature columns")
 
-    # targets already imputed in clean_master.py
-    targets = {"union_cov_pct":  df["ext_union_cov_pct"].values,
-               "wage_median":    df["ext_wage_median"].values,
-               "prestige":       df["ext_prestige"].values,
-               "log_employment": df["ext_employment_log"].values}
+    # B first: the ETE row of Table 5.5 comes from it.
+    ete = ete_by_column(clean, raw, X)
+    weighted = (ete["R2"] * ete["variance"]).sum() / ete["variance"].sum()
+    ete_summary = pd.DataFrame([
+        ("columns", len(ete)),
+        ("median R2", ete["R2"].median()),
+        ("columns with R2 < 0.3", int((ete["R2"] < 0.3).sum())),
+        ("columns with R2 > 0.6", int((ete["R2"] > 0.6).sum())),
+        ("variance-weighted R2 of the block", weighted),
+    ], columns=["quantity", "value"])
 
-    onet_cols = [c for c in df.columns if "__" in c]
-    Xonet = df[onet_cols]
+    rows = []
+    for col, label in TARGETS.items():
+        y = published(clean, raw, col)
+        row = {"variable": label, "occupations": int((~np.isnan(y)).sum()),
+               "all features": cv_r2(X, y)}
+        for b, cols in blocks.items():
+            row[b] = cv_r2(clean[cols].to_numpy(float), y)
+        rows.append(row)
+        print(f"  {label}: done")
+    rows.append({"variable": "education, training and experience (variance-weighted)",
+                 "occupations": int(ete["occupations"].min()), "all features": weighted})
+    table = pd.DataFrame(rows).sort_values("all features", ascending=False)
 
-    Xz = StandardScaler().fit_transform(Xonet.values)
-    pcs = PCA(n_components=10, random_state=SEED).fit_transform(Xz)
-
-    classic = cols_with(Xonet, CLASSIC_PREFIXES)
-    cx = cols_with(Xonet, CX_PREFIX)
-    ct = cols_with(Xonet, CT_PREFIX)
-    ete = cols_with(Xonet, ETE_PREFIXES)
-    jz = [c for c in Xonet.columns if c == "jobzone"]
-    print(f"feature counts: classic={len(classic)}, cx={len(cx)}, ct={len(ct)}, "
-          f"ete={len(ete)}, jobzone={len(jz)}")
-
-    for name, y in targets.items():
-        print("\n" + "=" * 70)
-        print(f"TARGET: {name}   (n={len(y)})")
-        print("=" * 70)
-
-        print(f"  [A] all O*NET features ({len(onet_cols)} cols): "
-              f"R^2 = {ridge_r2(Xonet.values, y):.3f}")
-        for npc in (3, 6, 10):
-            print(f"  [B] first {npc:2d} O*NET PCA axes         : "
-                  f"R^2 = {ridge_r2(pcs[:, :npc], y):.3f}")
-        print("  [C] per-block alone -> target:")
-        for bn, cols in [("classic skills", classic), ("workctx_cx", cx),
-                         ("workctx_ct", ct), ("ete", ete), ("jobzone", jz)]:
-            if cols:
-                print(f"       {bn:16s} ({len(cols):3d} cols): "
-                      f"R^2 = {ridge_r2(Xonet[cols].values, y):.3f}")
-        print("  [D] incremental (add blocks cumulatively):")
-        cum = []
-        for bn, cols in [("classic", classic), ("+workctx_cx", cx),
-                         ("+workctx_ct", ct), ("+ete", ete), ("+jobzone", jz)]:
-            cum += cols
-            if cum:
-                print(f"       {bn:16s} ({len(cum):3d} cols): "
-                      f"R^2 = {ridge_r2(Xonet[cum].values, y):.3f}")
-        print("  [E] ETE distributions alone -> target:")
-        if ete:
-            print(f"       ete ({len(ete)} cols): R^2 = {ridge_r2(Xonet[ete].values, y):.3f}")
+    sheets = {"table_5_5": table, "ete_summary": ete_summary,
+              "ete_by_column": ete.sort_values("R2"),
+              "descriptives": descriptives(clean, raw)}
+    with pd.ExcelWriter(OUT) as writer:
+        for name, frame in sheets.items():
+            frame.to_excel(writer, sheet_name=name, index=False)
+    with pd.option_context("display.width", 250, "display.max_columns", 20,
+                           "display.max_colwidth", 200,
+                           "display.float_format", "{:.3f}".format):
+        for name, frame in sheets.items():
+            print(f"\n=== {name} ===")
+            if name in ("ete_summary", "descriptives"):
+                for q, v in frame.itertuples(index=False):
+                    print(f"  {q}: {v:.3f}" if isinstance(v, float) else f"  {q}: {v}")
+            else:
+                print(frame.to_string(index=False))
+    print(f"\n[ok] wrote {OUT}")
 
 
 if __name__ == "__main__":
