@@ -84,7 +84,7 @@ A second generation made the capability judgement explicit and reproducible. Elo
 
 Frontier work advances on one of two fronts. GDPval (Patwardhan et al., 2025 [WP]) measures rather than judges: practitioners author the tasks and grade the deliverables. Its coverage is correspondingly bounded, since a task must yield a reviewable artefact, which excludes most embodied work by construction. The OECD (2026 [WP]) advances instead on structure, assessing AI capability and occupational demand separately on a common five-level scale across nine domains and publishing the gap for each domain as well as the total. That measure is the closest in spirit to the present paper, and its own caution is our point of departure: the total index "should be interpreted alongside the underlying domain-specific gaps rather than as a self-sufficient measure." Separately, the Anthropic Economic Index (Handa et al., 2025 [WP]) records what AI is actually used for rather than what it can do, and is the only public source distinguishing automative from augmentative use.
 
-**The task framework.** Autor, Levy and Murnane (2003) organised this literature around two crossed distinctions, manual against cognitive and routine against non-routine; Deming (2017) established the wage return to social skills. Both bear on how the axes recovered below should be read, and Section 5.5 returns to them.
+**The task framework.** Autor, Levy and Murnane (2003) organised this literature around two crossed distinctions, manual against cognitive and routine against non-routine; Deming (2017) established the wage return to social skills. Both bear on how the axes recovered below should be read, and Section 5.6 returns to them.
 
 **Prior attempts to analyse the structure of O\*NET.** Alabdulkareem et al. (2018) analysed O\*NET with the skills as objects rather than the occupations. They normalised the occupation-by-skill matrix by revealed comparative advantage and binarised it, and found two communities — one social and cognitive, one sensory and physical. We follow that work in seeking structure rather than imposing it, and depart from it in two respects: we do not binarise, since thresholding discards the intermediate values that distinguish occupations differing by degree, and we take occupations rather than skills as the objects, because displacement attaches to occupations.
 
@@ -213,7 +213,7 @@ measures in the database are two importance ratings, of a job-related
 professional certification and of an apprenticeship. We take the view that this
 group is not a description of the work, and introduce it in Section 4.3 with the
 other labour-market variables and the market part of the Content Model; Section
-5.5 gives the evidence that led us there.
+5.6 gives the evidence that led us there.
 
 ### 4.2 Scales and missing values of the occupational features
 
@@ -318,7 +318,7 @@ this out by repeating the clustering on the leading ten components. For
 regression, the width does bite. With 216 predictors against 910 observations,
 ordinary least squares fits the training folds almost exactly and generalises
 arbitrarily, returning large negative cross-validated R² values. The regressions
-of Section 5.5 therefore use ridge, whose penalty is what makes the estimate
+of Section 5.6 therefore use ridge, whose penalty is what makes the estimate
 meaningful in this shape, with the scaler fitted inside each fold.
 
 The final matrix, of 910 occupations, is as follows.
@@ -351,7 +351,7 @@ Going to those sources directly is therefore not a departure from O\*NET's
 scheme but the same numbers at the resolution the question needs. A median wage
 cannot say whether pay within an occupation is tightly or widely spread. A
 single growth band cannot separate workers who leave the labour force from
-workers who move to another occupation, and Section 5.5 turns on that
+workers who move to another occupation, and Section 5.6 turns on that
 distinction.
 
 Each variable is taken in turn — why it might bear on whether a technically
@@ -368,7 +368,7 @@ describe the work but what holders of the job have — which is where
 credentialing and licensing enter the data. Entry thresholds are institutional
 rather than technical and can hold even where the work is substitutable, and a
 licensed occupation with a substitutable task profile is exactly the case the
-paper wants to be able to see. Section 5.5 supplies the empirical half of the
+paper wants to be able to see. Section 5.6 supplies the empirical half of the
 argument: what preparation an occupation demands is not recoverable from what
 the work requires. Because the block is O\*NET's own, no join is needed. Since
 release 30.3 it is published as two files, Education and Training and
@@ -492,7 +492,7 @@ Three further variables are published in the same sources and are not carried
 into the analysis, for reasons that are worth recording because two of them are
 about redundancy rather than quality. **Occupational openings** correlates 0.89
 with employment, so the two are close to one measurement of occupation size;
-Section 5.5 is where questions of that kind are settled, and admitting both
+Section 5.6 is where questions of that kind are settled, and admitting both
 there would give size two votes in a regression that has one variable per
 mechanism. **Typical education needed for entry**, the BLS categorical
 threshold, is recoverable from the ETE distributions at R² = 0.82, and the ETE
@@ -541,7 +541,7 @@ covers: the median fill assumes absence is uninformative, and for the
 thirty-five occupations with no OEWS wage we have no evidence either way.
 
 Standardisation is deliberately not applied at this stage. The ridge regressions
-of Section 5.5 fit their scaler within training folds only, and storing
+of Section 5.6 fit their scaler within training folds only, and storing
 standardised values would carry test-fold information into the training set.
 
 **Transformations.** Three are applied before any variable in this section is
@@ -572,7 +572,7 @@ and takes the block from 41 columns to 37.
 :::
 
 None of these variables enters the decomposition. They are the subject of
-Section 5.5, which asks how much of each the feature data can predict, and which
+Section 5.6, which asks how much of each the feature data can predict, and which
 explains there why that question is put to a regression rather than to a
 decomposition.
 
@@ -596,7 +596,7 @@ rank order and every correlation it takes part in unchanged; the distribution
 the decomposition sees is the distribution O\*NET published, in common units.
 
 Standardised matrices are not stored. Each analysis standardises its own, because
-the cross-validated regressions of Section 5.5 must fit the scaler within
+the cross-validated regressions of Section 5.6 must fit the scaler within
 training folds only, and a matrix standardised once in advance would carry
 test-fold information into every estimate built on it.
 
@@ -725,7 +725,7 @@ case the largest null eigenvalue sits at 2.22 and the fourteenth at 1.87, agains
 real values of 69.22 and 2.11. **Fourteen components exceed the ninety-fifth
 percentile of the null**, together accounting for 75.5 percent of variance; the
 fifteenth (1.84, against a null of 1.85) falls below it. So the tail is not noise, and any criterion that
-discards it owes an account of what it is discarding; the end of Section 5.4
+discards it owes an account of what it is discarding; Section 5.5
 gives one, and shows that the count of fourteen is itself a property of the
 matrix as much as of occupations.
 
@@ -842,11 +842,11 @@ than sampling noise would produce, the stability criterion asks whether it is th
 same component in a sample it was not fitted on, and a direction can pass the
 first and fail the second. What the criterion establishes is that nothing beyond
 the sixth component reproduces on an independent half of the occupations, alone
-or together with its neighbours — not that what is excluded is nothing. The end
-of Section 5.4 sets out what it is.
+or together with its neighbours — not that what is excluded is nothing. Section 5.5
+sets out what it is.
 
 That distinction matters, and the way a real dimension can fail this test is
-worth setting out, because it recurs in Section 5.5.
+worth setting out, because it recurs in Section 5.6.
 Occupational licensure is the clearest case. Licensure separates occupations
 decisively within medicine, law and the skilled trades, and has no variation at
 all across most of the economy. A characteristic of that shape has little
@@ -1082,7 +1082,7 @@ correct standard than as repetition alone.
 
 Where the result departs from the framework is in the weighting, not the
 content. In the task literature the manual/cognitive distinction carries much of
-the explanatory load. Our wage results, in Section 5.6, place almost all of it on
+the explanatory load. Our wage results, in Section 5.7, place almost all of it on
 the routine/non-routine axis instead. If that holds, framing substitution in
 terms of manual against cognitive work measures the less consequential of the
 two dimensions the framework supplies.
@@ -1155,7 +1155,7 @@ the least formal check and the most direct: a name that does not fit its own
 extreme cases is wrong whatever the loadings say. All six survive it, with the
 qualification about R1's negative pole recorded above.
 
-#### What lies beyond the six axes
+### 5.5 What lies beyond the six axes
 
 The six axes leave 36.0 percent of the variance: 11.5 percent in components 7 to
 14, which parallel analysis counts as more than chance, and 24.5 percent beyond
@@ -1263,9 +1263,9 @@ R² of 0.06), because it describes a few occupations sharply and the rest not at
 all. That is the kind of characteristic Section 5.3 described, real and
 invisible to any method that looks for directions of maximum variance.
 
-### 5.5 Which labour-market variables are not already in the work?
+### 5.6 Which labour-market variables are not already in the work?
 
-Sections 5.2 to 5.4 describe the work. This section asks a different question:
+Sections 5.2 to 5.5 describe the work. This section asks a different question:
 which properties of an occupation's position in the labour market carry
 information that no description of the work contains. The answer determines what
 an empirical study of AI and employment has to measure separately rather than
@@ -1337,7 +1337,7 @@ built on what people do should be, and it is the one entry in the table that
 should be read as a result about the measure rather than about the labour market.
 It also does useful negative work in the other direction: because prestige is so
 nearly recoverable from the features, and because it is nonetheless not what any
-of our axes is (Section 5.6 puts its correlation with R1 at −0.27 and with R3 at
+of our axes is (Section 5.7 puts its correlation with R1 at −0.27 and with R3 at
 0.00), the possibility that the axes are a status ranking wearing another name
 can be set aside. A study that has occupational content does not need to collect
 prestige separately.
@@ -1452,9 +1452,9 @@ size, self-employment or entry requirements, and since each plausibly affects
 whether a technically feasible substitution is carried out, an exposure measure
 on its own leaves them unaccounted for.
 
-### 5.6 What the market pays for
+### 5.7 What the market pays for
 
-Section 5.5 asked how much of each labour-market variable the features predict.
+Section 5.6 asked how much of each labour-market variable the features predict.
 For the variables that are largely predictable, a second question follows: which
 part of the work they attach to. It is answered by correlating each against the
 rotated axes, and the answer is not the one the task literature would lead one to
@@ -1514,7 +1514,7 @@ claim it as a result. Section 6.2 reports that two published measures disagree
 along precisely this axis, which is consistent with the conjecture without
 confirming it.
 
-### 5.7 The occupational space
+### 5.8 The occupational space
 
 Three stable axes with names that survive checking are a coordinate system, and
 every occupation in the data has a position in it.
@@ -1880,7 +1880,7 @@ The three axes describe what an occupation requires. Whether a technically feasi
 
 Collective agreements can constrain what an employer does with a technology, and there is now a worked example. The 2023 Writers Guild of America agreement, reached after a 148-day strike, is the first collective bargaining agreement anywhere to place explicit limits on generative AI. It does not ban the technology. It establishes that AI-generated material is not literary material under the agreement, so it cannot receive writing credit, cannot be used to reduce the minimum number of writers a production must hire, and cannot be required of a writer; studios must disclose AI-generated material given to writers as source material. The companion SAG-AFTRA agreement governs digital replicas and synthetic performers through consent and compensation requirements rather than prohibition. Both are instructive for what they show is possible and for what they show is not: neither guild obtained a restriction on training models on members' work, and SAG-AFTRA stated plainly that an outright ban was not achievable in that round. The constraint operates on the use of the output within covered productions, not on the capability itself.
 
-This is also a demonstration of how narrow the mechanism is. The agreements bind only work performed under them. Production that moves outside the covered perimeter is unaffected, and the perimeter is not fixed. And the conditions that produced them are unusual: the Writers Guild bargains at sector level rather than firm by firm, which few American unions can do. Nationally, around one worker in ten is represented by a union, and the share is lower in the private sector and lower still in the industries with the highest measured substitutability. Our own figures point the same way: the median occupation in the data has 9 percent coverage, with quartiles at 4 and 16, so most of the distribution sits in a narrow band near zero. Union coverage is independent of the feature data — no description of what an occupation requires predicts whether it is organised, which is Section 5.5's result and, in a different literature, Weeden's — but independence is not the same as reach. An institution that is orthogonal to the work and present for a tenth of it can protect that tenth and no more.
+This is also a demonstration of how narrow the mechanism is. The agreements bind only work performed under them. Production that moves outside the covered perimeter is unaffected, and the perimeter is not fixed. And the conditions that produced them are unusual: the Writers Guild bargains at sector level rather than firm by firm, which few American unions can do. Nationally, around one worker in ten is represented by a union, and the share is lower in the private sector and lower still in the industries with the highest measured substitutability. Our own figures point the same way: the median occupation in the data has 9 percent coverage, with quartiles at 4 and 16, so most of the distribution sits in a narrow band near zero. Union coverage is independent of the feature data — no description of what an occupation requires predicts whether it is organised, which is Section 5.6's result and, in a different literature, Weeden's — but independence is not the same as reach. An institution that is orthogonal to the work and present for a tenth of it can protect that tenth and no more.
 
 Two readings follow, and they differ in which margin they attend to. On one account, which we take from the labour-advocacy literature, the danger is distributional and works through bargaining power: the workers with the least of it are dismissed first, dismissals at scale become unemployment at scale, and unemployment at scale becomes a problem of social stability rather than of labour economics. On this reading, the appropriate policy response to AI is to strengthen workers' bargaining position, and the low coverage documented above is the central fact.
 
