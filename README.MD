@@ -19,23 +19,27 @@ python clean_master.py          #  2. drop, fill and derive           -> master_
 python check_data.py            #  3. data quality                    (Sections 4.2-4.3)
 
 python cluster_onet.py          #  4. are there clusters at all?       (Section 5.2)
-python pca_rotated.py           #  5. two tiers, six rotated axes     (Sections 5.3-5.4, Figure 5.1)
-python validate_axes.py         #  6. do the axis names hold up?       (needs 4 and 5)
-python content_model_halves.py  #  7. job and worker halves           (Section 5.4; needs 5)
-python check_curvature.py       #  8. curvature beyond the six axes   (Section 5.5)
-python rating_error.py          #  9. rating error beyond the axes    (Section 5.5)
-python check_orthogonality.py   # 10. what the features can predict   (Section 5.6)
-python plot_axes.py             # 11. data for the figures             (needs 5)
-python corner_table.py          # 12. Table 6.1                        (needs 5)
-python acs_young_share.py       # 13. data for Figure 6.2              (needs 5 and the ACS extract)
+python pca_rotated.py           #  5. two tiers, six rotated axes     (Sections 5.3 and 5.5, Figure 5.1)
+python validate_tier1.py        #  6. do the tier-1 names hold up?     (Section 5.3; needs 4 and 5)
+python validate_tier2.py        #  7. R4-R6 without tier-1 curvature   (Section 5.5; needs 5)
+python tier2_residual_stability.py  # 8. does that residual reproduce? (Section 5.5)
+python content_model_halves.py  #  9. job and worker halves           (Section 5.4; needs 5)
+python check_curvature.py       # 10. curvature beyond the six axes   (Section 5.5)
+python rating_error.py          # 11. rating error beyond the axes    (Section 5.5)
+python check_orthogonality.py   # 12. what the features can predict   (Section 5.6)
+python plot_axes.py             # 13. data for the figures             (needs 5)
+python corner_table.py          # 14. Table 6.1                        (needs 5)
+python acs_young_share.py       # 15. data for Figure 6.2              (needs 5 and the ACS extract)
 ```
 
 Steps 1 and 2 run in that order; every analysis afterwards reads
 `output/master_clean.csv`, and `check_data.py`, `check_orthogonality.py` and
 `supplementary/input_variants.py` also read `output/master.csv`.
-`check_data.py`, `validate_axes.py` and `rating_error.py` also read the O*NET
-text files in `data_raw/onet/db_31_0_text`. `validate_axes.py` needs the
-outputs of both `cluster_onet.py` and `pca_rotated.py`.
+`check_data.py`, `validate_tier1.py`, `validate_tier2.py` and `rating_error.py`
+also read the O*NET text files in `data_raw/onet/db_31_0_text` (the two
+validation scripts skip their expert-category tables without them).
+`validate_tier1.py` needs the outputs of both `cluster_onet.py` and
+`pca_rotated.py`.
 
 The scripts in `supplementary/` are run as needed rather than as part of the
 sequence; see below.
@@ -86,37 +90,67 @@ the two are compared on how bimodal the resulting edge weights are and how
 separable the skill clusters are. The published network is also thresholded
 before its communities are read off, so the script reports how much of the data
 that step removes. Nothing here uses the axes; the comparisons that do are in
-`validate_axes.py`.
+`validate_tier1.py`.
 
 **`pca_rotated.py`** → `rotated_axes.csv`, `rotated_loadings.csv`,
-`oblique_pattern.csv`, `pca_stability.xlsx`, `rotated_scree.png`,
+`oblique_pattern.csv`, `pca_stability.xlsx`, `scree.png`,
 `assets/subspace_stability.png` (Figure 5.1)
 
-The main analysis, on the 216 feature columns only. Eigenvalues and parallel
-analysis; then two stability criteria. Bootstrap and split-half congruence of
-each unrotated component finds the components that reproduce one by one
-(tier 1: the first three). Split-half principal angles between the leading-k
-subspaces, k = 1 to 14, find blocks of nearly equal eigenvalues that reproduce
-only together. Tier 2 is the block after tier 1 whose varimax-rotated axes all
-reproduce on independent halves; the script tries every candidate end and the
-data picks components 4-6. Each tier is rotated on its own, so R1-R3 are the
-same axes as before tier 2 was added, and each axis is signed by a marker
-variable. The labour-market variables, which took no part in forming the axes,
-are correlated against all six, and a promax rotation of tier 1 checks whether
-its axes are orthogonal by preference of the data or only by construction.
+The main analysis, on the 216 feature columns only, in two tiers. Tier 1:
+eigenvalues and parallel analysis (reported, not used to choose), then
+bootstrap and split-half congruence of each unrotated component, which finds
+the components that reproduce one by one (the first three). Tier 2: the
+eigenvalue gaps against their sampling error (North's ratio), which shows
+components 4-6 to be nearly degenerate; split-half principal angles between
+the leading-k subspaces, k = 1 to 14 (Figure 5.1); then each candidate block
+after tier 1 judged as a whole, by the root mean square of the principal-angle
+cosines between the two halves' block subspaces (p05 >= 0.90 over 100
+split-halves). The data picks components 4-6; the rotated axes of each
+candidate, and every block after tier 2 up to component 14, are reported as
+well. Each tier is varimax-rotated on its own, so R1-R3 are the same axes
+whatever tier 2 turns out to be, and each axis is signed by a marker variable.
+The labour-market variables, which took no part in forming the axes, are
+correlated against all six, and a promax rotation of tier 1 checks whether its
+axes are orthogonal by preference of the data or only by construction.
 
-**`validate_axes.py`** → terminal
+**`validate_tier1.py`** → terminal
 
-Whether the six axes are what they are called. The names came from reading
-loadings, which is a judgement, and every substantive claim rests on them.
-Checks, each using something the analysis did not see: O*NET's own expert
-grouping of elements (this needs the O*NET text files in `data_raw/`); whether
-the off-diagonal cells of the R1 × R2 plane are populated, with the median wage
-in each; the occupations at each extreme of all six axes; whether adding the
-labour-market variables to the decomposition changes the axes; the facts the paper states
-about the poles of R1 and R2; and the parts of Section 5.2 that need the axes:
-how the two-cluster split of occupations and the two skill clusters line up
-with them, and the SOC major groups in the space of the leading components.
+Whether R1-R3 are what they are called. The names came from reading loadings,
+which is a judgement, and every substantive claim rests on them. Checks, each
+using something the analysis did not see: O*NET's own expert grouping of
+elements (this needs the O*NET text files in `data_raw/`); whether the
+off-diagonal cells of the R1 × R2 plane are populated, with the median wage in
+each; the occupations at each extreme of the three axes; whether adding the
+labour-market variables to the decomposition changes the axes; the facts the
+paper states about the poles of R1 and R2; and the parts of Section 5.2 that
+need the axes: how the two-cluster split of occupations and the two skill
+clusters line up with them, and the SOC major groups in the space of the
+leading components.
+
+**`validate_tier2.py`** → `validate_tier2.xlsx`
+
+What R4-R6 measure. First the part of each axis that R1-R3 can predict
+non-linearly (quadratic, cubic and nearest-neighbour fits, out of fold) is
+removed; the residual is then read through its correlations with the 216
+columns, its share in the job and worker halves and in each block, the
+occupations at its ends and in its middle, and its correlations with the
+labour-market variables, required education and the Work Context items on
+error and automation (and the Eloundou et al. exposure measures, if
+`data_raw/eloundou_occ_level.csv` is present). Last, whether the labour-market
+variables change the tier-2 axes.
+
+**`tier2_residual_stability.py`** → `tier2_residual_stability.xlsx`
+
+Whether tier 2 still reproduces once the curvature of tier 1 is taken out.
+Each half of a split is decomposed on its own and has its own curvature removed
+(cubic least squares, or nearest neighbours out of fold). Two versions: the
+residual of the 4-6 scores, whose directions in column space are what
+`validate_tier2.py` interprets, compared between halves as a subspace and axis
+by axis; and the data matrix with PC1-3 and their curvature removed from every
+column, decomposed again, to see whether it still leads with a stable
+three-dimensional block in the space of the original components 4-6, and
+whether the boundary after it holds. The original 4-6 block is scored on the
+same splits as the baseline.
 
 **`content_model_halves.py`** → `content_model_halves.xlsx`
 
@@ -263,9 +297,9 @@ Source to be set to *GitHub Actions*.
   this data covers both verbal work and light service work. Whether the positive
   pole is also the pole less amenable to substitution is a conjecture and is
   treated as one.
-- `varimax`, `congruence`, the tier rotation and the subspace helpers are
-  defined once, in `pca_rotated.py`; the other scripts import them rather than
-  carrying their own copies.
+- The sign anchors, `varimax`, `congruence`, the tier rotation and the
+  subspace helpers are defined once, in `pca_rotated.py`; the other scripts
+  import them rather than carrying their own copies.
 - Seeds are fixed (`SEED = 0`) and axis signs are anchored to marker variables,
   so results reproduce across runs and stay stable if the dataset is rebuilt.
 - Wage top-coding: OEWS publishes no annual wage at or above $239,200 and marks
