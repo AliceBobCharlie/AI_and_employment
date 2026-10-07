@@ -65,6 +65,7 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from pathlib import Path
+from scipy.optimize import linear_sum_assignment
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
 
@@ -287,11 +288,24 @@ def tier_scores(pca, Xz, idx, R):
     return T[:, idx] @ R
 
 
+def match_axes(ref, cand):
+    """Columns of cand paired one to one with the columns of ref, maximising
+    the total congruence (Hungarian assignment). Pairing only: no axis is
+    rotated or adjusted."""
+    C = np.array([[congruence(ref[:, j], cand[:, i]) for i in range(cand.shape[1])]
+                  for j in range(ref.shape[1])])
+    _, cols = linear_sum_assignment(-C)
+    return cand[:, cols]
+
+
 def rotated_stability(X, tiers):
     """Split-half congruence of the rotated axes. On each half the
-    decomposition and every tier's rotation are redone; each full-sample axis
-    is matched to the most congruent half-axis of the same tier, and the two
-    halves' versions are compared. Returns p05 and median per axis."""
+    decomposition and every tier's varimax rotation are redone from scratch,
+    with nothing pulling the halves towards each other or towards the full
+    sample. The full-sample axes are used only to label the halves' axes: each
+    is paired one to one with a half-axis of the same tier, and then the two
+    halves' versions of each axis are compared. Returns p05 and median per
+    axis."""
     rng = np.random.default_rng(SEED)
     ev, V = eigen(X)
     full = np.hstack([rotate_tier(V, ev, idx)[0] for idx in tiers])
@@ -305,11 +319,9 @@ def rotated_stability(X, tiers):
             H = np.hstack([rotate_tier(Vh, e, idx)[0] for idx in tiers])
             matched = []
             for t in range(len(tiers)):
-                cand = H[:, bounds[t]:bounds[t + 1]]
-                for j in range(bounds[t], bounds[t + 1]):
-                    c = [congruence(full[:, j], cand[:, i]) for i in range(cand.shape[1])]
-                    matched.append(cand[:, int(np.argmax(c))])
-            halves.append(np.column_stack(matched))
+                ref = full[:, bounds[t]:bounds[t + 1]]
+                matched.append(match_axes(ref, H[:, bounds[t]:bounds[t + 1]]))
+            halves.append(np.hstack(matched))
         vals[s] = [congruence(halves[0][:, j], halves[1][:, j]) for j in range(full.shape[1])]
     return np.percentile(vals, 5, axis=0), np.median(vals, axis=0)
 
@@ -385,7 +397,7 @@ def eigen_table(pca):
                       "eigenvalue": ev[:20], "% variance": 100 * share[:20],
                       "cumulative %": 100 * np.cumsum(share)[:20]})
     banner("EIGENVALUES")
-    print(t.head(10).round(2).to_string(index=False))
+    print(t.head(14).round(2).to_string(index=False))   # the 14 above the noise null
     print(f"components to reach 90% of variance: "
           f"{int(np.argmax(np.cumsum(share) >= .9)) + 1}")
     return t

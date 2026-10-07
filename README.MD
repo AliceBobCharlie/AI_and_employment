@@ -76,7 +76,8 @@ raw table only.
 ## Results
 
 **`cluster_onet.py`** → `cluster_occupations.png`,
-`cluster_skill_similarity.png`, `cluster_assignments.csv`, `cluster_skills.csv`
+`cluster_skill_similarity.png`, `cluster_assignments.csv`, `cluster_skills.csv`,
+`cluster_kurtosis.xlsx`
 
 Whether the polarisation reported in earlier work is a property of skills or of
 the way the skill matrix is built. Part A asks whether occupations themselves
@@ -89,8 +90,15 @@ straightforwardly by correlating the published ratings across occupations, and
 the two are compared on how bimodal the resulting edge weights are and how
 separable the skill clusters are. The published network is also thresholded
 before its communities are read off, so the script reports how much of the data
-that step removes. Nothing here uses the axes; the comparisons that do are in
-`validate_tier1.py`.
+that step removes. Part C asks whether the components after the first three
+describe a small, separate group of occupations (the "local feature" reading of
+their instability). k-means is poor at finding a small group next to a large
+one, so it uses kurtosis instead: in each subspace (PC1-3, PC4-6, PC7-14,
+PC4-14, PC1-14) a projection pursuit finds the most and least kurtotic
+directions, compared with the same search on Gaussian data of the same size
+and dimension, with an outlier check, the occupation counts along the tail and
+the occupations in it. Nothing here uses the rotated axes; the comparisons that
+do are in `validate_tier1.py`.
 
 **`pca_rotated.py`** → `rotated_axes.csv`, `rotated_loadings.csv`,
 `oblique_pattern.csv`, `pca_stability.xlsx`, `scree.png`,
