@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-curvature_check.py -- are components 7 to 14, and the second tier itself,
+check_curvature.py -- are components 7 to 14, and the second tier itself,
 new directions, or curvature of the components before them?
 
 PCA describes linear structure. If occupations lie on a curved surface -- and
@@ -55,7 +55,7 @@ of their eigenvalue, so every score has unit variance.
      floor produces while keeping the order of occupations. Reported:
      eigenvalues, parallel analysis, the principal angles between the original
      and transformed leading-k subspaces, and the nested split-half stability
-     curve of subspace_stability.py on the transformed matrix.
+     curve of pca_rotated.py on the transformed matrix.
 
   E  Positive control. Synthetic data with the real data's six-factor
      structure and no curvature (loadings of PC1-6, unique variance making
@@ -81,11 +81,10 @@ of their eigenvalue, so every score has unit variance.
   occupations furthest from the centre in PC1-6, keeping the full-sample PCA,
   since a few extreme occupations can make products of scores look predictive.
 
-Run from the project root:  python supplementary/curvature_check.py
+Run from the project root:  python check_curvature.py
 Writes output/curvature_check.xlsx and prints every sheet.
 """
 
-import sys
 import numpy as np
 import pandas as pd
 from pathlib import Path
@@ -96,10 +95,7 @@ from sklearn.neighbors import KNeighborsRegressor
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import PolynomialFeatures, StandardScaler
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-from subspace_stability import split_statistics, subspace_cosines  # noqa: E402
-from pca_rotated import varimax                                     # noqa: E402
+from pca_rotated import split_statistics, subspace_cosines, varimax
 
 CLEAN = Path("output/master_clean.csv")
 OUT = Path("output/curvature_check.xlsx")

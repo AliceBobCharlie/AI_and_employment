@@ -67,7 +67,6 @@ BLOCKS = {
     "workctx":   ["Work Context"],
     "ete":       ["Education", "Training and Experience"],
 }
-FEATURE_BLOCKS = ["abilities", "skills", "knowledge", "workact", "workctx"]
 
 RATING_COLUMNS = {
     "O*NET-SOC Code": "soc", "Element Name": "element", "Scale ID": "scale",
@@ -121,16 +120,9 @@ def block_wide(prefix):
 
 
 def report_block(prefix, wide, files, duplicates):
-    """Columns per scale, occupations covered, and holes inside rated rows."""
-    print(f"\n  [{prefix}] from {', '.join(files)}"
+    """What was read. Coverage and missingness are reported by check_data.py."""
+    print(f"  [{prefix}] {', '.join(files)}: {wide.shape[1]} columns, {len(wide)} codes"
           + (f"  ({duplicates} duplicate ratings, first kept)" if duplicates else ""))
-    scales = wide.columns.str.extract(rf"^{prefix}_([a-z]+)__", expand=False)
-    for scale in sorted(scales.unique()):
-        cols = wide.columns[scales == scale]
-        sub = wide[cols]
-        rated = sub.notna().any(axis=1)
-        print(f"    {scale:4s} {len(cols):4d} columns | {int(rated.sum()):4d} occupations "
-              f"| {int(sub[rated].isna().sum().sum()):6d} missing cells inside rated rows")
 
 
 def onet_wide():
@@ -258,25 +250,6 @@ def join_external(onet):
 
 
 # --------------------------------------------------------------------------- #
-def summarise(M):
-    """Coverage of every block and external variable, over all codes and over
-    the codes rated in all five feature blocks."""
-    def block_rated(prefix):
-        cols = [c for c in M.columns if c.startswith(f"{prefix}_")]
-        return M[cols].notna().any(axis=1)
-
-    rated = pd.concat([block_rated(p) for p in FEATURE_BLOCKS], axis=1).all(axis=1)
-    print(f"\n{len(M)} O*NET-SOC codes, {int(rated.sum())} rated in all five feature blocks")
-    for prefix in BLOCKS:
-        print(f"    {prefix:10s} rated for {int(block_rated(prefix).sum())} codes")
-
-    ext_cols = [c for c in M.columns if c.startswith("ext_")]
-    print("\nexternal coverage: all codes | codes rated in all five feature blocks")
-    for c in ext_cols:
-        print(f"    {c:24s} {M[c].notna().mean() * 100:5.1f}% | "
-              f"{M.loc[rated, c].notna().mean() * 100:5.1f}%")
-
-
 def main():
     OUT.parent.mkdir(exist_ok=True)
     M = join_external(onet_wide())
@@ -285,7 +258,7 @@ def main():
     n_ext = len([c for c in M.columns if c.startswith("ext_")])
     print(f"\n[ok] wrote {OUT}: {M.shape[0]} rows x {M.shape[1]} columns "
           f"({n_onet} O*NET, {n_ext} external)")
-    summarise(M)
+    print("coverage, flags and missingness: run check_data.py")
 
 
 if __name__ == "__main__":

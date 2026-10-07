@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-validate_axes.py -- are the three axes what we say they are?
+validate_axes.py -- are the six axes what we say they are?
 
 The axes were named by reading their loadings, which is unavoidably a judgement
 call, and every substantive claim rests on those names being right. In
@@ -28,14 +28,15 @@ Three checks, each using something the PCA did not see:
      the axis is measuring abstraction twice. Median wage per quadrant then
      shows directly whether pay follows load or follows medium.
 
-  3. ENDPOINTS. The occupations at the extremes of each axis, which is the
-     plainest way to see whether a label fits.
+  3. ENDPOINTS. The occupations at the extremes of each of the six axes,
+     which is the plainest way to see whether a label fits.
 
 Then:
 
   4. ROBUSTNESS. The axes are refitted with the labour-market variables added
      to the 216 feature columns, with wages as two summaries and as all nine
-     wage columns, and compared with the published axes.
+     wage columns, and compared with the published axes. Each tier is
+     rotated on its own, as in pca_rotated.py.
 
   5. POLES. The facts the paper states about the poles of R1 and R2: how many
      columns load beyond +/-0.5, composites of the physical and psychomotor
@@ -88,9 +89,12 @@ NAMED = {"37-2011.00": "janitors", "35-9021.00": "dishwashers",
 LANGUAGE_SKILLS = ["skills_im__Reading Comprehension", "skills_im__Active Listening",
                    "skills_im__Writing", "skills_im__Speaking"]
 
-AXIS = {"R1": "embodiment  (+ physical / - abstract)",
-        "R2": "cognitive load  (+ complex / - routine)",
-        "R3": "interpersonal  (+ people / - technical)"}
+AXIS = {"R1": "physical intensity  (+ physical / - symbolic)",
+        "R2": "judgement  (+ judgement / - procedure)",
+        "R3": "person-facing  (+ people / - things and systems)",
+        "R4": "where the work is done  (+ fixed clinical site / - vehicles, outdoors)",
+        "R5": "fixed correct standard  (+ exact, checkable output / - open-ended)",
+        "R6": "commercial  (+ commercial / - specialist)"}
 
 # Fallback labels for the O*NET hierarchy, used if Content Model Reference.txt
 # is not present: the release 31.0 names. These are the expert groupings, not ours.
@@ -235,30 +239,26 @@ def check_endpoints(S):
 # rotation recipe has one definition rather than three that can drift apart.
 import sys, os
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from pca_rotated import varimax as _varimax, congruence
-
-
-def varimax(Phi, q=100, tol=1e-6):
-    L, _ = _varimax(Phi, q=q, tol=tol)
-    return L
+from pca_rotated import (congruence, rotate_tier, sign_and_order,
+                         TIER1_ANCHORS, TIER2_ANCHORS)
 
 
 def rotated_loadings(X, cols, k):
-    """The same recipe as pca_rotated.py: PCA -> varimax -> order -> sign anchor."""
-    from sklearn.preprocessing import StandardScaler
-    from sklearn.decomposition import PCA
+    """The same recipe as pca_rotated.py: PCA, then varimax within tier 1
+    (the first three components) and within tier 2 (the rest, up to k),
+    ordered and signed by the same anchors."""
     Xz = StandardScaler().fit_transform(X)
     pca = PCA(random_state=0).fit(Xz)
-    Lr = varimax(pca.components_[:k].T * np.sqrt(pca.explained_variance_[:k]))
-    order = np.argsort(-(Lr ** 2).sum(axis=0))
-    Lr = Lr[:, order]
-    idx = {c: i for i, c in enumerate(cols)}
-    for j, a in enumerate(["abilities_im__Manual Dexterity",
-                           "skills_im__Complex Problem Solving",
-                           "workact_im__Assisting and Caring for Others"][:k]):
-        if a in idx and Lr[idx[a], j] < 0:
-            Lr[:, j] *= -1
-    return pd.DataFrame(Lr, index=cols, columns=[f"R{j+1}" for j in range(k)])
+    V, lam = pca.components_.T, pca.explained_variance_
+    k1 = len(TIER1_ANCHORS)
+    tiers = [list(range(min(k, k1)))] + ([list(range(k1, k))] if k > k1 else [])
+    Ls = []
+    for t_no, idx in enumerate(tiers):
+        L, R = rotate_tier(V, lam, idx)
+        L, _ = sign_and_order(L, R, cols, [TIER1_ANCHORS, TIER2_ANCHORS][t_no], idx[0],
+                              verbose=False)
+        Ls.append(L)
+    return pd.DataFrame(np.hstack(Ls), index=cols, columns=[f"R{j+1}" for j in range(k)])
 
 
 def check_robustness(L, m):

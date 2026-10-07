@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 check_orthogonality.py -- how much of each labour-market variable can the
-description of the work predict? (Section 5.5)
+description of the work predict? (Section 5.6)
 
 Each target is regressed on the 216 feature columns by ridge regression, and
 scored by five-fold cross-validated R2: the penalty is chosen and the scaler
@@ -14,10 +14,10 @@ Values that clean_master.py filled in are left out of each regression rather
 than predicted, so every R2 is computed on published values only.
 
 Sections:
-  A  Table 5.5: R2 from all 216 features, and from each feature block alone
+  A  the R2 table of Section 5.6: R2 from all 216 features, and from each feature block alone
   B  the education, training and experience block column by column: median R2,
      counts below 0.3 and above 0.6, and the variance-weighted R2 of the block
-  C  descriptive figures quoted in Section 5.5: employment, self-employment
+  C  descriptive figures quoted in Section 5.6: employment, self-employment
      and union coverage, and union coverage's loading on the leading direction
      of the eight labour-market variables
 
@@ -177,7 +177,7 @@ def main():
         blocks.setdefault(c.split("__", 1)[0], []).append(c)
     print(f"{len(clean)} occupations, {len(feats)} feature columns")
 
-    # B first: the ETE row of Table 5.5 comes from it.
+    # B first: the ETE row of the R2 table of Section 5.6 comes from it.
     ete = ete_by_column(clean, raw, X)
     weighted = (ete["R2"] * ete["variance"]).sum() / ete["variance"].sum()
     ete_summary = pd.DataFrame([

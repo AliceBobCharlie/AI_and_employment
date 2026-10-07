@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-rating_error_share.py -- how much of the variance in the paper's matrix, and
-how much of each principal component, is sampling error in O*NET's ratings?
+rating_error.py -- how much of the variance in the paper's matrix, and how
+much of each principal component, is sampling error in O*NET's ratings?
+(Section 5.5)
 
 Every O*NET rating is the mean over a sample of incumbents, occupation experts
 or analysts, and O*NET publishes its standard error. For the 216 columns of
@@ -61,25 +62,43 @@ output/master_clean.csv:
                      axis factoring. What is left in the tail is item-specific
                      content plus any weak shared structure.
 
+  items against the six axes
+                     Whether the items the six axes explain poorly are simply
+                     the unreliable ones. Each column is left out, the first six
+                     principal components of the other 215 are computed, and the
+                     column is predicted from those six scores and, separately,
+                     from all 215 other columns, by ridge regression (five-fold
+                     cross-validated R2, penalty chosen in-fold). R2 /
+                     reliability is the share of the item's reliable variance
+                     that is predicted; it can exceed 1 when errors are
+                     correlated within a questionnaire, because shared error is
+                     predictable from the other items.
+
 Reads data_raw/onet/db_31_0_text and output/master_clean.csv. Files are read
 one at a time, only the columns needed.
 
-Run from the project root:  python supplementary/rating_error_share.py
-Writes output/rating_error_share.xlsx and prints every sheet.
+Run from the project root:  python rating_error.py
+Writes output/rating_error.xlsx and prints every sheet.
 """
 
 import numpy as np
 import pandas as pd
 from pathlib import Path
+from scipy.stats import spearmanr
+from sklearn.linear_model import RidgeCV
+from sklearn.model_selection import KFold
+from sklearn.pipeline import make_pipeline
+from sklearn.preprocessing import StandardScaler
 
 ONET_DIR = Path("data_raw/onet/db_31_0_text")
 CLEAN = Path("output/master_clean.csv")
-OUT = Path("output/rating_error_share.xlsx")
+OUT = Path("output/rating_error.xlsx")
 
 SEED = 0
 N_SIM = 50
 RHOS = [0.0, 0.1, 0.3]
 N_COMPONENTS_SHOWN = 30
+N_AXES = 6
 
 # Column prefix -> (files, analysis scale, error group)
 BLOCKS = {
@@ -248,6 +267,46 @@ def error_spectrum(S, groups, rng, ev):
     return table, summary
 
 
+def cv_r2(X, y):
+    """Five-fold out-of-fold R2 of a ridge regression, scaler and penalty fitted in-fold."""
+    pred = np.empty_like(y)
+    for tr, te in KFold(5, shuffle=True, random_state=SEED).split(X):
+        model = make_pipeline(StandardScaler(), RidgeCV(alphas=np.logspace(-3, 5, 30)))
+        pred[te] = model.fit(X[tr], y[tr]).predict(X[te])
+    return 1 - ((y - pred) ** 2).sum() / ((y - y.mean()) ** 2).sum()
+
+
+def items_vs_axes(cols, X, items):
+    """Leave-one-column-out R2 from the six leading components and from all
+    other columns, set against each item's reliability."""
+    Z = (X - X.mean(axis=0)) / X.std(axis=0)
+    rows = []
+    for j, col in enumerate(cols):
+        rest = np.delete(Z, j, axis=1)
+        rest = rest - rest.mean(axis=0)
+        _, _, vt = np.linalg.svd(rest, full_matrices=False)
+        rows.append({"item": col,
+                     "R2 six axes": cv_r2(rest @ vt[:N_AXES].T, Z[:, j]),
+                     "R2 other 215": cv_r2(rest, Z[:, j])})
+    d = pd.DataFrame(rows).merge(items[["item", "block", "reliability 1 - e_j"]], on="item")
+    d["six axes / reliability"] = d["R2 six axes"] / d["reliability 1 - e_j"]
+    d["other 215 / reliability"] = d["R2 other 215"] / d["reliability 1 - e_j"]
+
+    rel = d["reliability 1 - e_j"]
+    summary = pd.DataFrame([
+        {"measure": "Spearman(reliability, R2 six axes)", "value": spearmanr(rel, d["R2 six axes"])[0]},
+        {"measure": "Pearson(reliability, R2 six axes)", "value": np.corrcoef(rel, d["R2 six axes"])[0, 1]},
+        {"measure": "Spearman(reliability, R2 other 215)", "value": spearmanr(rel, d["R2 other 215"])[0]},
+    ])
+    bands = pd.cut(rel, [0, .7, .8, .9, 1], labels=["<0.7", "0.7-0.8", "0.8-0.9", ">=0.9"])
+    by_band = (d.groupby(bands, observed=True)[["R2 six axes", "R2 other 215", "six axes / reliability"]]
+                .median().assign(items=d.groupby(bands, observed=True).size()).reset_index()
+                .rename(columns={"reliability 1 - e_j": "reliability band"}))
+    by_block = d.groupby("block")[["reliability 1 - e_j", "R2 six axes", "six axes / reliability",
+                                   "R2 other 215", "other 215 / reliability"]].median().reset_index()
+    return d.sort_values("R2 six axes"), summary, by_band, by_block
+
+
 # --------------------------------------------------------------------------- #
 def main():
     rng = np.random.default_rng(SEED)
@@ -296,10 +355,15 @@ def main():
         "reduced matrix: negative eigenvalues (sum)": ev_reduced[ev_reduced < 0].sum(),
     }])
 
+    print("[items against the six axes] 216 leave-one-out fits")
+    vs_axes, vs_summary, vs_band, vs_block = items_vs_axes(cols, X, items)
+
     sheets = {"checks": checks, "blocks": blocks, "tail_summary": tail,
               "components": components, "error_spectrum": spectrum,
               "error_spectrum_summary": spectrum_summary, "reduced_matrix": reduced,
-              "items": items.sort_values("error share e_j", ascending=False)}
+              "items": items.sort_values("error share e_j", ascending=False),
+              "axes_vs_reliability": vs_summary, "axes_by_reliability_band": vs_band,
+              "axes_by_block": vs_block, "items_vs_axes": vs_axes}
     OUT.parent.mkdir(exist_ok=True)
     with pd.ExcelWriter(OUT) as writer:
         for name, df in sheets.items():

@@ -1023,8 +1023,8 @@ asks whether two disjoint sets of descriptors arrive at the same structure. The
 job half, Work Activities and Work Context (96 columns), has five leading
 components that reproduce together; the worker half, Skills, Abilities and
 Knowledge (120 columns), has four. The smallest principal-angle cosine of those
-leading subspaces is 0.92 for both halves at the 5th percentile of splits, and
-falls to 0.56 and 0.48 once one more component is added. How well each half's
+leading subspaces is 0.91 for both halves at the 5th percentile of splits, and
+falls to 0.52 and 0.18 once one more component is added. How well each half's
 reproducing components recover each axis of the full matrix:
 
 | R² of the full-matrix axis | R1 | R2 | R3 | R4 | R5 | R6 |
@@ -1169,12 +1169,12 @@ contains as much as on the occupations it describes.
 
 | input | columns | components above the permutation null | variance in them |
 |---|---|---|---|
-| Importance, and Context for Work Context (the matrix analysed here) | 216 | 14 | 75.6% |
-| Level instead of Importance | 216 | 14 | 78.5% |
-| Importance and Level together | 377 | 18 | 80.3% |
-| without Knowledge | 183 | 12 | 76.0% |
-| job half: Work Activities and Work Context | 96 | 10 | 73.6% |
-| worker half: Skills, Abilities and Knowledge | 120 | 10 | 77.1% |
+| Importance, and Context for Work Context (the matrix analysed here) | 216 | 14 | 75.5% |
+| Level instead of Importance | 216 | 14 | 78.4% |
+| Importance and Level together | 377 | 18 | 80.2% |
+| without Knowledge | 183 | 12 | 75.9% |
+| job half: Work Activities and Work Context | 96 | 10 | 73.5% |
+| worker half: Skills, Abilities and Knowledge | 120 | 10 | 77.0% |
 | Work Context alone | 55 | 7 | 72.2% |
 
 The same occupations described on the Level scale give fourteen components, as

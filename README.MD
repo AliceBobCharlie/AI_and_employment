@@ -14,22 +14,28 @@ folder containing `data_raw/`.
 ## Run order
 
 ```
-python build_master.py          # 1. assemble the raw table          -> master.csv
-python clean_master.py          # 2. drop, fill and derive           -> master_clean.csv
+python build_master.py          #  1. assemble the raw table          -> master.csv
+python clean_master.py          #  2. drop, fill and derive           -> master_clean.csv
+python check_data.py            #  3. data quality                    (Sections 4.2-4.3)
 
-python cluster_onet.py          # 3. are there clusters at all?       (Section 5.2)
-python pca_rotated.py           # 4. dimensions and rotated axes      (Sections 5.3-5.4)
-python validate_axes.py         # 5. do the axis names hold up?       (needs 3 and 4)
-python check_orthogonality.py   # 6. what the features can predict   (Section 5.5)
-python plot_axes.py             # 7. data for the figures             (needs 4)
-python corner_table.py          # 8. Table 6.1                        (needs 4)
-python acs_young_share.py       # 9. data for Figure 6.2              (needs 4 and the ACS extract)
+python cluster_onet.py          #  4. are there clusters at all?       (Section 5.2)
+python pca_rotated.py           #  5. two tiers, six rotated axes     (Sections 5.3-5.4, Figure 5.1)
+python validate_axes.py         #  6. do the axis names hold up?       (needs 4 and 5)
+python content_model_halves.py  #  7. job and worker halves           (Section 5.4; needs 5)
+python check_curvature.py       #  8. curvature beyond the six axes   (Section 5.5)
+python rating_error.py          #  9. rating error beyond the axes    (Section 5.5)
+python check_orthogonality.py   # 10. what the features can predict   (Section 5.6)
+python plot_axes.py             # 11. data for the figures             (needs 5)
+python corner_table.py          # 12. Table 6.1                        (needs 5)
+python acs_young_share.py       # 13. data for Figure 6.2              (needs 5 and the ACS extract)
 ```
 
 Steps 1 and 2 run in that order; every analysis afterwards reads
-`output/master_clean.csv`, and `check_orthogonality.py` also reads
-`output/master.csv`. `validate_axes.py` needs the outputs of both
-`cluster_onet.py` and `pca_rotated.py`.
+`output/master_clean.csv`, and `check_data.py`, `check_orthogonality.py` and
+`supplementary/input_variants.py` also read `output/master.csv`.
+`check_data.py`, `validate_axes.py` and `rating_error.py` also read the O*NET
+text files in `data_raw/onet/db_31_0_text`. `validate_axes.py` needs the
+outputs of both `cluster_onet.py` and `pca_rotated.py`.
 
 The scripts in `supplementary/` are run as needed rather than as part of the
 sequence; see below.
@@ -83,37 +89,65 @@ that step removes. Nothing here uses the axes; the comparisons that do are in
 `validate_axes.py`.
 
 **`pca_rotated.py`** → `rotated_axes.csv`, `rotated_loadings.csv`,
-`oblique_pattern.csv`, `rotated_scree.png`
+`oblique_pattern.csv`, `pca_stability.xlsx`, `rotated_scree.png`,
+`assets/subspace_stability.png` (Figure 5.1)
 
-The main analysis, on the 216 feature columns only. Eigenvalues, parallel
-analysis, and bootstrap and split-half congruence, which decide how many
-components to keep; varimax rotation makes those components interpretable; a
-sign convention anchored on marker variables fixes each axis, and keeps the
-signs stable if the data is rebuilt. Then the labour-market variables, which
-took no part in forming the axes, are correlated against them, and a promax
-rotation checks whether the axes are orthogonal by preference of the data or
-only by construction.
+The main analysis, on the 216 feature columns only. Eigenvalues and parallel
+analysis; then two stability criteria. Bootstrap and split-half congruence of
+each unrotated component finds the components that reproduce one by one
+(tier 1: the first three). Split-half principal angles between the leading-k
+subspaces, k = 1 to 14, find blocks of nearly equal eigenvalues that reproduce
+only together. Tier 2 is the block after tier 1 whose varimax-rotated axes all
+reproduce on independent halves; the script tries every candidate end and the
+data picks components 4-6. Each tier is rotated on its own, so R1-R3 are the
+same axes as before tier 2 was added, and each axis is signed by a marker
+variable. The labour-market variables, which took no part in forming the axes,
+are correlated against all six, and a promax rotation of tier 1 checks whether
+its axes are orthogonal by preference of the data or only by construction.
 
 **`validate_axes.py`** → terminal
 
-Whether the three axes are what they are called. The names came from reading
+Whether the six axes are what they are called. The names came from reading
 loadings, which is a judgement, and every substantive claim rests on them.
 Checks, each using something the analysis did not see: O*NET's own expert
 grouping of elements (this needs the O*NET text files in `data_raw/`); whether
 the off-diagonal cells of the R1 × R2 plane are populated, with the median wage
-in each; the occupations at each extreme; whether adding the labour-market
-variables to the decomposition changes the axes; the facts the paper states
+in each; the occupations at each extreme of all six axes; whether adding the
+labour-market variables to the decomposition changes the axes; the facts the paper states
 about the poles of R1 and R2; and the parts of Section 5.2 that need the axes:
 how the two-cluster split of occupations and the two skill clusters line up
 with them, and the SOC major groups in the space of the leading components.
+
+**`content_model_halves.py`** → `content_model_halves.xlsx`
+
+Whether the job half of the Content Model (Work Activities, Work Context) and
+the worker half (Skills, Abilities, Knowledge), which share no column, arrive
+at the same axes on their own: each half's reproducing leading subspace, how
+well it recovers each of R1-R6, canonical correlations between the halves, and
+each half's own rotated axes against the other's.
+
+**`check_curvature.py`** → `curvature_check.xlsx`
+
+Whether components 7 to 14, and the second tier itself, are new directions or
+curvature of the components before them: non-linear functions of the leading
+components predicting the later ones, a permutation null, refits inside each
+fold, normal scores against the floor of the rating scales, and synthetic data
+with a known floor as a positive control.
+
+**`rating_error.py`** → `rating_error.xlsx`
+
+How much of each item, and of each principal component, is sampling error in
+O*NET's ratings, from the published standard errors; an error-only spectrum as
+a measured null for parallel analysis; and whether the items the six axes
+explain poorly are simply the unreliable ones.
 
 **`check_orthogonality.py`** → `orthogonality.xlsx`
 
 How much of each labour-market variable the description of the work can
 predict, by ridge regression with cross-validated R², from all 216 feature
-columns and from each feature block alone (Table 5.5); the education, training
-and experience block column by column; and the descriptive figures Section 5.5
-quotes. Values that `clean_master.py` filled in are left out, so every R² is
+columns and from each feature block alone (Section 5.6); the education,
+training and experience block column by column; and the descriptive figures
+Section 5.6 quotes. Values that `clean_master.py` filled in are left out, so every R² is
 computed on published values only. Unlike anything read off a PCA, the answer
 does not depend on how many feature columns happen to be in the matrix.
 
@@ -145,7 +179,23 @@ occupation-level output is committed so the web paper can draw the figure.
 ## Supplementary analyses
 
 In `supplementary/`. Run from the project root, e.g.
-`python supplementary/pca_ete.py`.
+`python supplementary/pca_ete.py`. None of them is reported in the main text
+except where noted.
+
+**`supplementary/input_variants.py`** → `input_variants.xlsx`
+
+The same analysis on different inputs: Level instead of Importance and the two
+together (Appendix A), without Knowledge, Work Context alone, and each half of
+the Content Model (Appendix B). For each: parallel analysis, components
+reproducing one by one, nested-subspace stability, the paper's tiers rotated
+and tested, and agreement with the six axes. Its parallel-analysis counts are
+the table in Section 5.5. Run after `pca_rotated.py`.
+
+**`supplementary/block_weights.py`** → `block_weights.xlsx`
+
+The same analysis with the blocks reweighted (Appendix B): every block given
+the same total variance, and every block's leading eigenvalue set to 1 as in
+multiple factor analysis. Run after `pca_rotated.py`.
 
 **`supplementary/pca_ete.py`** → `ete_axes.csv`
 
@@ -157,12 +207,18 @@ a job demands is separable from what the work requires. Run after
 
 ## Data-quality checks
 
-**`check_external.py`** → `qc_external.xlsx` — missingness of the labour-market
-variables as an occupation × variable matrix, plus their distributions, on the
-raw values of the 910 occupations kept. Established that gaps in the external
-variables are structural rather than scattered — whole rows absent from a
-source, or wages above the OEWS cap — and which variables are skewed enough to
-need a log.
+**`check_data.py`** → `data_quality.xlsx`
+
+Every fact Sections 4.2 and 4.3 state about the quality of the data. Which
+O*NET-SOC codes are rated, and what the unrated ones are; Recommend Suppress
+and Not Relevant flags per block and scale; the share of ratings with a
+standard error; how closely Importance and Level agree, element by element and
+as whole matrices; what the two Work Context Category items would add; the
+missing cells of the final matrix (Table 4.1); and the missingness and
+distributions of the labour-market variables, which established that their
+gaps are structural rather than scattered and which variables need a log. The
+flags and standard errors are not in the master table, so this script reads
+them from the O*NET text files.
 
 A further one-off check established that BLS occupational openings is a size
 proxy (r = 0.89 with employment), that the "typical education needed" threshold
@@ -197,15 +253,19 @@ Source to be set to *GitHub Actions*.
 
 ## Conventions
  
-- The three rotated axes are signed by marker variables so that positive means
-  physically intensive, judgement-intensive and person-facing respectively. The
+- The six rotated axes are signed by marker variables. For tier 1, positive
+  means physically intensive, judgement-intensive and person-facing
+  respectively. For tier 2 the markers are medicine and dentistry (R4), the
+  importance of being exact or accurate (R5) and sales and marketing (R6);
+  their signs carry no claim about substitutability. The
   first is a level of physical capability demanded, not a contrast between
   embodied and symbolic work: its negative pole is low physical demand, which in
   this data covers both verbal work and light service work. Whether the positive
   pole is also the pole less amenable to substitution is a conjecture and is
   treated as one.
-- `varimax` and `congruence` are defined once, in `pca_rotated.py`; the other
-  scripts import them rather than carrying their own copies.
+- `varimax`, `congruence`, the tier rotation and the subspace helpers are
+  defined once, in `pca_rotated.py`; the other scripts import them rather than
+  carrying their own copies.
 - Seeds are fixed (`SEED = 0`) and axis signs are anchored to marker variables,
   so results reproduce across runs and stay stable if the dataset is rebuilt.
 - Wage top-coding: OEWS publishes no annual wage at or above $239,200 and marks
