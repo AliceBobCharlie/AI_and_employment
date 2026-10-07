@@ -37,7 +37,7 @@ absolute numbers.
 Nothing here uses the axes, which are estimated afterwards (pca_rotated.py).
 The comparisons that do need them -- how the two-cluster split of occupations
 and the two skill clusters line up with the axes, and the SOC major groups in
-the space of the leading components -- are in validate_axes.py, which reads the
+the space of the leading components -- are in validate_tier1.py, which reads the
 two assignment files written here.
 
 Reads output/master_clean.csv -> terminal, output/cluster_occupations.png,

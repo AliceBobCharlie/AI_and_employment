@@ -1,50 +1,62 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-pca_rotated.py -- the dimensions of occupational space and their rotated axes
-(Sections 5.3 and 5.4).
+pca_rotated.py -- the dimensions of occupational space and their rotated axes,
+in two tiers (Sections 5.3 and 5.5, Figure 5.1).
 
 Key design choices:
   - ONLY the O*NET feature blocks enter the decomposition: Abilities, Skills,
     Knowledge and Work Activities on the Importance scale, plus Work Context on
-    the Context scale. 216 columns.
-  - The labour-market variables (wages, employment, union coverage, self-
-    employment, separation rates, prestige) and the education/training/
-    experience distributions are HELD OUT. They are correlated against the
-    finished axes as supplementary variables. This is what licenses the
-    comparisons later: an axis cannot be said to predict wages if wages helped
-    to build it. Wages appear in that comparison as a level (log median) and a
-    dispersion (p90/p10) rather than as nine collinear percentiles.
-  - everything z-scored.
+    the Context scale. 216 columns, z-scored.
+  - The labour-market variables and the education, training and experience
+    distributions are HELD OUT and correlated against the finished axes. An
+    axis cannot be said to predict wages if wages helped to build it. Wages
+    appear as a level (log median) and a dispersion (p90/p10) rather than as
+    nine collinear percentiles.
 
-Procedure:
-  1. Eigenvalues, scree and Horn's parallel analysis.
+Tier 1 (Section 5.3):
+  1. Eigenvalues, scree and Horn's parallel analysis (reported, not used to
+     choose: the count depends on how many items measure the same thing).
   2. Component by component: bootstrap and split-half congruence of each
-     unrotated component (Table 5.3). The components that pass one by one form
-     tier 1.
-  3. Nested subspaces: split-half principal angles between the leading-k
-     subspaces, k = 1 to 14, with North's eigenvalue-gap ratio, a permutation
-     null and the half-sample noise floor (Figure 5.1). A block of nearly equal
-     eigenvalues fails component by component but holds as a subspace.
-  4. Tier 2: the components after tier 1 are varimax-rotated among themselves,
-     for every candidate end of the tier up to N_PC. Tier 2 ends at the largest
-     candidate for which every rotated axis, of both tiers, reproduces on
-     independent halves (split-half congruence p05 >= 0.90).
-  5. Each tier is varimax-rotated on its own, so no variance moves between
-     tiers, and each axis is signed by a marker variable. R1-R3 are therefore
-     the same axes whatever tier 2 turns out to be.
-  6. Loadings, block composition, supplementary variables against all axes,
-     and a promax refit of tier 1.
+     unrotated component, PC1 to PC8. The leading components that pass one by
+     one (p05 >= 0.90 on both) form tier 1.
+  3. Tier 1 is varimax-rotated on its own and signed by marker variables
+     (TIER1_ANCHORS). No later component enters this rotation, so R1-R3 do not
+     depend on what tier 2 turns out to be. Loadings, block composition,
+     supplementary variables, split-half congruence of the rotated axes and a
+     promax refit (are the axes orthogonal by preference of the data?).
 
-A supplementary variable that correlates weakly with every axis is independent
-of the content of the work; that is a statement about independence, not about
-importance, and Section 5.6 of the paper makes the distinction with a ridge
-regression instead.
+Tier 2 (Section 5.5):
+  4. The eigenvalue gaps over the eigenvalue's sampling error at half the
+     sample size, lambda * sqrt(2 / (n/2)) (North et al. 1982). A ratio near
+     or below 2 means two components can swap or mix between samples.
+  5. Nested subspaces: split-half principal angles between the leading-k
+     subspaces, k = 1 to 14, with a permutation null and the half-sample noise
+     floor (Figure 5.1).
+  6. Candidate blocks after tier 1, components k1+1 to k2 for k2 = k1+2 ... 8.
+     Each half is decomposed on its own and the principal angles between the
+     two halves' block subspaces are computed. A block's agreement is the root
+     mean square of the cosines (on the scale of a single congruence; for one
+     component it is the congruence). Tier 2 ends at the largest k2 whose RMS
+     cosine has p05 >= 0.90 over 100 split-halves. The rotated axes of each
+     candidate are reported too; they are not used to choose.
+  7. The same block measure for every contiguous block of two or more
+     components after tier 2, up to component 14.
+  8. Tier 2 is varimax-rotated on its own, signed and ordered by marker
+     variables (TIER2_ANCHORS). Loadings, block composition, supplementary
+     variables, split-half congruence of the rotated axes.
 
-Reads output/master_clean.csv. Writes output/rotated_axes.csv,
+Tier-2 loadings read directly here still mix in the curvature of tier 1;
+validate_tier2.py removes it before the axes are interpreted, and
+tier2_residual_stability.py checks that what is left still reproduces.
+
+The helpers (varimax, congruence, the tier rotation, the subspace measures,
+the anchors) are imported by the other scripts from here.
+
+Reads output/master_clean.csv. Writes output/rotated_axes.csv (scores R1-R6),
 output/rotated_loadings.csv, output/oblique_pattern.csv,
-output/pca_stability.xlsx, output/rotated_scree.png and the paper's
-Figure 5.1, assets/subspace_stability.png.
+output/pca_stability.xlsx, output/scree.png and the paper's Figure 5.1,
+assets/subspace_stability.png, and prints every table.
 """
 
 import numpy as np
@@ -53,26 +65,38 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from pathlib import Path
-from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import PCA
+from sklearn.preprocessing import StandardScaler
 
 MASTER = Path("output/master_clean.csv")
-OUTDIR = Path("output"); OUTDIR.mkdir(exist_ok=True)
+OUTDIR = Path("output")
+AXES = OUTDIR / "rotated_axes.csv"              # scores R1-R6
+LOADINGS = OUTDIR / "rotated_loadings.csv"
+OUT = OUTDIR / "pca_stability.xlsx"
 FIGURE = Path("assets/subspace_stability.png")   # Figure 5.1; assets/ is published
+
 SEED = 0
-N_PC = 8          # components examined for stability
-TOP = 12
-B = 200
-N_SPLIT = 50      # split-halves for the component-by-component check
-N_SPLIT_SUB = 100 # split-halves for nested subspaces and rotated axes
-N_NULL = 30       # permuted matrices for the subspace null
-K_MAX = 14        # nested subspaces examined
 STABLE_THRESH = 0.90
-N_PERM = 50       # permutations for parallel analysis
+K_MAX = 14          # nested subspaces examined
+N_SPLIT_SUB = 100   # split-halves for subspaces and rotated axes
+TOP = 12            # loadings printed per pole
+N_PC = 8            # components examined one by one; last end of a tier-2 candidate
+B = 200             # bootstrap resamples
+N_SPLIT = 50        # split-halves for the component-by-component check
+N_NULL = 30         # permuted matrices for the nested-subspace null
+N_PERM = 50         # permutations for parallel analysis
 
 # The feature matrix: Importance for four blocks, the Context scale for Work Context.
 FEATURE_PREFIXES = ("skills_im__", "abilities_im__", "knowledge_im__",
                     "workact_im__", "workctx_cx__")
+# Job-oriented blocks (what the work involves); the rest describe the worker.
+JOB_PREFIXES = ("workact_im__", "workctx_cx__")
+
+# Labour-market columns correlated against the axes. Wages appear as a level
+# and a dispersion: the nine raw wage columns are collinear.
+ECON = ["ext_wage_level_log", "ext_wage_disp_p90p10", "ext_prestige",
+        "ext_sep_exit_rate", "ext_sep_transfer_rate", "ext_union_cov_pct",
+        "ext_self_employed_pct", "ext_employment_log"]
 
 # Sign anchors. Tier 1: '+' is the pole conjectured harder to substitute.
 #   R1 + = physically intensive, R2 + = judgement, R3 + = person-facing.
@@ -81,42 +105,31 @@ TIER1_ANCHORS = ["abilities_im__Manual Dexterity",
                  "workact_im__Assisting and Caring for Others"]
 # Tier 2: each anchor names the axis it loads on most, and the axes are
 # reported in this order. The signs carry no claim about substitutability.
-#   R4 + = fixed site (clinical), R5 + = fixed correct standard,
-#   R6 + = commercial.
+#   R4 + = medicine and dentistry, R5 + = being exact or accurate,
+#   R6 + = sales and marketing.
 TIER2_ANCHORS = ["knowledge_im__Medicine and Dentistry",
                  "workctx_cx__Importance of Being Exact or Accurate",
                  "knowledge_im__Sales and Marketing"]
 
 
 # --------------------------------------------------------------------------- #
+# Data
+# --------------------------------------------------------------------------- #
 def load_and_prep():
-    """The clean table is already imputed and carries the derived wage columns
-    (see clean_master.py), so this only selects columns and standardizes.
-
-    ONLY the O*NET descriptor blocks enter the decomposition. Education,
-    training and experience and the economic/institutional columns are held out
-    and correlated against the axes afterwards, so that nothing the axes are
-    later compared with has helped to form them."""
+    """Select the feature columns and z-score them. The clean table is already
+    imputed and carries the derived wage columns (see clean_master.py).
+    Returns the z-scored matrix, the feature names, the titles and the held-out
+    supplementary columns (labour market and ETE)."""
     df = pd.read_csv(MASTER, index_col="onet_soc")
-    title = df["title"]
     feats = [c for c in df.columns if c.startswith(FEATURE_PREFIXES)]
-
-    # held out of the PCA, used only as supplementary variables below. Wages
-    # appear as a level and a dispersion: the nine raw wage columns are
-    # collinear and comparing all nine against every axis says nothing extra.
     ete = [c for c in df.columns if c.startswith("ete_")]
-    econ = [c for c in ["ext_wage_level_log", "ext_wage_disp_p90p10",
-                        "ext_prestige", "ext_sep_exit_rate",
-                        "ext_sep_transfer_rate", "ext_union_cov_pct",
-                        "ext_self_employed_pct", "ext_employment_log"]
-            if c in df.columns]
+    econ = [c for c in ECON if c in df.columns]
     supp = df[econ + ete]
-
     Xz = StandardScaler().fit_transform(df[feats].values)
-    print(f"feature matrix {Xz.shape[0]} x {len(feats)}")
+    print(f"feature matrix {Xz.shape[0]} occupations x {len(feats)} columns (from {MASTER})")
     print(f"held out as supplementary: {len(econ)} labour-market columns, "
           f"{len(ete)} ETE columns")
-    return Xz, feats, title, supp
+    return Xz, feats, df["title"], supp
 
 
 def block_of(col):
@@ -130,77 +143,9 @@ def banner(text):
     print("=" * 66)
 
 
-# ------------------------- stability (unrotated) -------------------------- #
-def congruence(a, b):
-    den = np.sqrt((a @ a) * (b @ b))
-    return np.abs(a @ b) / den if den > 0 else 0.0
-
-
-def best_match(ref, cand):
-    return np.array([max(congruence(ref[i], cand[j]) for j in range(cand.shape[0]))
-                     for i in range(ref.shape[0])])
-
-
-def pca_load(M, k):
-    return PCA(n_components=k, random_state=SEED).fit(M).components_
-
-
-def stability(X, ref, k):
-    rng = np.random.default_rng(SEED)
-    n = X.shape[0]
-    boot = np.full((B, k), np.nan)
-    for b in range(B):
-        idx = rng.integers(0, n, n)
-        try: boot[b] = best_match(ref, pca_load(X[idx], k))
-        except Exception: pass
-    sh = np.full((N_SPLIT, k), np.nan)
-    for s in range(N_SPLIT):
-        perm = rng.permutation(n); h1, h2 = perm[:n//2], perm[n//2:]
-        try: sh[s] = best_match(pca_load(X[h1], k), pca_load(X[h2], k))
-        except Exception: pass
-    banner(f"STABILITY of UNROTATED components (boot B={B}, split x{N_SPLIT})")
-    print(f"{'':4s} {'boot_p05':>9s} {'split_p05':>9s}  verdict")
-    last = 0
-    for j in range(k):
-        bp = np.nanpercentile(boot[:, j], 5); sp = np.nanpercentile(sh[:, j], 5)
-        ok = bp >= STABLE_THRESH and sp >= STABLE_THRESH
-        if ok and last == j: last = j + 1
-        print(f"PC{j+1:<2d} {bp:9.3f} {sp:9.3f}  {'STABLE' if ok else 'not stable on its own'}")
-    print(f"\n-> the first {last} components reproduce one by one: tier 1")
-    return last
-
-
-def eigen_table(pca, p):
-    ev, share = pca.explained_variance_, pca.explained_variance_ratio_
-    cum = np.cumsum(share)
-    banner("EIGENVALUES")
-    print(f"{'':4s} {'eigenvalue':>10s} {'% var':>7s} {'cum %':>7s}")
-    for j in range(10):
-        print(f"PC{j+1:<2d} {ev[j]:10.2f} {share[j]*100:7.1f} {cum[j]*100:7.1f}")
-    print(f"components to reach 90% of variance: {int(np.argmax(cum >= .9)) + 1}")
-
-
-def parallel_analysis(Xz, ev):
-    """Horn's parallel analysis: each column permuted independently, which keeps
-    every column's distribution and destroys only the relations between them."""
-    rng = np.random.default_rng(SEED)
-    n, p = Xz.shape
-    null = np.empty((N_PERM, 30))
-    for b in range(N_PERM):
-        Xp = rng.permuted(Xz, axis=0)
-        Xp = Xp - Xp.mean(axis=0)
-        null[b] = np.linalg.svd(Xp, compute_uv=False)[:30] ** 2 / (n - 1)
-    q95 = np.percentile(null, 95, axis=0)
-    above = ev[:30] > q95
-    k = int(np.argmin(above)) if not above.all() else 30
-    banner(f"PARALLEL ANALYSIS ({N_PERM} column-wise permutations, 95th percentile)")
-    print(f"largest null eigenvalue {q95[0]:.2f}; component {k}: real {ev[k-1]:.2f} "
-          f"vs null {q95[k-1]:.2f}; component {k+1}: real {ev[k]:.2f} vs null {q95[k]:.2f}")
-    print(f"-> {k} components exceed the null, together {ev[:k].sum() / ev.sum():.1%} of variance")
-    return k
-
-
-# ------------------------- nested subspaces ------------------------------- #
+# --------------------------------------------------------------------------- #
+# Decomposition and agreement measures
+# --------------------------------------------------------------------------- #
 def standardize(X):
     """z-score with the population sd, as StandardScaler does."""
     return (X - X.mean(axis=0)) / X.std(axis=0)
@@ -211,6 +156,22 @@ def eigen(X):
     Z = standardize(X)
     _, s, vt = np.linalg.svd(Z, full_matrices=False)
     return s ** 2 / (len(Z) - 1), vt.T
+
+
+def pca_load(M, k):
+    return PCA(n_components=k, random_state=SEED).fit(M).components_
+
+
+def congruence(a, b):
+    """Tucker's congruence coefficient, unsigned."""
+    den = np.sqrt((a @ a) * (b @ b))
+    return np.abs(a @ b) / den if den > 0 else 0.0
+
+
+def best_match(ref, cand):
+    """For each row of ref, the congruence of the most congruent row of cand."""
+    return np.array([max(congruence(ref[i], cand[j]) for j in range(cand.shape[0]))
+                     for i in range(ref.shape[0])])
 
 
 def subspace_cosines(A, B):
@@ -243,11 +204,297 @@ def split_statistics(X, rng, n_splits):
     return min_cos, msq_cos, single, half_ev
 
 
+# --------------------------------------------------------------------------- #
+# Rotation
+# --------------------------------------------------------------------------- #
+def varimax(Phi, gamma=1.0, q=100, tol=1e-6):
+    """Kaiser varimax rotation of a loading matrix Phi (p x k)."""
+    p, k = Phi.shape
+    R = np.eye(k)
+    d = 0
+    for _ in range(q):
+        d_old = d
+        L = Phi @ R
+        u, s, vt = np.linalg.svd(
+            Phi.T @ (L**3 - (gamma / p) * L @ np.diag(np.diag(L.T @ L))))
+        R = u @ vt
+        d = np.sum(s)
+        if d_old != 0 and d / d_old < 1 + tol:
+            break
+    return Phi @ R, R
+
+
+def promax(A, m=4):
+    """Oblique rotation of an already varimax-rotated loading matrix A.
+    Returns the pattern matrix and the factor correlation matrix.
+    Follows the standard Hendrickson-White construction."""
+    Q = A * np.abs(A) ** (m - 1)          # sharpened target
+    U = np.linalg.lstsq(A, Q, rcond=None)[0]
+    d = np.diag(np.linalg.inv(U.T @ U))
+    U = U @ np.diag(np.sqrt(d))
+    pattern = A @ U
+    Uinv = np.linalg.inv(U)
+    Phi = Uinv @ Uinv.T
+    dg = np.sqrt(np.diag(Phi))
+    Phi = Phi / np.outer(dg, dg)          # to correlation form
+    return pattern, Phi
+
+
+def rotate_tier(V, ev, idx):
+    """Varimax within the components idx (eigenvectors as columns of V).
+    Returns loadings and the rotation matrix, axes ordered by variance."""
+    L, R = varimax(V[:, idx] * np.sqrt(ev[idx]))
+    order = np.argsort(-(L ** 2).sum(axis=0))
+    return L[:, order], R[:, order]
+
+
+def sign_and_order(L, R, feats, anchors, offset, verbose=True):
+    """Sign each axis so its anchor loads positive. For tier 1 the anchors
+    follow the variance order; for tier 2 each anchor picks the axis it loads
+    on most and fixes the reporting order. If the anchors do not fit the tier,
+    the axes keep their variance order and the larger pole is made positive."""
+    fidx = {f: i for i, f in enumerate(feats)}
+    k = L.shape[1]
+    rows = [fidx.get(a) for a in anchors]
+    if offset == 0:
+        assign = list(range(k))
+    else:
+        assign = [int(np.argmax(np.abs(L[r]))) for r in rows] if None not in rows else []
+    if len(anchors) != k or None in rows or len(set(assign)) != k:
+        if verbose:
+            print(f"[warn] anchors do not fit the tier starting at R{offset + 1}; "
+                  "variance order, larger pole positive")
+        sign = np.where(np.abs(L.min(axis=0)) > L.max(axis=0), -1.0, 1.0)
+        return L * sign, R * sign
+    L, R = L[:, assign].copy(), R[:, assign].copy()
+    for j, (a, r) in enumerate(zip(anchors, rows)):
+        v = L[r, j]
+        if v < 0:
+            L[:, j] *= -1
+            R[:, j] *= -1
+        if verbose:
+            print(f"  axis R{offset + j + 1} anchored on '{a}' (loading {abs(v):.2f}, "
+                  f"{'flipped' if v < 0 else 'kept'})")
+    return L, R
+
+
+def tier_scores(pca, Xz, idx, R):
+    """Rotated scores of one tier. NOT Xz @ L: loadings carry a
+    sqrt(eigenvalue) scaling, and because the eigenvalues differ, using them as
+    weights makes the axes correlated. The unrotated PC scores are
+    standardised first, then the tier's rotation matrix is applied."""
+    T = pca.transform(Xz) / np.sqrt(pca.explained_variance_)
+    return T[:, idx] @ R
+
+
+def rotated_stability(X, tiers):
+    """Split-half congruence of the rotated axes. On each half the
+    decomposition and every tier's rotation are redone; each full-sample axis
+    is matched to the most congruent half-axis of the same tier, and the two
+    halves' versions are compared. Returns p05 and median per axis."""
+    rng = np.random.default_rng(SEED)
+    ev, V = eigen(X)
+    full = np.hstack([rotate_tier(V, ev, idx)[0] for idx in tiers])
+    bounds = np.cumsum([0] + [len(idx) for idx in tiers])
+    vals = np.empty((N_SPLIT_SUB, full.shape[1]))
+    for s in range(N_SPLIT_SUB):
+        perm = rng.permutation(len(X))
+        halves = []
+        for h in (perm[: len(X) // 2], perm[len(X) // 2:]):
+            e, Vh = eigen(X[h])
+            H = np.hstack([rotate_tier(Vh, e, idx)[0] for idx in tiers])
+            matched = []
+            for t in range(len(tiers)):
+                cand = H[:, bounds[t]:bounds[t + 1]]
+                for j in range(bounds[t], bounds[t + 1]):
+                    c = [congruence(full[:, j], cand[:, i]) for i in range(cand.shape[1])]
+                    matched.append(cand[:, int(np.argmax(c))])
+            halves.append(np.column_stack(matched))
+        vals[s] = [congruence(halves[0][:, j], halves[1][:, j]) for j in range(full.shape[1])]
+    return np.percentile(vals, 5, axis=0), np.median(vals, axis=0)
+
+
+def refit_loadings(X, cols, tiers):
+    """The recipe of this script applied to another matrix:
+    PCA, varimax within each tier, signed and ordered by the same anchors.
+    tiers is a list of component index lists, tier 1 first if present.
+    Columns are named by their position: a tier starting at component 4 gives
+    R4, R5, ..."""
+    Xz = StandardScaler().fit_transform(X)
+    pca = PCA(random_state=SEED).fit(Xz)
+    V, lam = pca.components_.T, pca.explained_variance_
+    blocks, names = [], []
+    for idx in tiers:
+        anchors = TIER1_ANCHORS if idx[0] == 0 else TIER2_ANCHORS
+        L, R = rotate_tier(V, lam, idx)
+        L, _ = sign_and_order(L, R, cols, anchors, idx[0], verbose=False)
+        blocks.append(L)
+        names += [f"R{idx[0] + j + 1}" for j in range(L.shape[1])]
+    return pd.DataFrame(np.hstack(blocks), index=cols, columns=names)
+
+
+# --------------------------------------------------------------------------- #
+# Reports
+# --------------------------------------------------------------------------- #
+def print_loadings(Ld, var_share, title):
+    banner(title)
+    for j, name in enumerate(Ld.columns):
+        s = Ld[name]
+        print(f"\nRotated axis {name}  (var share {var_share[j]:.1%})")
+        print("  + end:")
+        for n, v in s.sort_values(ascending=False).head(TOP).items():
+            if v > 0.15:
+                print(f"     {v:+.2f}  {n}")
+        print("  - end:")
+        for n, v in s.sort_values().head(TOP).items():
+            if v < -0.15:
+                print(f"     {v:+.2f}  {n}")
+
+
+def block_composition(Ld, feats):
+    """Share of each axis's summed squared loadings falling in each block,
+    with the blocks' shares of columns for comparison."""
+    banner("BLOCK COMPOSITION of rotated axes (% of axis SS by block)")
+    tag = np.array([block_of(c) for c in feats])
+    rows = []
+    for name in Ld.columns:
+        sq = Ld[name].to_numpy() ** 2
+        rows.append({t: sq[tag == t].sum() / sq.sum() for t in sorted(set(tag))})
+    rows.append({t: (tag == t).mean() for t in sorted(set(tag))})
+    comp = pd.DataFrame(rows, index=list(Ld.columns) + ["share of columns"])
+    print("\n" + (comp * 100).round(1).to_string())
+    return comp
+
+
+def supplementary_correlations(Sdf, supp):
+    banner("SUPPLEMENTARY VARIABLES against the rotated axes\n"
+           "(none of these helped form the axes; low everywhere = independent\n"
+           " of the content of the work, not necessarily unimportant)")
+    corr = pd.DataFrame({n: supp.apply(lambda v: v.corr(Sdf[n])) for n in Sdf.columns})
+    with pd.option_context("display.width", 200, "display.max_rows", 200):
+        print(corr.round(2).to_string())
+    return corr
+
+
+# --------------------------------------------------------------------------- #
+# Tier 1
+# --------------------------------------------------------------------------- #
+def eigen_table(pca):
+    ev, share = pca.explained_variance_, pca.explained_variance_ratio_
+    t = pd.DataFrame({"component": [f"PC{j + 1}" for j in range(20)],
+                      "eigenvalue": ev[:20], "% variance": 100 * share[:20],
+                      "cumulative %": 100 * np.cumsum(share)[:20]})
+    banner("EIGENVALUES")
+    print(t.head(10).round(2).to_string(index=False))
+    print(f"components to reach 90% of variance: "
+          f"{int(np.argmax(np.cumsum(share) >= .9)) + 1}")
+    return t
+
+
+def parallel_analysis(Xz, ev):
+    """Horn's parallel analysis: each column permuted independently, which keeps
+    every column's distribution and destroys only the relations between them."""
+    rng = np.random.default_rng(SEED)
+    n = len(Xz)
+    null = np.empty((N_PERM, 30))
+    for b in range(N_PERM):
+        Xp = rng.permuted(Xz, axis=0)
+        Xp = Xp - Xp.mean(axis=0)
+        null[b] = np.linalg.svd(Xp, compute_uv=False)[:30] ** 2 / (n - 1)
+    q95 = np.percentile(null, 95, axis=0)
+    above = ev[:30] > q95
+    k = int(np.argmin(above)) if not above.all() else 30
+    banner(f"PARALLEL ANALYSIS ({N_PERM} column-wise permutations, 95th percentile)")
+    print(f"-> {k} components exceed the null, together {ev[:k].sum() / ev.sum():.1%} of variance")
+    print("   (the count depends on how many items measure the same thing, so it")
+    print("   is reported, not used to choose the tiers)")
+    return pd.DataFrame({"component": range(1, 31), "eigenvalue": ev[:30],
+                         "null p95": q95, "above null": above})
+
+
+def component_stability(X, ref):
+    """Bootstrap and split-half best-match congruence of each unrotated
+    component. Returns the table and k1, the number of leading components
+    that pass one after another."""
+    rng = np.random.default_rng(SEED)
+    n, k = len(X), len(ref)
+    boot = np.full((B, k), np.nan)
+    for b in range(B):
+        idx = rng.integers(0, n, n)
+        boot[b] = best_match(ref, pca_load(X[idx], k))
+    split = np.full((N_SPLIT, k), np.nan)
+    for s in range(N_SPLIT):
+        perm = rng.permutation(n)
+        h1, h2 = perm[: n // 2], perm[n // 2:]
+        split[s] = best_match(pca_load(X[h1], k), pca_load(X[h2], k))
+    t = pd.DataFrame({"component": [f"PC{j + 1}" for j in range(k)],
+                      "bootstrap p05": np.percentile(boot, 5, axis=0),
+                      "split-half p05": np.percentile(split, 5, axis=0),
+                      "split-half median": np.median(split, axis=0)})
+    t["passes"] = (t["bootstrap p05"] >= STABLE_THRESH) & (t["split-half p05"] >= STABLE_THRESH)
+    k1 = int(np.argmin(t["passes"])) if not t["passes"].all() else k
+    banner(f"STABILITY of UNROTATED components (bootstrap B={B}, split-half x{N_SPLIT})")
+    print(t.round(3).to_string(index=False))
+    print(f"\n-> the first {k1} components reproduce one by one: tier 1")
+    return t, k1
+
+
+def promax_check(L, feats, names):
+    """Does the data prefer orthogonal axes, or does varimax impose them?
+    Promax starts from the varimax solution and lets the axes tilt."""
+    k = L.shape[1]
+    Lp, Phi = promax(L)
+    for j in range(k):
+        if np.dot(L[:, j], Lp[:, j]) < 0:
+            Lp[:, j] *= -1
+            Phi[j, :] *= -1
+            Phi[:, j] *= -1
+    np.fill_diagonal(Phi, 1.0)
+    banner("OBLIQUE ROTATION CHECK (promax, m = 4): are the axes orthogonal by\n"
+           "preference of the data, or only by constraint?")
+    phi = pd.DataFrame(Phi, index=names, columns=names)
+    print("\nfactor correlations:\n" + phi.round(3).to_string())
+    off = max(abs(Phi[i, j]) for i in range(k) for j in range(k) if i < j)
+    cong = [congruence(L[:, j], Lp[:, j]) for j in range(k)]
+    print(f"\nlargest |correlation| between axes: {off:.3f}")
+    print("congruence with the varimax solution:")
+    for name, c in zip(names, cong):
+        print(f"  {name}: {c:.3f}  {'same axis' if c >= 0.95 else 'DIFFERS - inspect'}")
+    if off < 0.20:
+        print("\n-> the data places the axes close to orthogonal on its own.")
+    elif off < 0.35:
+        print("\n-> mild correlation; orthogonality is a simplification, not a")
+        print("   distortion. Report these correlations.")
+    else:
+        print("\n-> substantial correlation; report the oblique solution instead.")
+    pd.DataFrame(Lp, index=feats, columns=names).to_csv(OUTDIR / "oblique_pattern.csv")
+    phi["congruence with varimax"] = cong
+    return phi
+
+
+
+# --------------------------------------------------------------------------- #
+# Tier 2
+# --------------------------------------------------------------------------- #
+def eigen_gaps(X):
+    """Eigenvalue, share and North's gap ratio for k = 1 .. K_MAX."""
+    n = len(X)
+    ev, _ = eigen(X)
+    half_error = np.sqrt(2 / (n / 2))
+    k = np.arange(1, K_MAX + 1)
+    t = pd.DataFrame({"k": k, "eigenvalue": ev[:K_MAX],
+                      "% variance": 100 * ev[:K_MAX] / ev.sum(),
+                      "gap k to k+1 / half-sample error":
+                          (ev[:K_MAX] - ev[1:K_MAX + 1]) / (ev[:K_MAX] * half_error)})
+    banner("EIGENVALUE GAPS (North's ratio at half the sample size)")
+    print(t.round(2).to_string(index=False))
+    print("  below about 2: the two components are not separated by the sample")
+    return t
+
+
 def subspace_stability(X):
     """Split-half stability of the leading-k subspaces, against a null in
-    which every column is permuted independently. North's ratio is the gap to
-    the next eigenvalue over the eigenvalue's sampling error at half the
-    sample size, lambda * sqrt(2 / (n/2)) (North et al. 1982)."""
+    which every column is permuted independently."""
     rng = np.random.default_rng(SEED)
     n = len(X)
     ev, _ = eigen(X)
@@ -281,7 +528,6 @@ def subspace_stability(X):
     table = pd.DataFrame(rows)
     table["half-sample eigenvalue above noise floor"] = (
         table["half-sample eigenvalue k (mean)"] > table["half-sample null eigenvalue k (p95)"])
-    table["min cos p05 >= 0.90"] = table["min cos p05"] >= STABLE_THRESH
     banner(f"NESTED SUBSPACES (split x{N_SPLIT_SUB}, null x{N_NULL})")
     with pd.option_context("display.width", 250, "display.max_columns", 30,
                            "display.float_format", "{:.3f}".format):
@@ -289,127 +535,86 @@ def subspace_stability(X):
     return table
 
 
-# ------------------------- rotation --------------------------------------- #
-def promax(A, m=4):
-    """Oblique rotation of an already varimax-rotated loading matrix A.
-    Returns the pattern matrix and the factor correlation matrix.
-    Follows the standard Hendrickson-White construction."""
-    Q = A * np.abs(A) ** (m - 1)          # sharpened target
-    U = np.linalg.lstsq(A, Q, rcond=None)[0]
-    d = np.diag(np.linalg.inv(U.T @ U))
-    U = U @ np.diag(np.sqrt(d))
-    pattern = A @ U
-    Uinv = np.linalg.inv(U)
-    Phi = Uinv @ Uinv.T
-    dg = np.sqrt(np.diag(Phi))
-    Phi = Phi / np.outer(dg, dg)          # to correlation form
-    return pattern, Phi
-
-
-def varimax(Phi, gamma=1.0, q=100, tol=1e-6):
-    """Kaiser varimax rotation of a loading matrix Phi (p x k)."""
-    p, k = Phi.shape
-    R = np.eye(k)
-    d = 0
-    for _ in range(q):
-        d_old = d
-        L = Phi @ R
-        u, s, vt = np.linalg.svd(
-            Phi.T @ (L**3 - (gamma / p) * L @ np.diag(np.diag(L.T @ L))))
-        R = u @ vt
-        d = np.sum(s)
-        if d_old != 0 and d / d_old < 1 + tol:
-            break
-    return Phi @ R, R
-
-
-def rotate_tier(V, ev, idx):
-    """Varimax within the components idx (eigenvectors as columns of V).
-    Returns loadings and the rotation matrix, axes ordered by variance."""
-    L, R = varimax(V[:, idx] * np.sqrt(ev[idx]))
-    order = np.argsort(-(L ** 2).sum(axis=0))
-    return L[:, order], R[:, order]
-
-
-def rotated_stability(X, tiers):
-    """Split-half congruence of the rotated axes. On each half the
-    decomposition and every tier's rotation are redone; each full-sample axis
-    is matched to the most congruent half-axis of the same tier, and the two
-    halves' versions are compared. Returns p05 and median per axis."""
+def block_cosines(X, blocks):
+    """Principal-angle cosines between the two halves' subspaces spanned by
+    the components in each block (a, z), zero-based and z exclusive: block
+    (3, 6) is components 4-6. Returns {block: array (splits, z - a)}."""
     rng = np.random.default_rng(SEED)
-    ev, V = eigen(X)
-    full = np.hstack([rotate_tier(V, ev, idx)[0] for idx in tiers])
-    bounds = np.cumsum([0] + [len(idx) for idx in tiers])
-    vals = np.empty((N_SPLIT_SUB, full.shape[1]))
+    n = len(X)
+    out = {b: np.empty((N_SPLIT_SUB, b[1] - b[0])) for b in blocks}
     for s in range(N_SPLIT_SUB):
-        perm = rng.permutation(len(X))
-        halves = []
-        for h in (perm[: len(X) // 2], perm[len(X) // 2:]):
-            e, Vh = eigen(X[h])
-            H = np.hstack([rotate_tier(Vh, e, idx)[0] for idx in tiers])
-            matched = []
-            for t in range(len(tiers)):
-                cand = H[:, bounds[t]:bounds[t + 1]]
-                for j in range(bounds[t], bounds[t + 1]):
-                    c = [congruence(full[:, j], cand[:, i]) for i in range(cand.shape[1])]
-                    matched.append(cand[:, int(np.argmax(c))])
-            halves.append(np.column_stack(matched))
-        vals[s] = [congruence(halves[0][:, j], halves[1][:, j]) for j in range(full.shape[1])]
-    return np.percentile(vals, 5, axis=0), np.median(vals, axis=0)
+        perm = rng.permutation(n)
+        _, V1 = eigen(X[perm[: n // 2]])
+        _, V2 = eigen(X[perm[n // 2:]])
+        for a, z in blocks:
+            out[(a, z)][s] = subspace_cosines(V1[:, a:z], V2[:, a:z])
+    return out
+
+
+def block_row(block, cos):
+    a, z = block
+    rms = np.sqrt((cos ** 2).mean(axis=1))
+    return {"components": f"{a + 1}-{z}", "size": z - a,
+            "RMS cosine p05": np.percentile(rms, 5),
+            "RMS cosine median": np.median(rms),
+            "smallest cosine p05": np.percentile(cos.min(axis=1), 5),
+            "RMS cosine p05 >= 0.90": np.percentile(rms, 5) >= STABLE_THRESH}
 
 
 def choose_tier2(X, k1):
-    """Tier 2 is components k1+1..k2. Every candidate k2 from k1+2 to N_PC is
-    tried (a tier of one component would be component-by-component again);
-    tier 2 ends at the largest k2 whose rotated axes, and tier 1's, all
-    reproduce at p05 >= STABLE_THRESH."""
-    banner("TIER 2: rotated split-half congruence for each candidate end k2 (p05)")
+    """Tier 2 is components k1+1 .. k2, k2 the largest candidate whose block
+    RMS cosine has p05 >= STABLE_THRESH. The rotated axes of each candidate
+    are checked as well."""
+    ends = range(k1 + 2, N_PC + 1)
+    later = [(a, z) for a in range(k1, K_MAX) for z in range(a + 2, K_MAX + 1)]
+    blocks = [(0, k1)] + [(k1, e) for e in ends] + later
+    cos = block_cosines(X, list(dict.fromkeys(blocks)))
+
+    banner(f"TIER 2 CANDIDATES: block split-half agreement (x{N_SPLIT_SUB})")
+    ref = block_row((0, k1), cos[(0, k1)])
+    print(f"  for reference, tier 1 as a block (components 1-{k1}): "
+          f"RMS cosine p05 {ref['RMS cosine p05']:.3f}")
     rows, k2 = [], k1
-    for end in range(k1 + 2, N_PC + 1):
-        tiers = [list(range(k1)), list(range(k1, end))]
-        p05, med = rotated_stability(X, tiers)
-        ok = bool((p05 >= STABLE_THRESH).all())
-        if ok: k2 = end
-        rows.append({"tier 2 = components": f"{k1 + 1}-{end}", "all axes pass": ok,
-                     **{f"axis {j + 1} p05": v for j, v in enumerate(p05)},
-                     **{f"axis {j + 1} median": v for j, v in enumerate(med)}})
-        print(f"  components {k1 + 1}-{end}: " + " ".join(f"{v:.3f}" for v in p05)
-              + f"  {'all pass' if ok else 'fails'}")
-    print(f"\n-> tier 2 = components {k1 + 1}-{k2}" if k2 > k1 else "\n-> no tier 2")
-    return k2, pd.DataFrame(rows)
-
-
-def sign_and_order(L, R, feats, anchors, offset, verbose=True):
-    """Sign each axis so its anchor loads positive. For tier 1 the anchors
-    follow the variance order; for tier 2 each anchor picks the axis it loads
-    on most and fixes the reporting order. If the anchors do not fit the tier,
-    the axes keep their variance order and the larger pole is made positive."""
-    fidx = {f: i for i, f in enumerate(feats)}
-    k = L.shape[1]
-    rows = [fidx.get(a) for a in anchors]
-    if offset == 0:
-        assign = list(range(k))
+    for e in ends:
+        row = block_row((k1, e), cos[(k1, e)])
+        p05, med = rotated_stability(X, [list(range(k1, e))])
+        row["all rotated axes p05 >= 0.90"] = bool((p05 >= STABLE_THRESH).all())
+        row.update({f"rotated axis {j + 1} p05": v for j, v in enumerate(p05)})
+        row.update({f"rotated axis {j + 1} median": v for j, v in enumerate(med)})
+        if row["RMS cosine p05 >= 0.90"]:
+            k2 = e
+        rows.append(row)
+    cand = pd.DataFrame(rows)
+    show = ["components", "RMS cosine p05", "RMS cosine median", "smallest cosine p05",
+            "all rotated axes p05 >= 0.90"]
+    print(cand[show].round(3).to_string(index=False))
+    print("  rotated axes, split-half congruence p05:")
+    for _, r in cand.iterrows():
+        vals = [r[c] for c in cand.columns if c.endswith(" p05") and c.startswith("rotated")]
+        print(f"    components {r['components']}: "
+              + " ".join(f"{v:.3f}" for v in vals if pd.notna(v)))
+    if k2 > k1:
+        print(f"\n-> tier 2 = components {k1 + 1}-{k2}")
+        chosen = cand.loc[cand["components"] == f"{k1 + 1}-{k2}"].iloc[0]
+        if not chosen["all rotated axes p05 >= 0.90"]:
+            print("[warn] the block holds but not all of its rotated axes do")
     else:
-        assign = [int(np.argmax(np.abs(L[r]))) for r in rows] if None not in rows else []
-    if len(anchors) != k or None in rows or len(set(assign)) != k:
-        if verbose:
-            print(f"[warn] anchors do not fit the tier starting at R{offset + 1}; "
-                  "variance order, larger pole positive")
-        sign = np.where(np.abs(L.min(axis=0)) > L.max(axis=0), -1.0, 1.0)
-        return L * sign, R * sign
-    L, R = L[:, assign].copy(), R[:, assign].copy()
-    for j, (a, r) in enumerate(zip(anchors, rows)):
-        v = L[r, j]
-        if v < 0:
-            L[:, j] *= -1
-            R[:, j] *= -1
-        if verbose:
-            print(f"  axis R{offset + j + 1} anchored on '{a}' (loading {abs(v):.2f}, "
-                  f"{'flipped' if v < 0 else 'kept'})")
-    return L, R
+        print("\n-> no block after tier 1 holds: no tier 2")
+
+    after = k2 if k2 > k1 else k1
+    rest = pd.DataFrame([block_row(b, cos[b]) for b in later if b[0] >= after])
+    banner(f"BLOCKS AFTER TIER 2: every contiguous block of 2+ components "
+           f"from {after + 1} to {K_MAX}")
+    if len(rest):
+        best = rest.loc[rest["RMS cosine p05"].idxmax()]
+        print(f"  {int(rest['RMS cosine p05 >= 0.90'].sum())} of {len(rest)} blocks pass; "
+              f"highest RMS cosine p05 {best['RMS cosine p05']:.3f} "
+              f"(components {best['components']})")
+        print(rest.sort_values("RMS cosine p05", ascending=False).head(10)
+              .round(3).to_string(index=False))
+    return k2, pd.concat([pd.DataFrame([ref]), cand], ignore_index=True), rest
 
 
-# ------------------------- figure ----------------------------------------- #
 def plot_subspaces(t, k1, k2):
     """Figure 5.1: for each k, the 5th percentile over split-halves of (a) the
     smallest principal-angle cosine between the two halves' leading-k
@@ -466,141 +671,103 @@ def plot_subspaces(t, k1, k2):
     plt.close(fig)
 
 
-# ------------------------- reports ---------------------------------------- #
-def print_loadings(Ld, var_share):
-    banner("VARIMAX-ROTATED AXES (tiers rotated separately) -- loadings")
-    for j, name in enumerate(Ld.columns):
-        s = Ld[name]
-        print(f"\nRotated axis {name}  (var share {var_share[j]:.1%})")
-        print("  + end:")
-        for n, v in s.sort_values(ascending=False).head(TOP).items():
-            if v > 0.15: print(f"     {v:+.2f}  {n}")
-        print("  - end:")
-        for n, v in s.sort_values().head(TOP).items():
-            if v < -0.15: print(f"     {v:+.2f}  {n}")
-
-
-def print_block_composition(Ld, feats):
-    banner("BLOCK COMPOSITION of rotated axes (% of axis SS by block)")
-    tag = np.array([block_of(c) for c in feats])
-    rows = []
-    for name in Ld.columns:
-        sq = Ld[name].to_numpy() ** 2
-        rows.append({t: sq[tag == t].sum() / sq.sum() for t in sorted(set(tag))})
-    rows.append({t: (tag == t).mean() for t in sorted(set(tag))})
-    comp = pd.DataFrame(rows, index=list(Ld.columns) + ["share of columns"])
-    print("\n" + (comp * 100).round(1).to_string())
-
-
-def print_supplementary(Sdf, supp):
-    banner("SUPPLEMENTARY VARIABLES against the rotated axes\n"
-           "(none of these helped form the axes; low everywhere = independent\n"
-           " of the content of the work, not necessarily unimportant)")
-    corr = pd.DataFrame({n: supp.apply(lambda v: v.corr(Sdf[n])) for n in Sdf.columns})
-    with pd.option_context("display.width", 200):
-        print(corr.round(2).to_string())
-
-
-def promax_check(Lr, feats, names):
-    """Does the data prefer orthogonal axes, or does varimax impose them?
-    Promax starts from the tier-1 solution and lets the axes tilt."""
-    k = Lr.shape[1]
-    Lp, Phi = promax(Lr)
-    for j in range(k):
-        if np.dot(Lr[:, j], Lp[:, j]) < 0:
-            Lp[:, j] *= -1
-            Phi[j, :] *= -1; Phi[:, j] *= -1
-    np.fill_diagonal(Phi, 1.0)
-    banner("OBLIQUE ROTATION CHECK (promax, tier 1): are the axes orthogonal by\n"
-           "preference of the data, or only by constraint?")
-    print("\nfactor correlations:")
-    print(pd.DataFrame(Phi, index=names, columns=names).round(3).to_string())
-    off = max(abs(Phi[i, j]) for i in range(k) for j in range(k) if i < j)
-    print(f"\nlargest |correlation| between axes: {off:.3f}")
-    print("congruence with the varimax solution:")
-    for j in range(k):
-        c = congruence(Lr[:, j], Lp[:, j])
-        print(f"  {names[j]}: {c:.3f}  {'same axis' if c >= 0.95 else 'DIFFERS - inspect'}")
-    if off < 0.20:
-        print("\n-> the data places the axes close to orthogonal on its own.")
-    elif off < 0.35:
-        print("\n-> mild correlation; orthogonality is a simplification, not a")
-        print("   distortion. Report these correlations.")
-    else:
-        print("\n-> substantial correlation; report the oblique solution instead.")
-    pd.DataFrame(Lp, index=feats, columns=names).to_csv(OUTDIR / "oblique_pattern.csv")
-
-
 # --------------------------------------------------------------------------- #
 def main():
+    OUTDIR.mkdir(exist_ok=True)
     Xz, feats, title, supp = load_and_prep()
-
     pca = PCA(random_state=SEED).fit(Xz)
-    ev = pca.explained_variance_ratio_
-    cum = np.cumsum(ev)
-    fig, (a1, a2) = plt.subplots(1, 2, figsize=(11, 4))
-    a1.plot(range(1, 21), ev[:20], "o-"); a1.set_title("Scree")
-    a2.plot(range(1, 21), cum[:20], "o-"); a2.axhline(.9, ls="--", c="grey")
-    a2.set_title("Cumulative"); fig.tight_layout()
-    fig.savefig(OUTDIR / "rotated_scree.png", dpi=130); plt.close(fig)
-    print(f"\nPC1={ev[0]:.1%}, PC1-4={cum[3]:.1%}, to90%={int(np.argmax(cum>=.9))+1} PCs")
-
-    eigen_table(pca, Xz.shape[1])
-    parallel_analysis(Xz, pca.explained_variance_)
-
-    # tier 1: components that reproduce one by one
-    k1 = max(stability(Xz, pca.components_[:N_PC], N_PC), 2)   # rotate at least 2
-    # tier 2: the block after it, judged as a subspace and by its rotated axes
-    sub = subspace_stability(Xz)
-    k2, tier2_table = choose_tier2(Xz, k1)
-    plot_subspaces(sub, k1, k2)
-    tiers = [list(range(k1))] + ([list(range(k1, k2))] if k2 > k1 else [])
-
-    # rotate each tier on its own, sign by anchors. Loadings carry a
-    # sqrt(eigenvalue) scaling (p x k).
     V, lam = pca.components_.T, pca.explained_variance_
-    Ls, Rs = [], []
-    for t_no, idx in enumerate(tiers):
-        L, R = rotate_tier(V, lam, idx)
-        L, R = sign_and_order(L, R, feats, [TIER1_ANCHORS, TIER2_ANCHORS][t_no], idx[0])
-        Ls.append(L); Rs.append(R)
-    Lr = np.hstack(Ls)
-    k = Lr.shape[1]
-    names = [f"R{j+1}" for j in range(k)]
-    var_share = (Lr ** 2).sum(axis=0) / Xz.shape[1]   # each variable standardized to var 1
-    Ld = pd.DataFrame(Lr, index=feats, columns=names)
-    print_loadings(Ld, var_share)
-    print_block_composition(Ld, feats)
+    share = pca.explained_variance_ratio_
+    fig, (a1, a2) = plt.subplots(1, 2, figsize=(11, 4))
+    a1.plot(range(1, 21), share[:20], "o-")
+    a1.set_title("Scree")
+    a2.plot(range(1, 21), np.cumsum(share)[:20], "o-")
+    a2.axhline(.9, ls="--", c="grey")
+    a2.set_title("Cumulative")
+    fig.tight_layout()
+    fig.savefig(OUTDIR / "scree.png", dpi=130)
+    plt.close(fig)
 
-    # Rotated component scores. NOT Xz @ Lr: loadings carry a sqrt(eigenvalue)
-    # scaling, and because the eigenvalues differ, using them as weights makes
-    # the axes correlated (an orthogonal rotation should leave them
-    # uncorrelated). Standardize the unrotated PC scores first, then apply each
-    # tier's rotation matrix to its own components.
-    T = pca.transform(Xz) / np.sqrt(lam)
-    S = np.hstack([T[:, idx] @ R for idx, R in zip(tiers, Rs)])
-    off = np.corrcoef(S.T) - np.eye(k)
-    print(f"\n  max |corr| between rotated axes: {np.abs(off).max():.3f} (should be ~0)")
-    Sdf = pd.DataFrame(S, columns=names, index=title.index)
-    print_supplementary(Sdf, supp)
+    # ---------------- tier 1 ----------------
+    eig = eigen_table(pca)
+    pa = parallel_analysis(Xz, lam)
+    comp, k1 = component_stability(Xz, pca.components_[:N_PC])
+    k1 = max(k1, 2)                       # rotate at least two components
+    idx1 = list(range(k1))
 
-    promax_check(Ls[0], feats, names[:k1])
+    banner(f"TIER 1: varimax within components 1-{k1}")
+    L1, R1 = rotate_tier(V, lam, idx1)
+    L1, R1 = sign_and_order(L1, R1, feats, TIER1_ANCHORS, 0)
+    names1 = [f"R{j + 1}" for j in range(k1)]
+    var1 = (L1 ** 2).sum(axis=0) / Xz.shape[1]   # each column has variance 1
+    print(f"  tier 1 holds {var1.sum():.1%} of the variance: "
+          + ", ".join(f"{n} {v:.1%}" for n, v in zip(names1, var1)))
+    print_loadings(pd.DataFrame(L1, index=feats, columns=names1), var1, "TIER 1 AXES -- loadings")
+    phi = promax_check(L1, feats, names1)
+    p05_1, med_1 = rotated_stability(Xz, [idx1])
 
-    p05, med = rotated_stability(Xz, tiers)
-    rot = pd.DataFrame({"axis": names, "split-half congruence p05": p05, "median": med})
-    banner("ROTATED AXES: split-half congruence")
+    # ---------------- tier 2 ----------------
+    gaps = eigen_gaps(Xz)
+    sub = subspace_stability(Xz)
+    k2, cand, rest = choose_tier2(Xz, k1)
+    plot_subspaces(sub, k1, k2)
+
+    Ls, Ss, names, var_share = [L1], [tier_scores(pca, Xz, idx1, R1)], list(names1), list(var1)
+    p05, med = list(p05_1), list(med_1)
+    if k2 > k1:
+        idx2 = list(range(k1, k2))
+        banner(f"TIER 2: varimax within components {k1 + 1}-{k2}")
+        L_var, R2 = rotate_tier(V, lam, idx2)          # variance order
+        L2, R2 = sign_and_order(L_var, R2, feats, TIER2_ANCHORS, k1)
+        names2 = [f"R{k1 + j + 1}" for j in range(len(idx2))]
+        var2 = (L2 ** 2).sum(axis=0) / Xz.shape[1]
+        print(f"  tier 2 holds {var2.sum():.1%} of the variance: "
+              + ", ".join(f"{n} {v:.1%}" for n, v in zip(names2, var2)))
+        print_loadings(pd.DataFrame(L2, index=feats, columns=names2), var2,
+                       "TIER 2 AXES -- loadings (curvature of tier 1 not yet removed)")
+        # rotated_stability reports the axes in variance order; the anchors
+        # may order them differently, so map each named axis back
+        p05_2, med_2 = rotated_stability(Xz, [idx2])
+        order = [int(np.argmax([congruence(L2[:, j], L_var[:, i]) for i in range(len(idx2))]))
+                 for j in range(len(idx2))]
+        Ls.append(L2)
+        Ss.append(tier_scores(pca, Xz, idx2, R2))
+        names += names2
+        var_share += list(var2)
+        p05 += list(p05_2[order])
+        med += list(med_2[order])
+
+    # ---------------- both tiers ----------------
+    Ld = pd.DataFrame(np.hstack(Ls), index=feats, columns=names)
+    comp_blocks = block_composition(Ld, feats)
+    S = pd.DataFrame(np.hstack(Ss), columns=names, index=title.index)
+    off = np.abs(np.corrcoef(S.to_numpy().T) - np.eye(len(names))).max()
+    print(f"\n  max |corr| between rotated axes: {off:.3f} (should be ~0)")
+    supp_corr = supplementary_correlations(S, supp)
+    rot = pd.DataFrame({"axis": names, "tier": [1] * k1 + [2] * (len(names) - k1),
+                        "variance share": var_share,
+                        "split-half congruence p05": p05, "median": med})
+    banner("ROTATED AXES: split-half congruence (each tier rotated on its own)")
     print(rot.round(3).to_string(index=False))
 
-    out = Sdf.copy()
+    out = S.copy()
     out.insert(0, "title", title.values)
-    out.to_csv(OUTDIR / "rotated_axes.csv")
-    Ld.to_csv(OUTDIR / "rotated_loadings.csv")
-    with pd.ExcelWriter(OUTDIR / "pca_stability.xlsx") as writer:
+    out.to_csv(AXES)
+    Ld.to_csv(LOADINGS)
+    with pd.ExcelWriter(OUT) as writer:
+        eig.to_excel(writer, sheet_name="eigenvalues", index=False)
+        pa.to_excel(writer, sheet_name="parallel_analysis", index=False)
+        comp.to_excel(writer, sheet_name="component_stability", index=False)
+        gaps.to_excel(writer, sheet_name="eigen_gaps", index=False)
         sub.to_excel(writer, sheet_name="nested_subspaces", index=False)
-        tier2_table.to_excel(writer, sheet_name="tier2_candidates", index=False)
+        cand.to_excel(writer, sheet_name="tier2_candidates", index=False)
+        rest.to_excel(writer, sheet_name="blocks_after_tier2", index=False)
         rot.to_excel(writer, sheet_name="rotated_axes", index=False)
-    print(f"\n[ok] wrote rotated_axes.csv, rotated_loadings.csv, oblique_pattern.csv, "
-          f"pca_stability.xlsx, rotated_scree.png and {FIGURE}")
+        Ld.to_excel(writer, sheet_name="loadings")
+        comp_blocks.to_excel(writer, sheet_name="block_composition")
+        supp_corr.to_excel(writer, sheet_name="supplementary")
+        phi.to_excel(writer, sheet_name="promax_tier1")
+    print(f"\n[ok] wrote {AXES}, {LOADINGS}, oblique_pattern.csv, scree.png, {OUT} and {FIGURE}")
 
 
 if __name__ == "__main__":

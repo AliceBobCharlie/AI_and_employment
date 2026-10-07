@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-validate_axes.py -- are the six axes what we say they are?
+validate_tier1.py -- are the tier-1 axes R1-R3 what we say they are?
 
 The axes were named by reading their loadings, which is unavoidably a judgement
 call, and every substantive claim rests on those names being right. In
@@ -28,15 +28,14 @@ Three checks, each using something the PCA did not see:
      the axis is measuring abstraction twice. Median wage per quadrant then
      shows directly whether pay follows load or follows medium.
 
-  3. ENDPOINTS. The occupations at the extremes of each of the six axes,
-     which is the plainest way to see whether a label fits.
+  3. ENDPOINTS. The occupations at the extremes of R1, R2 and R3, which is the
+     plainest way to see whether a label fits.
 
 Then:
 
-  4. ROBUSTNESS. The axes are refitted with the labour-market variables added
+  4. ROBUSTNESS. Tier 1 is refitted with the labour-market variables added
      to the 216 feature columns, with wages as two summaries and as all nine
-     wage columns, and compared with the published axes. Each tier is
-     rotated on its own, as in pca_rotated.py.
+     wage columns, and compared with the published axes.
 
   5. POLES. The facts the paper states about the poles of R1 and R2: how many
      columns load beyond +/-0.5, composites of the physical and psychomotor
@@ -51,8 +50,11 @@ Then:
      groups, and how much of the feature matrix the groups reconstruct
      compared with the components.
 
-Run after pca_rotated.py and cluster_onet.py. Reads output/rotated_loadings.csv,
-output/rotated_axes.csv, output/master_clean.csv, output/cluster_assignments.csv,
+The tier-2 axes are checked by validate_tier2.py, which first removes what
+tier 1 can predict of them.
+
+Run after pca_rotated.py and cluster_onet.py. Reads the tier-1 columns of
+output/rotated_loadings.csv and output/rotated_axes.csv, output/master_clean.csv, output/cluster_assignments.csv,
 output/cluster_skills.csv and the raw O*NET 31.0 blocks (for Element IDs).
 Terminal only.
 """
@@ -64,16 +66,12 @@ from sklearn.decomposition import PCA
 from sklearn.metrics import silhouette_score
 from sklearn.preprocessing import StandardScaler
 
-MASTER = Path("output/master_clean.csv")
+from pca_rotated import (MASTER, FEATURE_PREFIXES, AXES, LOADINGS, TIER1_ANCHORS,
+                        congruence, refit_loadings)
+
 ONET_DIR = Path("data_raw/onet/db_31_0_text")
-LOADINGS = Path("output/rotated_loadings.csv")
-SCORES = Path("output/rotated_axes.csv")
 CLUSTERS = Path("output/cluster_assignments.csv")
 SKILL_CLUSTERS = Path("output/cluster_skills.csv")
-
-# The feature matrix the axes are estimated from.
-FEATURE_PREFIXES = ("skills_im__", "abilities_im__", "knowledge_im__",
-                    "workact_im__", "workctx_cx__")
 
 BLOCK_FILES = {"skills_im": ["Essential Skills", "Transferable Skills"],
                "abilities_im": ["Abilities"], "knowledge_im": ["Knowledge"],
@@ -91,10 +89,7 @@ LANGUAGE_SKILLS = ["skills_im__Reading Comprehension", "skills_im__Active Listen
 
 AXIS = {"R1": "physical intensity  (+ physical / - symbolic)",
         "R2": "judgement  (+ judgement / - procedure)",
-        "R3": "person-facing  (+ people / - things and systems)",
-        "R4": "where the work is done  (+ fixed clinical site / - vehicles, outdoors)",
-        "R5": "fixed correct standard  (+ exact, checkable output / - open-ended)",
-        "R6": "commercial  (+ commercial / - specialist)"}
+        "R3": "person-facing  (+ people / - things and systems)"}
 
 # Fallback labels for the O*NET hierarchy, used if Content Model Reference.txt
 # is not present: the release 31.0 names. These are the expert groupings, not ours.
@@ -235,38 +230,14 @@ def check_endpoints(S):
             print(f"     {r[a]:+.2f}  {r['title'][:58]}")
 
 
-# varimax and the congruence measure live in pca_rotated.py, so that the
-# rotation recipe has one definition rather than three that can drift apart.
-import sys, os
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from pca_rotated import (congruence, rotate_tier, sign_and_order,
-                         TIER1_ANCHORS, TIER2_ANCHORS)
-
-
-def rotated_loadings(X, cols, k):
-    """The same recipe as pca_rotated.py: PCA, then varimax within tier 1
-    (the first three components) and within tier 2 (the rest, up to k),
-    ordered and signed by the same anchors."""
-    Xz = StandardScaler().fit_transform(X)
-    pca = PCA(random_state=0).fit(Xz)
-    V, lam = pca.components_.T, pca.explained_variance_
-    k1 = len(TIER1_ANCHORS)
-    tiers = [list(range(min(k, k1)))] + ([list(range(k1, k))] if k > k1 else [])
-    Ls = []
-    for t_no, idx in enumerate(tiers):
-        L, R = rotate_tier(V, lam, idx)
-        L, _ = sign_and_order(L, R, cols, [TIER1_ANCHORS, TIER2_ANCHORS][t_no], idx[0],
-                              verbose=False)
-        Ls.append(L)
-    return pd.DataFrame(np.hstack(Ls), index=cols, columns=[f"R{j+1}" for j in range(k)])
-
-
-def check_robustness(L, m):
+def check_robustness(L, m, tiers, heading="4. ROBUSTNESS"):
     """Would the axes change if the labour-market variables took part in
     forming them? They are a handful of columns against 216, so they should
-    not -- but that is worth demonstrating rather than asserting."""
+    not -- but that is worth demonstrating rather than asserting. tiers gives
+    the components of the axes in L (e.g. [[0, 1, 2]] for R1-R3). Returns the
+    congruences."""
     print("\n" + "=" * 72)
-    print("4. ROBUSTNESS -- do the labour-market variables change the axes?")
+    print(f"{heading} -- do the labour-market variables change the axes?")
     print("=" * 72)
     feats = features(m)
     inst = [c for c in ["ext_union_cov_pct", "ext_self_employed_pct",
@@ -277,22 +248,24 @@ def check_robustness(L, m):
     wage9 = [c for c in m.columns if c.startswith("ext_wage_")
              and c not in wage2]
 
-    k = L.shape[1]
     variants = {
         "+ labour market, wages as 2 columns": feats + wage2 + inst,
         "+ labour market, all nine wage columns": feats + wage9 + inst,
     }
-    print(f"\n{'variant':32s} {'cols':>5s}   congruence with the published axes")
+    print(f"\n{'variant':40s} {'cols':>5s}   congruence with the published axes")
+    rows = []
     for name, cols in variants.items():
-        Lv = rotated_loadings(m[cols].values, cols, k)
+        Lv = refit_loadings(m[cols].values, cols, tiers)
         shared = [c for c in L.index if c in Lv.index]
-        cong = [congruence(L.loc[shared, f"R{j+1}"].values,
-                           Lv.loc[shared, f"R{j+1}"].values) for j in range(k)]
-        print(f"{name:32s} {len(cols):5d}   " +
-              "  ".join(f"R{j+1}={c:.3f}" for j, c in enumerate(cong)))
+        cong = {a: congruence(L.loc[shared, a].values, Lv.loc[shared, a].values)
+                for a in L.columns}
+        rows.append({"variant": name, "columns": len(cols), **cong})
+        print(f"{name:40s} {len(cols):5d}   " +
+              "  ".join(f"{a}={c:.3f}" for a, c in cong.items()))
     print("\n  Above ~0.95 means the same axis. If adding the labour-market")
     print("  variables leaves the axes intact, they are a property of the")
     print("  description of the work, and no choice about wages made them.")
+    return pd.DataFrame(rows)
 
 
 def check_poles(L, S, m):
@@ -402,15 +375,17 @@ def check_clusters(L, S, m):
 
 
 def main():
-    L = pd.read_csv(LOADINGS, index_col=0)
-    S = pd.read_csv(SCORES, index_col=0)
+    # tier 1 is the axes the tier-1 anchors sign, R1-R3
+    tier1 = [f"R{j + 1}" for j in range(len(TIER1_ANCHORS))]
+    L = pd.read_csv(LOADINGS, index_col=0)[tier1]
+    S = pd.read_csv(AXES, index_col=0)[["title"] + tier1]
     m = pd.read_csv(MASTER, index_col="onet_soc")
     wage = m["ext_wage_median"].reindex(S.index)
 
     check_taxonomy(L)
     check_quadrants(S, wage)
     check_endpoints(S)
-    check_robustness(L, m)
+    check_robustness(L, m, [list(range(L.shape[1]))])
     check_poles(L, S, m)
     check_clusters(L, S, m)
 
