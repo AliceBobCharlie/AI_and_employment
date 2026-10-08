@@ -427,19 +427,22 @@ def parallel_analysis(Xz, ev):
 
 def component_stability(X, ref):
     """Bootstrap and split-half best-match congruence of each unrotated
-    component. Returns the table and k1, the number of leading components
-    that pass one after another."""
+    component. Every resample is z-scored on its own before it is
+    decomposed, as the full sample is and as in the subspace checks, so a
+    half is decomposed exactly as the analysis would decompose it.
+    Returns the table and k1, the number of leading components that pass
+    one after another."""
     rng = np.random.default_rng(SEED)
     n, k = len(X), len(ref)
     boot = np.full((B, k), np.nan)
     for b in range(B):
         idx = rng.integers(0, n, n)
-        boot[b] = best_match(ref, pca_load(X[idx], k))
+        boot[b] = best_match(ref, pca_load(standardize(X[idx]), k))
     split = np.full((N_SPLIT, k), np.nan)
     for s in range(N_SPLIT):
         perm = rng.permutation(n)
         h1, h2 = perm[: n // 2], perm[n // 2:]
-        split[s] = best_match(pca_load(X[h1], k), pca_load(X[h2], k))
+        split[s] = best_match(pca_load(standardize(X[h1]), k), pca_load(standardize(X[h2]), k))
     t = pd.DataFrame({"component": [f"PC{j + 1}" for j in range(k)],
                       "bootstrap p05": np.percentile(boot, 5, axis=0),
                       "split-half p05": np.percentile(split, 5, axis=0),

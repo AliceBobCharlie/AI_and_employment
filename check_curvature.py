@@ -191,13 +191,16 @@ def pca(Z):
     return ev, V, (Zc @ V) / np.sqrt(ev)
 
 
-def tiered_scores(ev, V, T, return_loadings=False):
-    """R1-R6: varimax within PCs 1-3 and within 4-6, scores rotated as in
-    pca_rotated.py (standardised unrotated scores times the rotation).
-    Within each tier the axes are in the order varimax returns them."""
+def tiered_scores(ev, V, T, cols, return_loadings=False):
+    """R1-R6 exactly as in pca_rotated.py: varimax within PCs 1-3 and within
+    4-6, then ordered and signed by the anchor variables, so that R4 is the
+    axis of medicine and dentistry and so on whatever order varimax returns
+    the axes in. Scores are the standardised unrotated scores times the
+    rotation."""
     scores, loadings = [], []
-    for idx in ([0, 1, 2], [3, 4, 5]):
-        L, R = varimax(V[:, idx] * np.sqrt(ev[idx]))
+    for idx, anchors in (([0, 1, 2], TIER1_ANCHORS), ([3, 4, 5], TIER2_ANCHORS)):
+        L, R = rotate_tier(V, ev, idx)
+        L, R = sign_and_order(L, R, cols, anchors, idx[0], verbose=False)
         scores.append(T[:, idx] @ R)
         loadings.append(L)
     if return_loadings:
@@ -476,7 +479,7 @@ def section_a(ev, V, T, Xraw, rng, label="observed"):
 
 
 def section_b(ev, V, T, rng, cols):
-    S, L = tiered_scores(ev, V, T, return_loadings=True)
+    S, L = tiered_scores(ev, V, T, cols, return_loadings=True)
     tier1, tier2 = S[:, :3], S[:, 3:]
     top = [cols[int(np.argmax(np.abs(L[:, 3 + j])))].split("__", 1)[1][:40] for j in range(3)]
     X_knn = T[:, :3] * np.sqrt(ev[:3])
@@ -619,7 +622,7 @@ def section_g(ev, V, T, cols):
     curvature: for each of the 21 terms, the share of its variance that lies in
     the span of PC1-6, of PC7-14 and of PC15-216 (in-sample). By chance alone a
     vector falls in a span of m directions in proportion m / (n - 1)."""
-    S, L = tiered_scores(ev, V, T, return_loadings=True)
+    S, L = tiered_scores(ev, V, T, cols, return_loadings=True)
     top = [cols[int(np.argmax(np.abs(L[:, j])))].split("__", 1)[1] for j in range(N_LEAD)]
     names = [f"R{j + 1} ({top[j][:32]})" for j in range(N_LEAD)]
     n = len(T)

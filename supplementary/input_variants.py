@@ -28,8 +28,10 @@ For each variant (analyse() below, also used by block_weights.py):
   subspaces            split-half smallest principal-angle cosine of the
                        leading-k subspace, 5th percentile, k = 1..K.
   rotated axes         the paper's tiers imposed (varimax within components
-                       1-3 and within 4-6); split-half congruence of each
-                       rotated axis, 5th percentile.
+                       1-3 and within 4-6); each half's axes paired one to
+                       one with the full-sample axes of the same tier;
+                       split-half congruence of each rotated axis, 5th
+                       percentile.
   against the paper    for each of the paper's axes R1-R6: the largest |r|
                        with the variant's rotated axes of the same tier, and
                        the R2 with which the variant's first three and first
@@ -54,7 +56,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from pca_rotated import (congruence, rotate_tier, subspace_cosines, standardize,  # noqa: E402
-                         SEED, STABLE_THRESH)
+                         match_axes, SEED, STABLE_THRESH)
 
 CLEAN = Path("output/master_clean.csv")
 RAW = Path("output/master.csv")
@@ -116,7 +118,10 @@ def parallel_analysis(X, w, ev, rng):
 
 def split_halves(X, w, full_L, rng):
     """Per split: smallest subspace cosine for k = 1..K, best-match congruence
-    of each single component, and congruence of each rotated axis."""
+    of each single component, and congruence of each rotated axis. Within each
+    tier the halves' rotated axes are paired one to one with the full-sample
+    axes (match_axes, as in pca_rotated.py), so no half-axis can stand in for
+    two full-sample axes."""
     n = len(X)
     min_cos = np.empty((N_SPLIT, K))
     single = np.empty((N_SPLIT, K))
@@ -131,12 +136,7 @@ def split_halves(X, w, full_L, rng):
         matched = []
         for e, V, _ in halves:
             H = np.hstack([rotate_tier(V, e, idx)[0] for idx in TIERS])
-            cols = []
-            for idx in TIERS:
-                for j in idx:
-                    c = [congruence(full_L[:, j], H[:, i]) for i in idx]
-                    cols.append(H[:, idx[int(np.argmax(c))]])
-            matched.append(np.column_stack(cols))
+            matched.append(np.hstack([match_axes(full_L[:, idx], H[:, idx]) for idx in TIERS]))
         rot[s] = [congruence(matched[0][:, j], matched[1][:, j]) for j in range(full_L.shape[1])]
     return (np.percentile(min_cos, 5, axis=0), np.percentile(single, 5, axis=0),
             np.percentile(rot, 5, axis=0))
