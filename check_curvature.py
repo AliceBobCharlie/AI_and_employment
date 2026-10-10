@@ -38,12 +38,7 @@ Models for the predictions:
   cubic       all monomials up to degree 3, ridge
   kNN         k-nearest-neighbour regression on the raw scores (distances in
               the data), k chosen within each training fold from 10, 20, 40
-              by three-fold cross-validation
-Ridge penalties are chosen within each training fold. Each target gets its own
-penalty and its own k, as if it were fitted alone, but all the targets of a
-fold (and all the permuted copies of a null) are fitted together: one ridge
-fit with a penalty per target, and one nearest-neighbour search whose
-neighbours serve every target and every k.
+Ridge penalties are chosen within each training fold.
 
 PART 0 -- WITHIN TIER 1: do R1, R2 and R3 depend on one another beyond the
            linear? Varimax makes them uncorrelated, not independent, and the
@@ -149,8 +144,8 @@ import pandas as pd
 from pathlib import Path
 from scipy.stats import norm, rankdata
 from sklearn.linear_model import RidgeCV
-from sklearn.model_selection import KFold
-from sklearn.neighbors import KNeighborsRegressor, NearestNeighbors
+from sklearn.model_selection import GridSearchCV, KFold
+from sklearn.neighbors import KNeighborsRegressor
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import PolynomialFeatures, StandardScaler
 
@@ -216,56 +211,17 @@ def tiered_scores(ev, V, T, cols, return_loadings=False):
 # --------------------------------------------------------------------------- #
 # Models and cross-validated R2
 # --------------------------------------------------------------------------- #
-def polynomial_model(kind):
-    """Polynomial terms, standardised, ridge with a penalty chosen for each
-    target column separately (leave-one-out, within the training data)."""
-    degree = {"quadratic": 2, "cubic": 3}[kind]
-    return make_pipeline(PolynomialFeatures(degree, include_bias=False), StandardScaler(),
-                         RidgeCV(alphas=ALPHAS, alpha_per_target=True))
-
-
-def knn_predict_all_k(X_train, Y_train, X_test):
-    """Nearest-neighbour predictions for every k in KNN_K and every column of
-    Y_train, from a single neighbour search. Returns {k: (n_test, n_targets)}."""
-    neighbours = NearestNeighbors(n_neighbors=max(KNN_K)).fit(X_train)
-    idx = neighbours.kneighbors(X_test, return_distance=False)    # nearest first
-    running_mean_sum = np.cumsum(Y_train[idx], axis=1)             # (n_test, k_max, n_targets)
-    return {k: running_mean_sum[:, k - 1, :] / k for k in KNN_K}
-
-
-def knn_fit_predict(X_train, Y_train, X_test):
-    """kNN regression with k chosen for each target column by three-fold
-    cross-validation on the training data (mean R2 over the folds, the first k
-    on ties), then refitted on all the training data."""
-    scores = np.zeros((len(KNN_K), Y_train.shape[1]))
-    for inner_train, inner_test in KFold(3, shuffle=True, random_state=SEED).split(X_train):
-        pred = knn_predict_all_k(X_train[inner_train], Y_train[inner_train], X_train[inner_test])
-        y = Y_train[inner_test]
-        ss_tot = ((y - y.mean(axis=0)) ** 2).sum(axis=0)
-        for i, k in enumerate(KNN_K):
-            scores[i] += 1 - ((y - pred[k]) ** 2).sum(axis=0) / ss_tot
-    best = np.argmax(scores, axis=0)
-    pred = knn_predict_all_k(X_train, Y_train, X_test)
-    return np.column_stack([pred[KNN_K[b]][:, j] for j, b in enumerate(best)])
-
-
-def fit_predict(kind, X_train, Y_train, X_test):
-    """Predictions for every column of Y_train (n_train, n_targets), each
-    target modelled on its own."""
+def model(kind):
+    if kind == "quadratic":
+        return make_pipeline(PolynomialFeatures(2, include_bias=False), StandardScaler(),
+                             RidgeCV(alphas=ALPHAS))
+    if kind == "cubic":
+        return make_pipeline(PolynomialFeatures(3, include_bias=False), StandardScaler(),
+                             RidgeCV(alphas=ALPHAS))
     if kind == "kNN":
-        return knn_fit_predict(X_train, Y_train, X_test)
-    if kind in ("quadratic", "cubic"):
-        pred = polynomial_model(kind).fit(X_train, Y_train).predict(X_test)
-        return pred.reshape(len(X_test), -1)
+        return GridSearchCV(KNeighborsRegressor(), {"n_neighbors": KNN_K},
+                            cv=KFold(3, shuffle=True, random_state=SEED))
     raise ValueError(kind)
-
-
-def oof_predictions(kind, X, Y, seed):
-    """Out-of-fold predictions of every column of Y, one five-fold split."""
-    pred = np.empty_like(Y)
-    for train, test in KFold(N_FOLDS, shuffle=True, random_state=seed).split(X):
-        pred[test] = fit_predict(kind, X[train], Y[train], X[test])
-    return pred
 
 
 def oof_r2(kind, X, Y, seed=SEED, repeats=N_REPEATS):
@@ -274,7 +230,11 @@ def oof_r2(kind, X, Y, seed=SEED, repeats=N_REPEATS):
     Y = np.atleast_2d(Y.T).T
     out = np.empty((repeats, Y.shape[1]))
     for r in range(repeats):
-        pred = oof_predictions(kind, X, Y, seed + r)
+        pred = np.empty_like(Y)
+        for train, test in KFold(N_FOLDS, shuffle=True, random_state=seed + r).split(X):
+            for j in range(Y.shape[1]):
+                m = model(kind).fit(X[train], Y[train, j])
+                pred[test, j] = m.predict(X[test])
         out[r] = 1 - ((Y - pred) ** 2).sum(axis=0) / ((Y - Y.mean(axis=0)) ** 2).sum(axis=0)
     return out
 
@@ -284,16 +244,18 @@ def block_r2(kind, X, Y, seed=SEED, repeats=N_REPEATS):
     not depend on how the targets are rotated within the block."""
     vals = []
     for r in range(repeats):
-        pred = oof_predictions(kind, X, Y, seed + r)
+        pred = np.empty_like(Y)
+        for train, test in KFold(N_FOLDS, shuffle=True, random_state=seed + r).split(X):
+            for j in range(Y.shape[1]):
+                pred[test, j] = model(kind).fit(X[train], Y[train, j]).predict(X[test])
         vals.append(1 - ((Y - pred) ** 2).sum() / ((Y - Y.mean(axis=0)) ** 2).sum())
     return np.array(vals)
 
 
 def null_p95(kind, X, y, rng, n_perm):
-    """95th percentile of single-repeat out-of-fold R2 with y permuted. The
-    permuted copies are the columns of one target matrix, fitted together."""
-    Y_perm = np.column_stack([rng.permutation(y) for _ in range(n_perm)])
-    return np.percentile(oof_r2(kind, X, Y_perm, repeats=1)[0], 95)
+    """95th percentile of single-repeat out-of-fold R2 with y permuted."""
+    vals = [oof_r2(kind, X, rng.permutation(y), repeats=1)[0, 0] for _ in range(n_perm)]
+    return np.percentile(vals, 95)
 
 
 def refit_in_fold(Xraw, kind, seed=SEED):
@@ -308,8 +270,10 @@ def refit_in_fold(Xraw, kind, seed=SEED):
         Ztr, Zte = (Xraw[train] - mu) / sd, (Xraw[test] - mu) / sd
         ev, V, Ttr = pca(Ztr)
         Tte = ((Zte - Ztr.mean(axis=0)) @ V) / np.sqrt(ev)
-        pred[test] = fit_predict(kind, Ttr[:, :N_LEAD], Ttr[:, list(TARGETS)], Tte[:, :N_LEAD])
-        actual[test] = Tte[:, list(TARGETS)]
+        for j, t in enumerate(TARGETS):
+            m = model(kind).fit(Ttr[:, :N_LEAD], Ttr[:, t])
+            pred[test, j] = m.predict(Tte[:, :N_LEAD])
+            actual[test, j] = Tte[:, t]
     ss_res = ((actual - pred) ** 2).sum(axis=0)
     ss_tot = ((actual - actual.mean(axis=0)) ** 2).sum(axis=0)
     return 1 - ss_res / ss_tot, 1 - ss_res.sum() / ss_tot.sum()
@@ -408,7 +372,7 @@ def part_0_beyond_mean(scores, rng):
                 X = x[:, None]
                 fit = np.empty_like(y)
                 for train, test in KFold(N_FOLDS, shuffle=True, random_state=SEED).split(X):
-                    fit[test] = knn_fit_predict(X[train], y[train, None], X[test])[:, 0]
+                    fit[test] = model("kNN").fit(X[train], y[train]).predict(X[test])
                 spread = np.abs(y - fit)
                 row["spread: R2 of |residual| on predictor (cubic)"] = oof_r2("cubic", X, spread)[:, 0].mean()
                 row["spread: null p95"] = null_p95("cubic", X, spread, rng, N_PERM)
