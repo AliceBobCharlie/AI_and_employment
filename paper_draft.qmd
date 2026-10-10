@@ -84,7 +84,7 @@ A second generation made the capability judgement explicit and reproducible. Elo
 
 Frontier work advances on one of two fronts. GDPval (Patwardhan et al., 2025 [WP]) measures rather than judges: practitioners author the tasks and grade the deliverables. Its coverage is correspondingly bounded, since a task must yield a reviewable artefact, which excludes most embodied work by construction. The OECD (2026 [WP]) advances instead on structure, assessing AI capability and occupational demand separately on a common five-level scale across nine domains and publishing the gap for each domain as well as the total. That measure is the closest in spirit to the present paper, and its own caution is our point of departure: the total index "should be interpreted alongside the underlying domain-specific gaps rather than as a self-sufficient measure." Separately, the Anthropic Economic Index (Handa et al., 2025 [WP]) records what AI is actually used for rather than what it can do, and is the only public source distinguishing automative from augmentative use.
 
-**The task framework.** Autor, Levy and Murnane (2003) organised this literature around two crossed distinctions, manual against cognitive and routine against non-routine; Deming (2017) established the wage return to social skills. Both bear on how the axes recovered below should be read, and Section 5.5 returns to them.
+**The task framework.** Autor, Levy and Murnane (2003) organised this literature around two crossed distinctions, manual against cognitive and routine against non-routine; Deming (2017) established the wage return to social skills. Both bear on how the axes recovered below should be read, and Section 5.4 returns to them.
 
 **Prior attempts to analyse the structure of O\*NET.** Alabdulkareem et al. (2018) analysed O\*NET with the skills as objects rather than the occupations. They normalised the occupation-by-skill matrix by revealed comparative advantage and binarised it, and found two communities — one social and cognitive, one sensory and physical. We follow that work in seeking structure rather than imposing it, and depart from it in two respects: we do not binarise, since thresholding discards the intermediate values that distinguish occupations differing by degree, and we take occupations rather than skills as the objects, because displacement attaches to occupations.
 
@@ -318,7 +318,7 @@ this out by repeating the clustering on the leading ten components. For
 regression, the width does bite. With 216 predictors against 910 observations,
 ordinary least squares fits the training folds almost exactly and generalises
 arbitrarily, returning large negative cross-validated R² values. The regressions
-of Section 5.5 therefore use ridge, whose penalty is what makes the estimate
+of Section 5.6 therefore use ridge, whose penalty is what makes the estimate
 meaningful in this shape, with the scaler fitted inside each fold.
 
 The final matrix, of 910 occupations, is as follows.
@@ -351,7 +351,7 @@ Going to those sources directly is therefore not a departure from O\*NET's
 scheme but the same numbers at the resolution the question needs. A median wage
 cannot say whether pay within an occupation is tightly or widely spread. A
 single growth band cannot separate workers who leave the labour force from
-workers who move to another occupation, and Section 5.5 turns on that
+workers who move to another occupation, and Section 5.6 turns on that
 distinction.
 
 Each variable is taken in turn — why it might bear on whether a technically
@@ -368,7 +368,7 @@ describe the work but what holders of the job have — which is where
 credentialing and licensing enter the data. Entry thresholds are institutional
 rather than technical and can hold even where the work is substitutable, and a
 licensed occupation with a substitutable task profile is exactly the case the
-paper wants to be able to see. Section 5.5 supplies the empirical half of the
+paper wants to be able to see. Section 5.6 supplies the empirical half of the
 argument: what preparation an occupation demands is not recoverable from what
 the work requires. Because the block is O\*NET's own, no join is needed. Since
 release 30.3 it is published as two files, Education and Training and
@@ -492,7 +492,7 @@ Three further variables are published in the same sources and are not carried
 into the analysis, for reasons that are worth recording because two of them are
 about redundancy rather than quality. **Occupational openings** correlates 0.89
 with employment, so the two are close to one measurement of occupation size;
-Section 5.5 is where questions of that kind are settled, and admitting both
+Section 5.6 is where questions of that kind are settled, and admitting both
 there would give size two votes in a regression that has one variable per
 mechanism. **Typical education needed for entry**, the BLS categorical
 threshold, is recoverable from the ETE distributions at R² = 0.82, and the ETE
@@ -541,7 +541,7 @@ covers: the median fill assumes absence is uninformative, and for the
 thirty-five occupations with no OEWS wage we have no evidence either way.
 
 Standardisation is deliberately not applied at this stage. The ridge regressions
-of Section 5.5 fit their scaler within training folds only, and storing
+of Section 5.6 fit their scaler within training folds only, and storing
 standardised values would carry test-fold information into the training set.
 
 **Transformations.** Three are applied before any variable in this section is
@@ -572,7 +572,7 @@ and takes the block from 41 columns to 37.
 :::
 
 None of these variables enters the decomposition. They are the subject of
-Section 5.5, which asks how much of each the feature data can predict, and which
+Section 5.6, which asks how much of each the feature data can predict, and which
 explains there why that question is put to a regression rather than to a
 decomposition.
 
@@ -596,7 +596,7 @@ rank order and every correlation it takes part in unchanged; the distribution
 the decomposition sees is the distribution O\*NET published, in common units.
 
 Standardised matrices are not stored. Each analysis standardises its own, because
-the cross-validated regressions of Section 5.5 must fit the scaler within
+the cross-validated regressions of Section 5.6 must fit the scaler within
 training folds only, and a matrix standardised once in advance would carry
 test-fold information into every estimate built on it.
 
@@ -749,25 +749,26 @@ component survives resampling the same occupations; the split-half asks whether
 it survives estimation on occupations the original never saw. The second is
 stricter and is the criterion used.
 
-**Three components reproduce and no more.**
+**Three components reproduce one by one, and no more.**
 
 | component | bootstrap p05 | split-half p05 | verdict |
 |---|---|---|---|
-| 1 | 0.997 | 0.989 | stable |
-| 2 | 0.991 | 0.968 | stable |
-| 3 | 0.988 | 0.948 | stable |
-| 4 | 0.949 | 0.823 | not stable |
-| 5 | 0.716 | 0.679 | not stable |
-| 6 | 0.723 | 0.664 | not stable |
+| 1 | 0.998 | 0.994 | stable |
+| 2 | 0.994 | 0.977 | stable |
+| 3 | 0.990 | 0.961 | stable |
+| 4 | 0.959 | 0.865 | not stable on its own |
+| 5 | 0.751 | 0.660 | not stable on its own |
+| 6 | 0.758 | 0.670 | not stable on its own |
 
-The break is abrupt rather than gradual: split-half congruence falls from 0.948
-to 0.823 between the third and fourth components, and no later component
-recovers — the fifth reaches 0.679 and the eighth 0.166. This matters for
-reading the literature, where solutions with six to eight factors on this
+The break is abrupt rather than gradual: split-half congruence falls from 0.961
+to 0.865 between the third and fourth components, and no later component
+recovers on its own — the fifth reaches 0.660 and the eighth 0.136. This matters
+for reading the literature, where solutions with six to eight factors on this
 database are common. Nothing about those solutions is wrong arithmetically, and
 the parallel analysis above would license as many as fourteen; the question of
 whether their later factors would be recovered on a different sample of
-occupations has not generally been asked.
+occupations has not generally been asked. Section 5.5 asks it, and finds that
+the answer depends on whether the factors are taken one at a time or together.
 
 The three retained components account for 53.8 percent of the variance.
 
@@ -777,11 +778,11 @@ are not in conflict: parallel analysis asks whether a component is larger than
 sampling noise would produce, the stability criterion asks whether it is the same
 component in a sample it was not fitted on, and a direction can pass the first
 and fail the second. What the criterion establishes is that nothing excluded here
-reproduces as a direction on an independent half of the occupations — not that
-what is excluded is nothing.
+reproduces as a single direction on an independent half of the occupations — not
+that what is excluded is nothing.
 
 That distinction matters, and the way a real dimension can fail this test is
-worth setting out, because it recurs in Section 5.5.
+worth setting out, because it recurs in Section 5.6.
 Occupational licensure is the clearest case. Licensure separates occupations
 decisively within medicine, law and the skilled trades, and has no variation at
 all across most of the economy. A characteristic of that shape has little
@@ -796,6 +797,15 @@ question can be invisible to any method that locates structure by maximising
 variance, and its absence from the components is not evidence that it is
 unimportant.** The three axes should be read as the global structure of the
 occupational space, not as an exhaustive description of any one occupation.
+
+Forty-six percent of the variance is nevertheless too much to set aside on the
+strength of a one-by-one test. It is almost as much as the three axes hold, it is
+mostly more than chance, and it is part of the description O\*NET collected at
+some cost for every occupation; discarding it unexamined would throw away a large
+share of what the data says. We therefore return to it once the three axes have
+been named. Section 5.5 asks what it contains: whether the components that fail
+one at a time reproduce when taken together, whether what they describe is new
+or a bend in the first three, and how much of the rest is error in the ratings.
 
 ### 5.4 What the three axes are
 
@@ -914,11 +924,12 @@ repetition directly is orthogonal to all three axes. If the routine/non-routine
 distinction is read as a distinction about who decides, our data supports it as
 one of the two leading dimensions of occupational structure. If it is read as a
 distinction about how repetitive the tasks are, our data says that is a separate
-dimension, and a smaller one.
+dimension, and a smaller one: Section 5.5 finds it as one of the three axes of a
+second tier.
 
 Where the result departs from the framework is in the weighting, not the
 content. In the task literature the manual/cognitive distinction carries much of
-the explanatory load. Our wage results, in Section 5.6, place almost all of it on
+the explanatory load. Our wage results, in Section 5.7, place almost all of it on
 the routine/non-routine axis instead. If that holds, framing substitution in
 terms of manual against cognitive work measures the less consequential of the
 two dimensions the framework supplies.
@@ -989,9 +1000,359 @@ the least formal check and the most direct: a name that does not fit its own
 extreme cases is wrong whatever the loadings say. All three survive it, with the
 qualification about R1's negative pole recorded above.
 
-### 5.5 Which labour-market variables are not already in the work?
+### 5.5 Beyond the three axes: a second tier
 
-Sections 5.2 to 5.4 describe the work. This section asks a different question:
+The three axes leave 46.2 percent of the variance, and Section 5.3 established
+only that none of it reproduces one direction at a time. This section asks what
+that remainder contains. The eigenvalues already suggest the answer; we then
+test it directly, and only once the structure has been shown to reproduce do we
+ask what it means.
+
+**The eigenvalues fall into tiers.** How reliably a component can be estimated
+depends less on how large its eigenvalue is than on how far that eigenvalue lies
+from its neighbours. An eigenvalue estimated on half the occupations carries a
+sampling error of about λ√(2 / (n/2)) (North et al., 1982) — 0.42 for the sixth.
+When two eigenvalues lie within about two such errors of each other, a second
+sample can exchange or mix the two components, and two halves of the data will
+then report different directions even where they agree on the plane the
+directions lie in. The last column of the table sets each gap against that
+error.
+
+| component | eigenvalue | % of variance | gap to the next, in sampling errors |
+|---|---|---|---|
+| 1 | 69.22 | 32.0 | 8.5 |
+| 2 | 30.15 | 13.9 | 6.6 |
+| 3 | 16.90 | 7.8 | 7.2 |
+| 4 | 8.82 | 4.1 | 3.2 |
+| 5 | 6.95 | 3.2 | 1.4 |
+| 6 | 6.32 | 2.9 | 4.7 |
+| 7 | 4.37 | 2.0 | 1.8 |
+| 8 | 3.86 | 1.8 | 0.6 |
+| 9 | 3.71 | 1.7 | 2.8 |
+| 10 | 3.02 | 1.4 | 0.8 |
+
+The spectrum has steps in it. The first three eigenvalues are far apart from
+each other and from the fourth, by six to nine sampling errors. Then the size
+halves, and the fourth, fifth and sixth form a group of similar size (8.8, 6.9
+and 6.3) whose internal gaps are small: the fifth and sixth are only 1.4 errors
+apart. Then there is a second step, of 4.7 errors, down to a long run of small
+eigenvalues most of which are less than two errors apart. If the stability of a
+component is governed by these gaps, the first three should reproduce one by
+one, as Section 5.3 found; the fourth to sixth should not, but only because
+they cannot be told apart from each other; and the step after the sixth should
+mark a boundary.
+
+**Why components 4 to 6 fail: degeneracy.** A component can fail the test of
+Section 5.3 for two quite different reasons. It may describe nothing that a
+second sample would find. Or it may be one of several components with nearly
+equal eigenvalues, so that the sample cannot decide how to divide their variance
+among them: each half of the occupations then finds the same plane, or the same
+three-dimensional space, and draws its axes through it at a different angle.
+Matching components one at a time cannot tell the two cases apart, because it
+asks for the same line and is offered the same plane turned. The two can be told
+apart by comparing subspaces instead of components. For each k from 1 to 14, the
+leading k components of one random half of the occupations are compared with the
+leading k of the other half through the principal angles between the two
+subspaces (Björck and Golub, 1973). Principal angles do not depend on how either
+subspace is rotated within itself, so a block of near-equal components that each
+half orients differently still counts as reproduced when it is taken whole. The
+smallest cosine among the angles, the worst-aligned direction, is the strictest
+summary; its fifth percentile over 100 random splits is set beside the
+congruence of component k on its own (Figure 5.1). A block of near-equal
+components should then show as a dip at a k that cuts through it and a recovery
+at the k that completes it.
+
+```{=html}
+<figure class="plot-figure">
+  <img src="assets/subspace_stability.png" style="width: 100%; height: auto;"
+       alt="Line chart over k from 1 to 14 of two split-half stability measures. The leading-k subspace measure is about 0.97 to 0.99 for k from 1 to 3, falls to 0.86 at k = 4 and 0.25 at k = 5, recovers to 0.88 at k = 6, and stays at or below 0.68 from k = 7 to 14. The single-component measure follows it to k = 4 and then declines steadily from 0.68 to 0.42.">
+  <figcaption><b>Figure 5.1</b> — split-half stability of nested subspaces. For
+  each k, the 5th percentile over 100 random half-splits of the smallest
+  principal-angle cosine between the two halves' leading-k subspaces (blue), and
+  of the congruence of component k on its own (orange). Dotted line: the 0.90
+  criterion. Grey band: the k at which the half-sample eigenvalue falls below
+  the 95th percentile of eigenvalues from column-permuted halves. The
+  single-component values differ slightly from the table in Section 5.3, which
+  uses 50 splits and matches each component among the first eight; the figure
+  uses 100 splits and the first fourteen.</figcaption>
+</figure>
+```
+
+The curve has that shape. Up to k = 3 the subspace and the single components are
+the same thing, and both reproduce at 0.97 or better. At k = 4 both fall to 0.86.
+At k = 5 the subspace collapses to 0.25, because five components cut the group
+of three in two, and at k = 6 it recovers to 0.88, with a median over splits of
+0.93, while the fifth and sixth components on their own stay below 0.70. Nothing
+after the sixth recovers in the same way: the best later value, at k = 9, is
+0.68. Every half-sample eigenvalue through the thirteenth lies above the
+permutation noise floor, so the failure beyond the sixth is not a matter of
+components too small to estimate at half the sample.
+
+**Components 4 to 6 reproduce as a block.** The nested curve judges the leading
+k components together, so the question can also be put to the group of three on
+its own. Each half of the occupations is decomposed separately, the principal
+angles are computed between the two halves' subspaces spanned by components 4 to
+6 alone, and the agreement is summarised by the root mean square of their
+cosines, which for a single component is its congruence. A block is taken to
+reproduce when that summary is 0.90 or more in 95 percent of 100 splits, the
+threshold applied to single components in Section 5.3. Every block that starts
+at the fourth component was tested.
+
+| components | RMS cosine, p05 | smallest cosine, p05 |
+|---|---|---|
+| 1–3 (the first tier, for reference) | 0.988 | — |
+| 4–5 | 0.699 | 0.245 |
+| **4–6** | **0.934** | **0.878** |
+| 4–7 | 0.854 | 0.354 |
+| 4–8 | 0.847 | 0.023 |
+
+Only components 4 to 6 pass. Two components cut the group, four add a component
+that belongs to the next run, and either way the agreement drops below the
+threshold. By the strictest summary, the worst-aligned direction, the block
+falls just short of 0.90 (0.878); its median over splits is 0.952.
+
+**Rotated within the block, the axes reproduce.** A space that reproduces as a
+whole has no preferred axes inside it as estimated, but it can be given readable
+ones. We rotate components 4 to 6 by varimax on their own, so that nothing about
+the first tier changes, and anchor each axis on a marker variable as in Section
+5.4: medicine and dentistry (R4), the importance of being exact or accurate
+(R5), and sales and marketing (R6). The signs carry no claim about
+substitutability. To test the rotated axes, each half of the occupations is
+decomposed and rotated from scratch, its three axes are paired one to one with
+the full-sample axes only to label them, and the two halves' versions of each
+axis are compared. Their congruence has a fifth percentile of 0.924 for R4,
+0.927 for R5 and 0.912 for R6, against 0.660 and 0.670 for the fifth and sixth
+components unrotated. The rotation succeeds where the components fail because
+varimax chooses axes by how simply the variables load on them, a criterion that
+does not depend on the nearly equal eigenvalues, so both halves arrive at the
+same axes within the same space. The same procedure applied to components 4 to 7
+does not work: the fourth rotated axis then reproduces at 0.287.
+
+**Nothing after the sixth has this property.** Every contiguous block of two or
+more components from the seventh to the fourteenth was tested in the same way,
+28 blocks in all, and none reproduces. The best is the whole run from 7 to 14,
+at 0.869, whose worst-aligned direction reaches only 0.345; the three components
+from 7 to 9, the only other place the eigenvalue gaps leave room for a block,
+reach 0.815.
+
+The occupational space therefore has two tiers of structure, and they are not of
+one kind. The first is three axes that the data fixes one by one, carrying 53.8
+percent of the variance. The second is a three-dimensional subspace that the
+data fixes only as a whole, carrying a further 10.2 percent (3.5, 3.3 and 3.3
+percent for R4, R5 and R6); its axes are a choice of coordinates within it,
+though a choice that reproduces. Because the second tier misses the strictest
+criterion by a small margin, we report it as a second tier rather than as three
+more axes of the same standing as the first. This also bears on the six- to
+eight-factor solutions in the literature: their first six factors span a space
+that reproduces, while the individual factors after the third, as estimated, do
+not.
+
+**Is the second tier a bend in the first?** Before the new axes are read, one
+explanation has to be ruled out. Principal component analysis describes linear
+structure. If occupations lie on a curved surface — and rating scales with a
+floor are a common cause of curvature — the decomposition needs further linear
+directions to describe the bend, and those directions are functions of the
+leading components rather than new ones. R4 to R6 are uncorrelated with R1 to
+R3 by construction, but uncorrelated is not independent. Each tier-2 axis was
+therefore predicted from R1 to R3 by non-linear models — their squares and
+products, all terms up to the third degree, and a nearest-neighbour regression
+in the space of the first three components — each scored by out-of-fold R² over
+five folds repeated four times, against the 95th percentile of the same score
+with the axis permuted.
+
+| axis | quadratic | cubic | nearest neighbours |
+|---|---|---|---|
+| R4 | 0.17 | 0.19 | 0.20 |
+| R5 | 0.17 | 0.19 | 0.21 |
+| R6 | 0.07 | 0.08 | 0.08 |
+
+The permutation null is at most 0.001 in every case, so the bend is real: about a
+fifth of R4 and of R5, and less than a tenth of R6, is a function of the first
+tier. Each has a main source. R4 correlates −0.37 with the square of R1:
+occupations at either extreme of physical intensity, the construction trades at
+one end and desk work at the other, sit low on it. R5 correlates 0.22 with the
+product of R1 and R2, which is high for work that is both physically light and
+procedural. R6 correlates −0.20 with the square of R3.
+
+What is left once the bend is removed still reproduces. Removing the curvature
+of the first tier takes out 17 to 20 percent of the variance of the second,
+against 2 percent removed by the same fit on scrambled predictors. Done
+separately in each half of every split, so that the halves share nothing, the
+remainder reproduces as a subspace at 0.929 (cubic removal) or 0.923
+(nearest-neighbour removal), against 0.934 before, and its rotated axes at 0.90
+to 0.92. Decomposing the whole matrix again after the first three components and
+their curvature have been taken out of every column gives the same answer from
+the other side: the new decomposition leads with a three-dimensional block that
+lies in the space of the original components 4 to 6 (root-mean-square cosine
+0.96) and reproduces at 0.91 to 0.92, while its first four components together
+do not (0.82). The second tier is mostly not curvature of the first.
+
+**What the second tier measures.** The axes are read below from their
+remainders after the bend is removed: the part of each axis that the
+nearest-neighbour model could not predict from R1 to R3, correlated with the 216
+columns. The remainders keep 79, 78 and 91 percent of the variance of R4, R5 and
+R6, correlate with the axes at 0.90, 0.87 and 0.95, and their correlations with
+the columns have a congruence of 0.98 to 0.99 with the loadings, so the axes do
+not change identity; what changes is that the poles become cleaner. Two further
+facts help to read them. The two ends of each axis lie at about the same place in
+the first tier: the top and bottom tenth of R4 differ by 0.03 on R1 and 0.07 on
+R3, the two ends of R5 both lie on the physically light side of R1 (−0.49 and
+−0.72), and the two ends of R6 both lie on the person-facing side of R3 (0.58
+and 0.51). The second tier separates occupations that the first tier places
+together. And each axis comes mainly from one part of O\*NET's Content Model,
+which is shown by how well the reproducing components of each half reproduce it.
+
+| axis | from the job half (Work Activities, Work Context) | from the worker half (Skills, Abilities, Knowledge) |
+|---|---|---|
+| R4 | 0.83 | 0.32 |
+| R5 | 0.73 | 0.02 |
+| R6 | 0.21 | 0.62 |
+
+For comparison, each half reproduces each of R1 to R3 at 0.86 or more. R5 is
+almost entirely a property of how the work is specified, R6 mainly of what the
+worker has to know, and R4 of both, with the job half dominant.
+
+*R4: close manual work at a fixed clinical site, against work on the move.* The
+positive pole of the remainder correlates with medicine and dentistry (0.46),
+exposure to disease (0.38) and to radiation (0.33), assisting and caring for
+others (0.32), finger dexterity (0.31), physical proximity to others (0.30) and
+using the hands to handle and control objects (0.29). Its occupations are
+clinical work done with the hands at close quarters: medical laboratory
+technologists, surgical assistants and technologists, general dentists, oral and
+maxillofacial surgeons, nurse anaesthetists, prosthodontists and endoscopy
+technicians. The negative pole correlates with working in an enclosed vehicle
+(−0.65), outdoors in all weather (−0.57), transportation (−0.51), geography
+(−0.50), spatial orientation (−0.44) and night vision (−0.42). Its occupations
+move about for a living: cargo and freight agents, heavy truck drivers, fish and
+game wardens, postal mail carriers, refuse collectors, transportation inspectors
+and real estate appraisers. What the bend removed is mainly the physical extreme
+of R1, the high places, ladders and vibration of construction work. For
+substitution the two poles point at two different technologies: the positive
+pole at fine manipulation in contact with a patient's body or a specimen, which
+surgical and laboratory automation would have to supply, and the negative pole
+at navigation and driving in open environments, which is what autonomous
+vehicles and routing systems address. The two are not equally sharp. A composite
+of the navigation and vehicle items correlates −0.41 with the remainder, a
+composite of the manipulation items 0.23; the contrast between the two
+correlates 0.73. The negative pole is defined by navigation, the positive pole
+by manipulation together with the clinical setting and its knowledge.
+
+*R5: work with a fixed correct standard, against open-ended work.* The positive
+pole correlates with the importance of repeating the same tasks (0.59) and of
+being exact or accurate (0.53), the degree of automation (0.49), the frequency
+(0.45) and the impact (0.44) of decisions, evaluating information for compliance
+with standards (0.41), the consequence of error (0.37) and time pressure (0.36).
+The negative pole correlates with history and archaeology (−0.48), fine arts
+(−0.47), thinking creatively (−0.42) and originality (−0.33). Read directly,
+before the bend is removed, the positive pole is dominated by clerical work —
+court reporters, loan and credit clerks — and what the bend removes is exactly
+that: administrative knowledge, telephone and computer work, the physically
+light and procedural corner of the first tier. What remains at the positive
+pole is work whose output is judged against a fixed standard, a rule, a protocol
+or a correct value, with frequent decisions that matter: public safety
+telecommunicators, judges and administrative law judges, claims adjusters,
+dispatchers, air traffic controllers and customs brokers. At the negative pole
+is work whose output has no single correct form: choreographers, poets and
+writers, teaching assistants in universities, self-enrichment teachers,
+professors of foreign languages, and actors. This is where routineness as
+repetition, which Section 5.4 found orthogonal to the first tier, belongs: the
+O\*NET item that measures it directly defines R5. The degree of automation also
+loads on this axis and on none of the first three, so the automation already in
+place sits at the fixed-standard pole. For AI the pole cuts two ways, and we
+record it as a conjecture: a fixed correct standard is what makes it possible to
+check whether a system's output is right, while a high consequence of error
+raises the cost of the outputs that are wrong.
+
+*R6: running a business, against specialist work.* R6 is the axis least affected
+by the bend, and its poles hardly change. The positive pole correlates with
+sales and marketing (0.55), selling or influencing others (0.54), monitoring and
+controlling resources (0.52), administration and management (0.51), managing
+financial (0.48) and material resources (0.47), and economics and accounting
+(0.47). Its occupations manage people, money, stock and customers: spa, food
+service, sales and lodging managers, first-line supervisors of housekeeping and
+of retail sales, and chief executives. The negative pole correlates with
+exposure to disease (−0.33), medicine (−0.33), science (−0.32), biology (−0.31),
+the perceptual abilities of flexibility of closure (−0.31), selective attention
+(−0.30) and perceptual speed (−0.27), and the consequence of error (−0.26). Its
+occupations apply specialist knowledge or sustained attention to a standard set
+outside the firm: airline pilots, subway operators, air traffic controllers,
+anaesthesiologist assistants, clinical neuropsychologists, judicial law clerks,
+commercial pilots and speech-language pathologists. Both poles are
+person-facing, as noted above; what separates them is whether the work serves a
+business or a professional standard.
+
+**What lies beyond the sixth component: curvature, error and small groups.** The
+second tier closes what reproduces. What remains — 36.0 percent of the variance,
+11.5 percent in components 7 to 14 and 24.5 percent beyond — was put through the
+same two checks, and through a third, for error in the ratings.
+
+Curvature accounts for about a quarter of components 7 to 14. Predicted from the
+first six components by the same three models, each of them is between 16 and 35
+percent a function of the six (quadratic terms), between 18 and 40 percent with
+cubic terms, and between 14 and 37 percent by nearest neighbours, against a
+permutation null of at most 0.001. Taken together the block is 25 percent
+quadratic curvature (29 percent cubic, 24 percent by nearest neighbours). The
+figure does not depend on how the components were estimated, holding at 0.26 when
+the decomposition is refitted inside each training fold, nor on extreme cases,
+holding at 0.25 when the 2 percent of occupations farthest from the centre are
+left out. Removing the squares and products of the first six from every column
+shrinks eigenvalues 7 to 14 by 25 percent, against 2 percent when the same
+number of scrambled terms is removed. The bends that matter most are the squares
+of R1 and R2 and the products of R3 with each: between 20 and 28 percent of the
+variance of each of these four terms lies in components 7 to 14, against 0.9
+percent for a direction drawn at random. The curvature is not the floor of
+individual rating scales. Replacing every column by the normal scores of its
+ranks, which removes most of what a floor does to a single scale, leaves the
+eigenvalues and the leading subspaces almost unchanged (parallel analysis still
+counts fourteen components). And synthetic data built with the six-dimensional
+structure and a floor at each column's 25th percentile produce curvature in the
+first two components after the sixth (R² of 0.65 and 0.38) and almost none after
+them, not spread across all eight as here; with a floor at the 10th percentile
+they produce none.
+
+Rating error accounts for little of the first two tiers and much of what lies
+beyond them. Every O\*NET rating is a mean over a sample of incumbents,
+occupation experts or analysts, and O\*NET publishes the standard error of
+incumbent and analyst ratings, which make up 83 percent of the cells in the
+matrix. The mean squared standard error of an item, divided by the item's
+variance across occupations, is the share of the item that is sampling error in
+its ratings. Over the 216 items it averages 16.7 percent: 8 percent in Skills,
+10 in Abilities, 18 in Knowledge, 19 in Work Context and 28 in Work Activities,
+with the ratings that carry no standard error assumed to be as precise as those
+that do. Projected onto the components, it is 0.4 to 2.4 percent of the first
+tier, 2.6 to 5.9 percent of the second, 6.4 to 23 percent of components 7 to 14
+and 50 to 63 percent of everything beyond the fourteenth. Each range runs from
+errors independent across items to errors correlated at 0.3 among the items of
+one questionnaire, which a response style shared by one occupation's
+respondents would produce and which the published data can neither confirm nor
+rule out.
+
+What remains of components 7 to 14 after curvature and error is not nothing, but
+it does not form structure that a second sample would recover. Part of it is
+specific to small groups of occupations. Searching components 7 to 14 for the
+direction along which occupations are most heavy-tailed finds an excess kurtosis
+of 3.4, against 1.2 for Gaussian data of the same size searched the same way,
+and 2.4 against 0.4 once the five most extreme occupations are dropped. The tail
+is the creative and visual media: art directors, set and exhibit designers,
+graphic designers, film and video editors, producers and directors, special
+effects artists and animators. The number of occupations falls steadily along the
+tail rather than leaving a gap, so this is a long tail and not a separate group,
+and it is the kind of characteristic Section 5.3 described: real, confined to a
+few occupations, and without a direction that a random half of the occupations
+would reproduce. The second tier itself is not of this kind; its most
+heavy-tailed direction does not exceed the Gaussian null (0.57 against 0.67).
+
+So the picture is complete as far as this sample of occupations allows. Of
+components 7 to 14, about a quarter is curvature of the first six and a further
+6 to 23 percent is rating error; the remainder is item-specific content and the
+features of small groups of occupations, none of which reproduces alone or in
+blocks. Beyond the fourteenth component, half to two thirds of the variance is
+rating error. The six axes, in two tiers, are the structure the data supports;
+nothing beyond them can be recovered as structure from 910 occupations.
+
+### 5.6 Which labour-market variables are not already in the work?
+
+Sections 5.2 to 5.5 describe the work. This section asks a different question:
 which properties of an occupation's position in the labour market carry
 information that no description of the work contains. The answer determines what
 an empirical study of AI and employment has to measure separately rather than
@@ -1063,7 +1424,7 @@ built on what people do should be, and it is the one entry in the table that
 should be read as a result about the measure rather than about the labour market.
 It also does useful negative work in the other direction: because prestige is so
 nearly recoverable from the features, and because it is nonetheless not what any
-of our axes is (Section 5.6 puts its correlation with R1 at −0.27 and with R3 at
+of our axes is (Section 5.7 puts its correlation with R1 at −0.27 and with R3 at
 0.00), the possibility that the axes are a status ranking wearing another name
 can be set aside. A study that has occupational content does not need to collect
 prestige separately.
@@ -1178,9 +1539,9 @@ size, self-employment or entry requirements, and since each plausibly affects
 whether a technically feasible substitution is carried out, an exposure measure
 on its own leaves them unaccounted for.
 
-### 5.6 What the market pays for
+### 5.7 What the market pays for
 
-Section 5.5 asked how much of each labour-market variable the features predict.
+Section 5.6 asked how much of each labour-market variable the features predict.
 For the variables that are largely predictable, a second question follows: which
 part of the work they attach to. It is answered by correlating each against the
 rotated axes, and the answer is not the one the task literature would lead one to
@@ -1240,7 +1601,7 @@ claim it as a result. Section 6.2 reports that two published measures disagree
 along precisely this axis, which is consistent with the conjecture without
 confirming it.
 
-### 5.7 The occupational space
+### 5.8 The occupational space
 
 Three stable axes with names that survive checking are a coordinate system, and
 every occupation in the data has a position in it.
@@ -1249,7 +1610,7 @@ every occupation in the data has a position in it.
 <figure class="plot-figure">
   <div class="plot plot-3d" id="plot-space" role="img"
        aria-label="Three-dimensional scatter plot of 910 occupations on the physical intensity, judgement and person-facing axes, coloured by union coverage."></div>
-  <figcaption><b>Figure 5.1</b> — the 910 occupations in the three-axis space,
+  <figcaption><b>Figure 5.2</b> — the 910 occupations in the three-axis space,
   coloured by union coverage. Drag to rotate; hold ⌘ or Ctrl and scroll to
   zoom. Marker size is log employment; hover for the occupation. On every axis,
   + means harder to automate.
@@ -1278,7 +1639,7 @@ dataset can be placed in a single figure and located by eye.
 
 
 
-The space is the one drawn in Figure 5.1. Occupations fill it rather than
+The space is the one drawn in Figure 5.2. Occupations fill it rather than
 gathering into groups, there is no region of concentration,
 and no partition of them into types is supported by the data. This matters for
 how the rest of the discussion should be read. Any boundary drawn in this space
@@ -1606,7 +1967,7 @@ The three axes describe what an occupation requires. Whether a technically feasi
 
 Collective agreements can constrain what an employer does with a technology, and there is now a worked example. The 2023 Writers Guild of America agreement, reached after a 148-day strike, is the first collective bargaining agreement anywhere to place explicit limits on generative AI. It does not ban the technology. It establishes that AI-generated material is not literary material under the agreement, so it cannot receive writing credit, cannot be used to reduce the minimum number of writers a production must hire, and cannot be required of a writer; studios must disclose AI-generated material given to writers as source material. The companion SAG-AFTRA agreement governs digital replicas and synthetic performers through consent and compensation requirements rather than prohibition. Both are instructive for what they show is possible and for what they show is not: neither guild obtained a restriction on training models on members' work, and SAG-AFTRA stated plainly that an outright ban was not achievable in that round. The constraint operates on the use of the output within covered productions, not on the capability itself.
 
-This is also a demonstration of how narrow the mechanism is. The agreements bind only work performed under them. Production that moves outside the covered perimeter is unaffected, and the perimeter is not fixed. And the conditions that produced them are unusual: the Writers Guild bargains at sector level rather than firm by firm, which few American unions can do. Nationally, around one worker in ten is represented by a union, and the share is lower in the private sector and lower still in the industries with the highest measured substitutability. Our own figures point the same way: the median occupation in the data has 9 percent coverage, with quartiles at 4 and 16, so most of the distribution sits in a narrow band near zero. Union coverage is independent of the feature data — no description of what an occupation requires predicts whether it is organised, which is Section 5.5's result and, in a different literature, Weeden's — but independence is not the same as reach. An institution that is orthogonal to the work and present for a tenth of it can protect that tenth and no more.
+This is also a demonstration of how narrow the mechanism is. The agreements bind only work performed under them. Production that moves outside the covered perimeter is unaffected, and the perimeter is not fixed. And the conditions that produced them are unusual: the Writers Guild bargains at sector level rather than firm by firm, which few American unions can do. Nationally, around one worker in ten is represented by a union, and the share is lower in the private sector and lower still in the industries with the highest measured substitutability. Our own figures point the same way: the median occupation in the data has 9 percent coverage, with quartiles at 4 and 16, so most of the distribution sits in a narrow band near zero. Union coverage is independent of the feature data — no description of what an occupation requires predicts whether it is organised, which is Section 5.6's result and, in a different literature, Weeden's — but independence is not the same as reach. An institution that is orthogonal to the work and present for a tenth of it can protect that tenth and no more.
 
 Two readings follow, and they differ in which margin they attend to. On one account, which we take from the labour-advocacy literature, the danger is distributional and works through bargaining power: the workers with the least of it are dismissed first, dismissals at scale become unemployment at scale, and unemployment at scale becomes a problem of social stability rather than of labour economics. On this reading, the appropriate policy response to AI is to strengthen workers' bargaining position, and the low coverage documented above is the central fact.
 
@@ -1652,6 +2013,8 @@ Autor, D., Levy, F., & Murnane, R. J. (2003). The skill content of recent techno
 Autor, D., & Thompson, N. (2025). Expertise. *Journal of the European Economic Association*, 23(4), 1203–1271.
 
 Benzell, S., Brynjolfsson, E., MacCrory, F., & Westerman, G. (2019). *Identifying the multiple skills in skill-biased technical change*. MIT Initiative on the Digital Economy. [WP]
+
+Björck, Å., & Golub, G. H. (1973). Numerical methods for computing angles between linear subspaces. *Mathematics of Computation*, 27(123), 579–594. https://doi.org/10.1090/S0025-5718-1973-0348991-3
 
 Brynjolfsson, E. (2022). The Turing trap: The promise and peril of human-like artificial intelligence. *Daedalus*, 151(2), 272–287.
 
@@ -1712,6 +2075,8 @@ Lise, J., & Postel-Vinay, F. (2020). *Replication package for: Multidimensional 
 Lordan, G., & Neumark, D. (2018). People versus machines: The impact of minimum wages on automatable jobs. *Labour Economics*, 52, 40–53.
 
 McElheran, K., Li, J. F., Brynjolfsson, E., Kroff, Z., Dinlersoz, E., Foster, L., & Zolas, N. (2024). AI adoption in America: Who, what, and where. *Journal of Economics & Management Strategy*, 33(2), 374–415.
+
+North, G. R., Bell, T. L., Cahalan, R. F., & Moeng, F. J. (1982). Sampling errors in the estimation of empirical orthogonal functions. *Monthly Weather Review*, 110(7), 699–706. https://doi.org/10.1175/1520-0493(1982)110<0699:SEITEO>2.0.CO;2
 
 Noy, S., & Zhang, W. (2023). Experimental evidence on the productivity effects of generative artificial intelligence. *Science*, 381(6654), 187–192. https://doi.org/10.1126/science.adh2586
 
