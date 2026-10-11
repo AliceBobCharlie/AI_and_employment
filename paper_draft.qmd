@@ -3,7 +3,7 @@ title: "The dimensional structure of occupational space: a coordinate system for
 abstract: |
   We recover the dimensions of occupational space from the O\*NET descriptors
   of 910 occupations, to ask which characteristics of an occupation bear on
-  whether AI can substitute for human labour. Occupations do not fall into clusters; they fill a continuous space of six dimensions, beyond which weaker structure remains. At the broad level, three dimensions account for
+  whether AI can substitute for human labour. Occupations do not fall into clusters; they fill a continuous space of six dimensions, beyond which weaker structure remains, much of it specific to few occupations. At the broad level, three dimensions account for
   more than half of all variation (54 percent): how physical the work is, how
   much judgement it demands, and how much it involves dealing with people. At
   a finer level, three more add a further 10 percent: manipulation against
