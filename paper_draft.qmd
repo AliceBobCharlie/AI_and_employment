@@ -5,13 +5,12 @@ abstract: |
   of 910 occupations, to ask which characteristics of an occupation bear on
   whether AI can substitute for human labour. Occupations do not fall into
   clusters; they fill a continuous space with two tiers of structure. The
-  first tier is three stable axes — physical intensity, judgement and
+  first tier is three broad axes, each stable on its own — physical intensity, judgement and
   person-facing work — which carry 54 percent of the variance. The second is a
   three-dimensional subspace, stable as a whole, which carries a further 10
   percent and is spanned by manipulation against navigation, work with a fixed
   correct standard against open-ended work, and commercial against specialist
-  work. It matters less than the first tier but is too stable to discard;
-  whether a study needs it depends on the resolution at which it works. Beyond
+  work. It's too small against the first tier but is too stable to discard. Beyond
   these six, some local structure remains. Ridge regression finds four
   labour-market variables that no description of the work can recover: union
   coverage, education and training requirements, self-employment and
