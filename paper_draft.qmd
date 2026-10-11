@@ -1,14 +1,35 @@
 ---
 title: "The dimensional structure of occupational space: a coordinate system for AI substitution measures"
 abstract: |
-  We recover the dimensions of occupational space from the O\*NET descriptors to ask which characteristics of an occupation bear on whether AI can substitute for human labour. We also test common labour-market variables, to see variables needs to be considered in regression of real world displacement data. Occupations do not fall into clusters in the space; they occupy a continuous space with two tiers of structure. The demensions can be 3 or 6 depending on your scale. We find three broad axes — physical intensity, judgement and person-facing work — carry 54 percent of the variance and are robust across every part of the data. And three narrower axes — manipulation vs navigation, exacting vs. exploratory work, and commercial against specialist work carry a further 10 percent but are not reproduceble across all parts of data. no direction beyond the sixth is robust.
-Ridge regression finds four labour-market variables that no description of the work can recover: union coverage, education
-  and training requirements, self-employment and employment size. A regression of employment outcomes on a substitution measure therefore needs to take
-  these four have into account. Pay, prestige and retention are strongly correlated with judgement rather than with
-  the manual/mental divide. Different axes tend to be threatened by different kinds of AI automation. We propose the
- 6 axes as a coordinate system  in which occupations can be placed and substitution measures compared, together with 4 labour-market variables outside it.
-The six axes predict 76 percent of the variance in the headline measure of Eloundou et al, AIOE and OECD.Locating two published exposure measures in the space shows
-  them pointing in opposite directions along the judgement axis, which accounts for their disagreement without adjudicating between them.
+  We recover the dimensions of occupational space from the O\*NET descriptors of
+  910 occupations, to ask which characteristics of an occupation bear on whether
+  AI can substitute for human labour. Occupations do not fall into clusters; they fill a continuous
+  space with two tiers of structure. The first tier is three broad axes —
+  physical intensity, judgement and person-facing work — which carry 54 percent
+  of the variance. The second tier is a three-dimensional subspace carrying a further 10 percent,
+  whose axes after rotation are manipulation against navigation, work with a
+  fixed correct standard against open-ended work, and commercial against
+  specialist work. It matters less than the first tier but is too stable to discard; whether a study
+  needs it depends on the resolution at which it works. Beyond the sixth there
+  are further dimensions that are more than noise, but their number depends on
+  how the input is constructed, and they are local, separating a few
+  occupations sharply rather than distinguishing occupations across the whole
+  space. Ridge regression finds four labour-market variables that no
+  description of the work can recover: union coverage, education and training
+  requirements, self-employment and employment size. A regression of employment
+  outcomes on a substitution measure therefore needs to take these four into
+  account. Pay, prestige and retention are strongly correlated with judgement
+  rather than with the manual/mental divide. We propose the six axes, used at
+  whichever resolution a study needs, as a coordinate system in which
+  occupations can be placed and substitution measures compared, with the four
+  labour-market variables alongside it. It describes the structure of
+  occupational space itself and is unlikely to change as AI capabilities advance
+  or as ratings of AI capability are revised. We conjecture that different axes are
+  exposed to different kinds of AI. The six axes predict 76 percent of the
+  variance in the headline measures of Eloundou et al., AIOE and the OECD.
+  Locating two published exposure measures in the space shows them pointing in
+  opposite directions along the judgement axis, which accounts for their
+  disagreement without adjudicating between them.
 output-file: index.html
 other-links:
   - text: Interactive figures
