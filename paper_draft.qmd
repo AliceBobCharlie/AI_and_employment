@@ -1,11 +1,9 @@
 ---
 title: "The dimensional structure of occupational space: a coordinate system for AI substitution measures"
 abstract: |
-  We recover the dimensions of occupational space from the O\*NET descriptors of 910 occupations, to ask which characteristics of an occupation bear on whether AI can substitute for human labour, and which variables lie outside them. Occupations do not fall into types; they occupy a continuous space with two tiers of structure. Three broad axes — physical intensity, judgement and person-facing work — carry 54 percent of the variance and are robust across every part of the data. Three narrower axes — manipulation vs navigation, exacting vs. exploratory work, and commercial against specialist work carry a further 10 percent but are not reproduceble across all parts of data.; no direction beyond the sixth is robust.
-Ridge regression finds four labour-market
-  variables that no description of the work can recover: union coverage, education
-  and training requirements, self-employment and employment size. A regression of
-  employment outcomes on a substitution measure therefore needs to take
+  We recover the dimensions of occupational space from the O\*NET descriptors to ask which characteristics of an occupation bear on whether AI can substitute for human labour. We also test common labour-market variables, to see variables needs to be considered in regression of real world displacement data. Occupations do not fall into clusters in the space; they occupy a continuous space with two tiers of structure. The demensions can be 3 or 6 depending on your scale. We find three broad axes — physical intensity, judgement and person-facing work — carry 54 percent of the variance and are robust across every part of the data. And three narrower axes — manipulation vs navigation, exacting vs. exploratory work, and commercial against specialist work carry a further 10 percent but are not reproduceble across all parts of data. no direction beyond the sixth is robust.
+Ridge regression finds four labour-market variables that no description of the work can recover: union coverage, education
+  and training requirements, self-employment and employment size. A regression of employment outcomes on a substitution measure therefore needs to take
   these four have into account. Pay, prestige and retention are strongly correlated with judgement rather than with
   the manual/mental divide. Different axes tend to be threatened by different kinds of AI automation. We propose the
  6 axes as a coordinate system  in which occupations can be placed and substitution measures compared, together with 4 labour-market variables outside it.
