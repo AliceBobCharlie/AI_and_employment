@@ -18,7 +18,7 @@ Tier 1 (Section 5.3):
   1. Eigenvalues, scree and Horn's parallel analysis (reported, not used to
      choose: the count depends on how many items measure the same thing).
   2. Component by component: bootstrap and split-half congruence of each
-     unrotated component, PC1 to PC8. The leading components that pass one by
+     unrotated component, PC1 to PC14. The leading components that pass one by
      one (p05 >= 0.90 on both) form tier 1.
   3. Tier 1 is varimax-rotated on its own and signed by marker variables
      (TIER1_ANCHORS). No later component enters this rotation, so R1-R3 do not
@@ -707,7 +707,7 @@ def main():
     # ---------------- tier 1 ----------------
     eig = eigen_table(pca)
     pa = parallel_analysis(Xz, lam)
-    comp, k1 = component_stability(Xz, pca.components_[:N_PC])
+    comp, k1 = component_stability(Xz, pca.components_[:K_MAX])
     k1 = max(k1, 2)                       # rotate at least two components
     idx1 = list(range(k1))
 

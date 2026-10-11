@@ -689,92 +689,106 @@ instead of recovering structure, gives up most of the information in the ratings
 The standardised feature matrix — 910 occupations by 216 variables — is
 decomposed by principal component analysis.
 
-| component | eigenvalue | % of variance | cumulative % |
-|---|---|---|---|
-| 1 | 69.22 | 32.0 | 32.0 |
-| 2 | 30.15 | 13.9 | 46.0 |
-| 3 | 16.90 | 7.8 | 53.8 |
-| 4 | 8.82 | 4.1 | 57.8 |
-| 5 | 6.95 | 3.2 | 61.1 |
-| 6 | 6.32 | 2.9 | 64.0 |
-| 7 | 4.37 | 2.0 | 66.0 |
-| 8 | 3.86 | 1.8 | 67.8 |
-| 9 | 3.71 | 1.7 | 69.5 |
-| 10 | 3.02 | 1.4 | 70.9 |
-| 11 | 2.85 | 1.3 | 72.2 |
-| 12 | 2.59 | 1.2 | 73.4 |
-| 13 | 2.35 | 1.1 | 74.5 |
-| 14 | 2.11 | 1.0 | 75.5 |
+We use parallel analysis to determine which components contain information, as
+opposed to variation that a matrix of this shape would show by chance alone.
+**Fourteen components are signal.** Each has a larger eigenvalue than the 95th
+percentile of the null, and together they account for 75.5 percent of the
+variance. The fifteenth (1.84, against a null of 1.85) falls below it.
 
-Reaching 90 percent of the variance takes 56 components. That is what heavy
-collinearity looks like: a great deal of variance, little of it independent, and
-a long tail with no obvious break in it.
+**Table 5.1 — Eigenvalues and parallel analysis**
 
-The table invites a cumulative-variance rule — stop at 54 percent, or at 70 —
-and that is the one criterion we want to rule out at the start. Where to stop on
-a smooth curve is a choice about how much variance one is willing to leave
-behind, and it produces a number without ever asking whether the components it
-keeps are describing anything. The prior question is which directions in this
-matrix are signal at all, and it can be asked directly.
+| component | eigenvalue | % of variance | cumulative % | null eigenvalue, 95th percentile | above the null |
+|---|---|---|---|---|---|
+| 1 | 69.22 | 32.0 | 32.0 | 2.22 | yes |
+| 2 | 30.15 | 13.9 | 46.0 | 2.16 | yes |
+| 3 | 16.90 | 7.8 | 53.8 | 2.11 | yes |
+| 4 | 8.82 | 4.1 | 57.8 | 2.09 | yes |
+| 5 | 6.95 | 3.2 | 61.1 | 2.06 | yes |
+| 6 | 6.32 | 2.9 | 64.0 | 2.03 | yes |
+| 7 | 4.37 | 2.0 | 66.0 | 2.01 | yes |
+| 8 | 3.86 | 1.8 | 67.8 | 1.99 | yes |
+| 9 | 3.71 | 1.7 | 69.5 | 1.97 | yes |
+| 10 | 3.02 | 1.4 | 70.9 | 1.94 | yes |
+| 11 | 2.85 | 1.3 | 72.2 | 1.93 | yes |
+| 12 | 2.59 | 1.2 | 73.4 | 1.91 | yes |
+| 13 | 2.35 | 1.1 | 74.5 | 1.89 | yes |
+| 14 | 2.11 | 1.0 | 75.5 | 1.87 | yes |
 
-Horn's parallel analysis asks it. Each eigenvalue is compared against the
-distribution of eigenvalues obtained from data of the same shape with the
-correlations destroyed — here by permuting each column independently, fifty
-times, which leaves every column's own distribution intact and removes only the
+Horn's parallel analysis compares each eigenvalue with the distribution of
+eigenvalues obtained from data of the same shape with the correlations
+destroyed — here by permuting each column independently, fifty times, which
+leaves every column's own distribution intact and removes only the
 relationships between columns. The permuted matrix therefore has the same number
 of occupations, the same number of variables and the same marginal
 distributions as the real one, and no structure; whatever its leading
-eigenvalues reach is what this shape of data produces by chance alone. In our
-case the largest null eigenvalue sits at 2.22 and the fourteenth at 1.87, against
-real values of 69.22 and 2.11. **Fourteen components exceed the ninety-fifth
-percentile of the null**, together accounting for 75.5 percent of variance; the
-fifteenth (1.84, against a null of 1.85) falls below it. So the tail is not noise, and any criterion that
+eigenvalues reach is what this shape of data produces by chance. In our case the
+largest null eigenvalue sits at 2.22 and the fourteenth at 1.87, against real
+values of 69.22 and 2.11. So the tail is not noise, and any criterion that
 discards it owes an account of what it is discarding.
 
-That still does not settle how many components to keep, and the literature does
-not agree on the answer. Studies of this database have retained anything from
-three to a dozen dimensions, and the number generally follows from the criterion
-rather than from the data: a cumulative-variance threshold, an eigenvalue rule,
-or a count fixed in advance by the model the dimensions are to enter. Each is
-defensible on its own terms and they do not converge, because they answer
-different questions. How much does this component explain, and is it larger than
-chance, are both reasonable questions; neither is the question of whether it
-would be the same component if the data were rebuilt.
+Parallel analysis says which components are larger than chance. It does not say
+how many to keep, and the rules of thumb usually used to decide do not settle
+it. The eigenvalues fall smoothly: reaching 90 percent of the variance takes 56
+components, which is what heavy collinearity looks like — a great deal of
+variance, little of it independent, and a long tail with no obvious break in it.
+A cumulative-variance rule — stop at 54 percent, or at 70 — is a choice about how
+much variance one is willing to leave behind, and it produces a number without
+ever asking whether the components it keeps are describing anything. Studies of
+this database have retained anything from three to a dozen dimensions, and the
+number generally follows from the criterion rather than from the data: a
+cumulative-variance threshold, an eigenvalue rule, or a count fixed in advance
+by the model the dimensions are to enter. Each is defensible on its own terms
+and they do not converge, because they measure different things. How much does
+this component explain, and is it larger than chance, are both reasonable
+questions; neither is the question of whether it would be the same component if
+the data were rebuilt.
 
 That last question is the one a coordinate system has to answer, because a
 coordinate system is only useful if its axes mean the same thing when someone
-else estimates them. We therefore decide by reproduction. Each of the first eight
-components is refitted on 200 bootstrap resamples of the occupations and on 50
-random half-splits, and matched back to the original by Tucker's congruence
-coefficient. A component is retained when the fifth percentile of its split-half
-congruence exceeds 0.90 — when an independent half of the occupations recovers
-the same direction in at least 95 percent of splits. The bootstrap asks whether a
-component survives resampling the same occupations; the split-half asks whether
-it survives estimation on occupations the original never saw. The second is
-stricter and is the criterion used.
+else estimates them. We therefore decide by stability, and keep the components
+that emerge stably. Each of the fourteen components is refitted on 200 bootstrap
+resamples of the occupations and on 50 random half-splits, every resample
+standardised and decomposed on its own, and matched back by Tucker's congruence
+coefficient. The bootstrap asks whether a component survives resampling the same
+occupations; the split-half asks whether it survives estimation on occupations
+the original never saw. A component is retained when the fifth percentile of its
+congruence is at least 0.90 on both: an independent half of the occupations
+must recover the same direction in at least 95 percent of splits. The split-half
+is the stricter of the two and is the one that decides.
 
 **Three components reproduce one by one, and no more.**
 
-| component | bootstrap p05 | split-half p05 | verdict |
-|---|---|---|---|
-| 1 | 0.998 | 0.994 | stable |
-| 2 | 0.994 | 0.977 | stable |
-| 3 | 0.990 | 0.961 | stable |
-| 4 | 0.959 | 0.865 | not stable on its own |
-| 5 | 0.751 | 0.660 | not stable on its own |
-| 6 | 0.758 | 0.670 | not stable on its own |
+**Table 5.2 — Stability of each component (5th percentile of congruence)**
+
+| component | % of variance | cumulative % | bootstrap p05 | split-half p05 | verdict |
+|---|---|---|---|---|---|
+| 1 | 32.0 | 32.0 | 0.998 | 0.994 | stable |
+| 2 | 13.9 | 46.0 | 0.994 | 0.977 | stable |
+| 3 | 7.8 | 53.8 | 0.990 | 0.961 | stable |
+| 4 | 4.1 | 57.8 | 0.959 | 0.865 | not stable on its own |
+| 5 | 3.2 | 61.1 | 0.751 | 0.660 | not stable on its own |
+| 6 | 2.9 | 64.0 | 0.758 | 0.670 | not stable on its own |
+| 7 | 2.0 | 66.0 | 0.735 | 0.592 | not stable on its own |
+| 8 | 1.8 | 67.8 | 0.677 | 0.560 | not stable on its own |
+| 9 | 1.7 | 69.5 | 0.682 | 0.579 | not stable on its own |
+| 10 | 1.4 | 70.9 | 0.679 | 0.507 | not stable on its own |
+| 11 | 1.3 | 72.2 | 0.659 | 0.509 | not stable on its own |
+| 12 | 1.2 | 73.4 | 0.641 | 0.503 | not stable on its own |
+| 13 | 1.1 | 74.5 | 0.644 | 0.470 | not stable on its own |
+| 14 | 1.0 | 75.5 | 0.672 | 0.426 | not stable on its own |
 
 The break is abrupt rather than gradual: split-half congruence falls from 0.961
 to 0.865 between the third and fourth components, and no later component
-recovers on its own — the fifth reaches 0.660 and the eighth 0.136. This matters
-for reading the literature, where solutions with six to eight factors on this
-database are common. Nothing about those solutions is wrong arithmetically, and
-the parallel analysis above would license as many as fourteen; the question of
-whether their later factors would be recovered on a different sample of
-occupations has not generally been asked. Section 5.5 asks it, and finds that
-the answer depends on whether the factors are taken one at a time or together.
-
-The three retained components account for 53.8 percent of the variance.
+recovers on its own — from the fifth to the fourteenth it stays between 0.43 and
+0.67. The three stable components account for 53.8 percent of the variance; the
+eleven that fail account for a further 21.7 percent, all of it above the
+parallel-analysis null. This matters for reading the literature, where solutions
+with six to eight factors on this database are common. Nothing about those
+solutions is wrong arithmetically, and the parallel analysis above would license
+as many as fourteen; the question of whether their later factors would be
+recovered on a different sample of occupations has not generally been asked.
+Section 5.5 asks it, and finds that the answer depends on whether the factors
+are taken one at a time or together.
 
 Three axes leave 46.2 percent of the variance unaccounted for, and parallel
 analysis has already said that much of it is more than chance. The two results
@@ -1080,9 +1094,8 @@ at the k that completes it.
   of the congruence of component k on its own (orange). Dotted line: the 0.90
   criterion. Grey band: the k at which the half-sample eigenvalue falls below
   the 95th percentile of eigenvalues from column-permuted halves. The
-  single-component values differ slightly from the table in Section 5.3, which
-  uses 50 splits and matches each component among the first eight; the figure
-  uses 100 splits and the first fourteen.</figcaption>
+  single-component values differ slightly from Table 5.2, which uses 50 splits;
+  the figure uses 100.</figcaption>
 </figure>
 ```
 
