@@ -1,21 +1,16 @@
 ---
 title: "The dimensional structure of occupational space: a coordinate system for AI substitution measures"
 abstract: |
-  We recover the dimensions of occupational space from the O\*NET descriptors of 910 occupations, to ask which characteristics of an occupation bear on whether AI can substitute for human labour, and which variables lie outside them. Occupations do not fall into types; they occupy a continuous space with two tiers of structure. Three broad axes — physical intensity, judgement and person-facing work — each reproduce on independent halves of the occupations and carry 54 percent of the variance. Three narrower axes — where the work takes place, whether its output has a fixed correct standard, and commercial against specialist work — reproduce as a set and carry a further 10 percent; no direction beyond the sixth reproduces. The same axes are recovered from two releases of O\*NET, Ridge regression finds four labour-market
+  We recover the dimensions of occupational space from the O\*NET descriptors of 910 occupations, to ask which characteristics of an occupation bear on whether AI can substitute for human labour, and which variables lie outside them. Occupations do not fall into types; they occupy a continuous space with two tiers of structure. Three broad axes — physical intensity, judgement and person-facing work — carry 54 percent of the variance and are robust across every part of the data. Three narrower axes — manipulation vs navigation, exacting vs. exploratory work, and commercial against specialist work carry a further 10 percent but are not reproduceble across all parts of data.; no direction beyond the sixth is robust.
+Ridge regression finds four labour-market
   variables that no description of the work can recover: union coverage, education
   and training requirements, self-employment and employment size. A regression of
-  employment outcomes on a substitution measure alone is therefore under-specified:
-  these four have to be measured alongside it, since the content of the work does
-  not carry them. One finding is new. Pay,
-  prestige and retention are strongly correlated with judgement rather than with
-  the manual/mental divide: the median wage gap along
-  judgement is \$39,375 against \$9,525 along physical intensity, and physical work
-  that demands judgement is paid well above routine office work. We propose the
-  three axes together with these four as a coordinate system in which occupations
-  can be placed and substitution measures compared, and conjecture that work is
-  harder to substitute the higher it stands on each axis. The six axes predict 76 percent of the variance in the headline measure of Eloundou et al.Locating two published exposure measures in the space shows
-  them pointing in opposite directions along the judgement axis, which accounts
-  for their disagreement without adjudicating between them.
+  employment outcomes on a substitution measure therefore needs to take
+  these four have into account. Pay, prestige and retention are strongly correlated with judgement rather than with
+  the manual/mental divide. Different axes tend to be threatened by different kinds of AI automation. We propose the
+ 6 axes as a coordinate system  in which occupations can be placed and substitution measures compared, together with 4 labour-market variables outside it.
+The six axes predict 76 percent of the variance in the headline measure of Eloundou et al, AIOE and OECD.Locating two published exposure measures in the space shows
+  them pointing in opposite directions along the judgement axis, which accounts for their disagreement without adjudicating between them.
 output-file: index.html
 other-links:
   - text: Interactive figures
