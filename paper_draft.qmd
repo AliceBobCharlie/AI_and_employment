@@ -4,14 +4,30 @@ abstract: |
   We recover the dimensions of occupational space from the O\*NET descriptors
   of 910 occupations, to ask which characteristics of an occupation bear on
   whether AI can substitute for human labour. Occupations do not fall into
-  clusters; they fill a continuous space with two tiers of structure. At the broad level, three dimensions account for more than half of all variation (54 percent): how physical the work is, how much judgement it demands, and how much it involves dealing with people. At a finer level, three more add a further 10 percent: manipulation against navigation, work with a fixed correct standard against open-ended work, and commercial against specialist work. They are robust as a group rather than one by one, and matter less than the first three without being negligible; beyond them, what remains is local. Ridge regression finds four
-  labour-market variables that no description of the work can recover: union
-  coverage, education and training requirements, self-employment and
-  employment size. A regression of employment outcomes on a substitution
-  measure therefore needs to take these four into account. Pay, prestige and
-  retention are strongly correlated with judgement rather than with the
-  manual/mental divide, which is different from previous studies. They form a coordinate system in which occupations can be placed, the factors that may govern AI substitution identified, and substitution measures compared, with
-  the four labour-market variables alongside it. It describes the structure of occupational space itself and is unlikely to go out of date as AI improves and ratings of its capability are revised We conjecture that different axes are exposed to different kinds of AI. The six predict 76 percent of the variance in the headline measures of Eloundou et al., AIOE and the OECD, and published measures point in opposite directions along some of them, which explains why they disagree without settling which is right.
+  clusters; they fill a continuous space of six dimensions, beyond which only
+  local structure remains. At the broad level, three dimensions account for
+  more than half of all variation (54 percent): how physical the work is, how
+  much judgement it demands, and how much it involves dealing with people. At
+  a finer level, three more add a further 10 percent: manipulation against
+  navigation, work with a fixed correct standard against open-ended work, and
+  commercial against specialist work. They are robust as a group rather than
+  one by one, and matter less than the first three without being negligible.
+  Ridge regression finds four labour-market variables that no description of
+  the work can recover: union coverage, education and training requirements,
+  self-employment and employment size. A regression of employment outcomes on
+  a substitution measure therefore needs to take these four into account. Pay,
+  prestige and retention are strongly correlated with judgement rather than
+  with the manual/mental divide, contrary to the emphasis of the task
+  literature. The six dimensions form a coordinate system in which occupations
+  can be placed, the factors that may govern AI substitution identified, and
+  substitution measures compared, with the four labour-market variables
+  alongside it. It describes the structure of occupational space itself and is
+  unlikely to go out of date as AI improves and ratings of its capability are
+  revised. We conjecture that different dimensions are exposed to different
+  kinds of AI. The six predict 76 percent of the variance in the headline
+  measures of Eloundou et al., AIOE and the OECD, and published measures point
+  in opposite directions along some of them, which explains why they disagree
+  without settling which is right.
 output-file: index.html
 other-links:
   - text: Interactive figures
