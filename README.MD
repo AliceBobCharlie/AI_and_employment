@@ -25,10 +25,11 @@ python validate_tier2.py        #  7. R4-R6 without tier-1 curvature   (Section 
 python content_model_halves.py  #  8. job and worker halves           (Section 5.4; needs 5)
 python check_curvature.py       #  9. non-linear relations among the axes (Sections 5.3, 5.5)
 python rating_error.py          # 10. rating error beyond the axes    (Section 5.5)
-python check_orthogonality.py   # 11. what the features can predict   (Section 5.6)
-python plot_axes.py             # 12. data for the figures             (needs 5)
-python corner_table.py          # 13. Table 6.1                        (needs 5)
-python acs_young_share.py       # 14. data for Figure 6.2              (needs 5 and the ACS extract)
+python check_locality.py        # 11. local structure beyond the axes (Section 5.5)
+python check_orthogonality.py   # 12. what the features can predict   (Section 5.6)
+python plot_axes.py             # 13. data for the figures             (needs 5)
+python corner_table.py          # 14. Table 6.1                        (needs 5)
+python acs_young_share.py       # 15. data for Figure 6.2              (needs 5 and the ACS extract)
 ```
 
 Steps 1 and 2 run in that order; every analysis afterwards reads
@@ -75,8 +76,7 @@ raw table only.
 ## Results
 
 **`cluster_onet.py`** → `cluster_occupations.png`,
-`cluster_skill_similarity.png`, `cluster_assignments.csv`, `cluster_skills.csv`,
-`cluster_kurtosis.xlsx`
+`cluster_skill_similarity.png`, `cluster_assignments.csv`, `cluster_skills.csv`
 
 Whether the polarisation reported in earlier work is a property of skills or of
 the way the skill matrix is built. Part A asks whether occupations themselves
@@ -89,14 +89,7 @@ straightforwardly by correlating the published ratings across occupations, and
 the two are compared on how bimodal the resulting edge weights are and how
 separable the skill clusters are. The published network is also thresholded
 before its communities are read off, so the script reports how much of the data
-that step removes. Part C asks whether the components after the first three
-describe a small, separate group of occupations (the "local feature" reading of
-their instability). k-means is poor at finding a small group next to a large
-one, so it uses kurtosis instead: in each subspace (PC1-3, PC4-6, PC7-14,
-PC4-14, PC1-14) a projection pursuit finds the most and least kurtotic
-directions, compared with the same search on Gaussian data of the same size
-and dimension, with an outlier check, the occupation counts along the tail and
-the occupations in it. Nothing here uses the rotated axes; the comparisons that
+that step removes. Nothing here uses the rotated axes; the comparisons that
 do are in `validate_tier1.py`.
 
 **`pca_rotated.py`** → `rotated_axes.csv`, `rotated_loadings.csv`,
@@ -183,6 +176,21 @@ O*NET's ratings, from the published standard errors; an error-only spectrum as
 a measured null for parallel analysis; where components 7-14 load by block
 (candidate method factors: errors shared within one questionnaire); and whether
 the items the six axes explain poorly are simply the unreliable ones.
+
+**`check_locality.py`** → `check_locality.xlsx`
+
+Whether what lies beyond the six axes is local: features that separate a few
+occupations sharply rather than ordering all of them. k-means is poor at
+finding a small group next to a large one, so kurtosis is used instead. Part A
+finds the most and least kurtotic direction in each subspace (PC1-3, PC4-6,
+PC7-14, PC4-14, PC1-14) by projection pursuit, against the same search on
+Gaussian data, with an outlier check, the occupation counts along the tail and
+the occupations in it. Part B goes through PC7-14 one direction at a time,
+curvature of the six removed, to find how many of its directions are
+heavy-tailed and how much of its variance they carry, and repeats this on
+rank-normal scores so that skewed single scales cannot produce the tails.
+Part C asks whether some structure is specific to one region of the space, by
+comparing regional and global directions on held-out occupations.
 
 **`check_orthogonality.py`** → `orthogonality.xlsx`
 
