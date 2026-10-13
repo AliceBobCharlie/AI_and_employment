@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 pca_rotated.py -- the dimensions of occupational space and their rotated axes,
-in two tiers (Sections 5.3 and 5.5, Figure 5.1).
+in two tiers (Section 5.3, Figure 5.1).
 
 Key design choices:
   - ONLY the O*NET feature blocks enter the decomposition: Abilities, Skills,
@@ -26,25 +26,40 @@ Tier 1 (Section 5.3):
      supplementary variables, split-half congruence of the rotated axes and a
      promax refit (are the axes orthogonal by preference of the data?).
 
-Tier 2 (Section 5.5):
+Tier 2 (Section 5.3):
   4. The eigenvalue gaps over the eigenvalue's sampling error at half the
      sample size, lambda * sqrt(2 / (n/2)) (North et al. 1982). A ratio near
      or below 2 means two components can swap or mix between samples.
   5. Nested subspaces: split-half principal angles between the leading-k
-     subspaces, k = 1 to 14, with a permutation null and the half-sample noise
-     floor (Figure 5.1).
+     subspaces, k = 1 to 14 (Figure 5.1). The null is the same statistic on
+     column-permuted matrices: each permuted matrix is split in half, both
+     halves are decomposed, and the smallest cosine and the single-component
+     congruence are computed exactly as for the data. Its 95th percentile is
+     drawn in the figure.
   6. Candidate blocks after tier 1, components k1+1 to k2 for k2 = k1+2 ... 8.
      Each half is decomposed on its own and the principal angles between the
      two halves' block subspaces are computed. A block's agreement is the root
      mean square of the cosines (on the scale of a single congruence; for one
      component it is the congruence). Tier 2 ends at the largest k2 whose RMS
-     cosine has p05 >= 0.90 over 100 split-halves. The rotated axes of each
-     candidate are reported too; they are not used to choose.
-  7. The same block measure for every contiguous block of two or more
-     components after tier 2, up to component 14.
-  8. Tier 2 is varimax-rotated on its own, signed and ordered by marker
+     cosine has p05 >= 0.90 over 200 split-halves. The rotated axes of each
+     candidate are reported too; they are not used to choose. Every smaller
+     block inside the candidates (one, two or three components from k1+1 to
+     8, e.g. component 4 alone and components 5-6) is reported as well, to
+     show whether tier 2 splits further.
+  7. The same block measure for every contiguous block of two or three
+     components after tier 2, up to component 14. Larger blocks are left
+     out: their RMS cosine is pulled up by their best-aligned directions and
+     their smallest cosine pulled down by their worst, so neither is
+     comparable with a block of three.
+  8. Looser criteria: the median instead of the 5th percentile, for single
+     components and for the blocks of step 7 (judged by their smallest
+     cosine), against tier 2. Does the boundary after tier 2 depend on how
+     strictly stability is defined?
+  9. Tier 2 is varimax-rotated on its own, signed and ordered by marker
      variables (TIER2_ANCHORS). Loadings, block composition, supplementary
-     variables, split-half congruence of the rotated axes.
+     variables, split-half congruence of the rotated axes (each half
+     decomposed and rotated from scratch), and the congruence of each rotated
+     axis with the unrotated components of the tier.
 
 Tier-2 loadings read directly here still mix in the curvature of tier 1;
 validate_tier2.py removes it before the axes are interpreted, and
@@ -79,13 +94,15 @@ FIGURE = Path("assets/subspace_stability.png")   # Figure 5.1; assets/ is publis
 SEED = 0
 STABLE_THRESH = 0.90
 K_MAX = 14          # nested subspaces examined
-N_SPLIT_SUB = 100   # split-halves for subspaces and rotated axes
+N_REPEAT = 200      # repetitions of every resampling experiment below
+N_SPLIT_SUB = N_REPEAT   # split-halves for subspaces and rotated axes
 TOP = 12            # loadings printed per pole
 N_PC = 8            # components examined one by one; last end of a tier-2 candidate
-B = 200             # bootstrap resamples
-N_SPLIT = 50        # split-halves for the component-by-component check
-N_NULL = 30         # permuted matrices for the nested-subspace null
-N_PERM = 50         # permutations for parallel analysis
+MAX_LATER_BLOCK = 3 # largest block after tier 2 whose agreement is reported
+B = N_REPEAT        # bootstrap resamples
+N_SPLIT = N_REPEAT  # split-halves for the component-by-component check
+N_NULL = N_REPEAT   # permuted matrices for the nested-subspace null
+N_PERM = N_REPEAT   # permutations for parallel analysis
 
 # The feature matrix: Importance for four blocks, the Context scale for Work Context.
 FEATURE_PREFIXES = ("skills_im__", "abilities_im__", "knowledge_im__",
@@ -519,6 +536,7 @@ def subspace_stability(X):
                  for _ in range(N_NULL)]
     null_min = np.vstack([r[0] for r in null_runs])
     null_msq = np.vstack([r[1] for r in null_runs])
+    null_single = np.vstack([r[2] for r in null_runs])
     null_ev = np.vstack([r[3] for r in null_runs])
 
     half_error = np.sqrt(2 / (n / 2))
@@ -534,6 +552,8 @@ def subspace_stability(X):
             "mean sq cos p05": np.percentile(msq_cos[:, j], 5),
             "mean sq cos median": np.median(msq_cos[:, j]),
             "null min cos median": np.median(null_min[:, j]),
+            "null min cos p95": np.percentile(null_min[:, j], 95),
+            "null single congruence p95": np.percentile(null_single[:, j], 95),
             "null mean sq cos median": np.median(null_msq[:, j]),
             "null mean sq cos p95": np.percentile(null_msq[:, j], 95),
             "single component k: congruence p05": np.percentile(single[:, j], 5),
@@ -570,10 +590,11 @@ def block_cosines(X, blocks):
 def block_row(block, cos):
     a, z = block
     rms = np.sqrt((cos ** 2).mean(axis=1))
-    return {"components": f"{a + 1}-{z}", "size": z - a,
+    return {"components": f"{a + 1}-{z}" if z - a > 1 else f"{z}", "size": z - a,
             "RMS cosine p05": np.percentile(rms, 5),
             "RMS cosine median": np.median(rms),
             "smallest cosine p05": np.percentile(cos.min(axis=1), 5),
+            "smallest cosine median": np.median(cos.min(axis=1)),
             "RMS cosine p05 >= 0.90": np.percentile(rms, 5) >= STABLE_THRESH}
 
 
@@ -582,8 +603,10 @@ def choose_tier2(X, k1):
     RMS cosine has p05 >= STABLE_THRESH. The rotated axes of each candidate
     are checked as well."""
     ends = range(k1 + 2, N_PC + 1)
-    later = [(a, z) for a in range(k1, K_MAX) for z in range(a + 2, K_MAX + 1)]
-    blocks = [(0, k1)] + [(k1, e) for e in ends] + later
+    inner = [(a, z) for a in range(k1, N_PC) for z in range(a + 1, min(a + 3, N_PC) + 1)]
+    later = [(a, z) for a in range(k1, K_MAX)
+             for z in range(a + 2, min(a + MAX_LATER_BLOCK, K_MAX) + 1)]
+    blocks = [(0, k1)] + [(k1, e) for e in ends] + inner + later
     cos = block_cosines(X, list(dict.fromkeys(blocks)))
 
     banner(f"TIER 2 CANDIDATES: block split-half agreement (x{N_SPLIT_SUB})")
@@ -617,10 +640,16 @@ def choose_tier2(X, k1):
     else:
         print("\n-> no block after tier 1 holds: no tier 2")
 
+    sub = pd.DataFrame([block_row(b, cos[b]) for b in inner
+                        if b[1] <= max(k2, k1 + 3) and b != (k1, max(k2, k1 + 3))])
+    banner("BLOCKS INSIDE TIER 2: does it split further?")
+    print("  a single component here is compared position for position, not by best match")
+    print(sub.drop(columns="size").round(3).to_string(index=False))
+
     after = k2 if k2 > k1 else k1
     rest = pd.DataFrame([block_row(b, cos[b]) for b in later if b[0] >= after])
-    banner(f"BLOCKS AFTER TIER 2: every contiguous block of 2+ components "
-           f"from {after + 1} to {K_MAX}")
+    banner(f"BLOCKS AFTER TIER 2: every contiguous block of 2 to {MAX_LATER_BLOCK} "
+           f"components from {after + 1} to {K_MAX}")
     if len(rest):
         best = rest.loc[rest["RMS cosine p05"].idxmax()]
         print(f"  {int(rest['RMS cosine p05 >= 0.90'].sum())} of {len(rest)} blocks pass; "
@@ -628,21 +657,48 @@ def choose_tier2(X, k1):
               f"(components {best['components']})")
         print(rest.sort_values("RMS cosine p05", ascending=False).head(10)
               .round(3).to_string(index=False))
-    return k2, pd.concat([pd.DataFrame([ref]), cand], ignore_index=True), rest
+    return k2, pd.concat([pd.DataFrame([ref]), cand, sub], ignore_index=True), rest
+
+
+def looser_criteria(sub, cand, rest, k1, k2):
+    """Is anything after tier 2 stable under a looser criterion? The median
+    over split-halves instead of the 5th percentile, for single components
+    and, by the smallest cosine, for blocks; tier 2 for comparison."""
+    singles = sub.loc[sub["k"] > k2, ["k", "single component k: congruence median"]]
+    tier2 = cand.loc[cand["components"] == f"{k1 + 1}-{k2}"].iloc[0] if k2 > k1 else None
+    banner("LOOSER CRITERIA: medians instead of 5th percentiles")
+    best_single = singles.loc[singles.iloc[:, 1].idxmax()]
+    print(f"  single components after {k2}: highest median congruence "
+          f"{best_single.iloc[1]:.3f} (component {int(best_single['k'])})")
+    if len(rest):
+        best = rest.loc[rest["smallest cosine median"].idxmax()]
+        print(f"  blocks after {k2}: highest median smallest cosine "
+              f"{best['smallest cosine median']:.3f} (components {best['components']}); "
+              f"highest median RMS cosine {rest['RMS cosine median'].max():.3f}")
+    if tier2 is not None:
+        print(f"  tier 2 (components {k1 + 1}-{k2}): median smallest cosine "
+              f"{tier2['smallest cosine median']:.3f}, median RMS cosine "
+              f"{tier2['RMS cosine median']:.3f}")
+    print(rest.sort_values("smallest cosine median", ascending=False)
+          [["components", "RMS cosine median", "smallest cosine median"]]
+          .round(3).to_string(index=False))
 
 
 def plot_subspaces(t, k1, k2):
     """Figure 5.1: for each k, the 5th percentile over split-halves of (a) the
     smallest principal-angle cosine between the two halves' leading-k
-    subspaces and (b) the congruence of component k on its own. Tiers and the
-    half-sample noise floor are marked."""
+    subspaces and (b) the congruence of component k on its own, each with the
+    95th percentile of the same statistic on column-permuted data (dashed).
+    The ends of the two tiers are marked."""
     k = t["k"].to_numpy()
     sub = t["min cos p05"].to_numpy()
     one = t["single component k: congruence p05"].to_numpy()
+    sub_null = t["null min cos p95"].to_numpy()
+    one_null = t["null single congruence p95"].to_numpy()
     ink, secondary, muted, grid, surface = "#0b0b0b", "#52514e", "#898781", "#e1e0d9", "#fcfcfb"
     blue, orange = "#2a78d6", "#eb6834"
 
-    fig, ax = plt.subplots(figsize=(8.0, 4.4), facecolor=surface)
+    fig, ax = plt.subplots(figsize=(8.0, 5.0), facecolor=surface)
     ax.set_facecolor(surface)
     for side in ("top", "right"):
         ax.spines[side].set_visible(False)
@@ -652,15 +708,12 @@ def plot_subspaces(t, k1, k2):
     ax.grid(axis="y", color=grid, linewidth=0.8)
     ax.set_axisbelow(True)
 
-    below = k[~t["half-sample eigenvalue above noise floor"].to_numpy()]
-    if len(below):
-        ax.axvspan(below.min() - 0.5, K_MAX + 0.5, color=grid, alpha=0.5, linewidth=0)
-        ax.text(below.min(), 0.04, "below\nnoise floor", color=secondary, fontsize=8, ha="center")
     edges = [0, k1] + ([k2] if k2 > k1 else [])
     for x in edges[1:]:
         ax.axvline(x + 0.5, color=muted, linewidth=0.8, linestyle=(0, (2, 3)))
-    for t_no, (a, b) in enumerate(zip(edges[:-1], edges[1:]), 1):
-        ax.text((a + b + 1) / 2, 1.035, f"tier {t_no}", color=secondary, fontsize=9, ha="center")
+    for label, (a, b) in zip(["stable one by one", "stable as a subspace"],
+                             zip(edges[:-1], edges[1:])):
+        ax.text((a + b + 1) / 2, 1.035, label, color=secondary, fontsize=8, ha="center")
     ax.axhline(STABLE_THRESH, color=muted, linewidth=1, linestyle=":")
     ax.text(K_MAX + 0.4, STABLE_THRESH + 0.012, f"{STABLE_THRESH:.2f}", color=secondary,
             fontsize=8, ha="right", va="bottom")
@@ -669,6 +722,10 @@ def plot_subspaces(t, k1, k2):
             markeredgecolor=surface, markeredgewidth=1.5, label="leading-k subspace (smallest cosine)")
     ax.plot(k, one, color=orange, linewidth=2, marker="s", markersize=6.5,
             markeredgecolor=surface, markeredgewidth=1.5, label="component k on its own (congruence)")
+    ax.plot(k, sub_null, color=blue, linewidth=1.2, linestyle=(0, (4, 3)), alpha=0.7,
+            label="same, column-permuted data (95th percentile)")
+    ax.plot(k, one_null, color=orange, linewidth=1.2, linestyle=(0, (4, 3)), alpha=0.7,
+            label="same, column-permuted data (95th percentile)")
     if k2 > k1:   # label the end of tier 2 and the point before it
         ax.annotate(f"{sub[k2 - 1]:.2f}", (k2, sub[k2 - 1]), xytext=(0, 9),
                     textcoords="offset points", ha="center", fontsize=8, color=ink)
@@ -680,7 +737,8 @@ def plot_subspaces(t, k1, k2):
     ax.set_xticks(range(1, K_MAX + 1))
     ax.set_xlabel("k", color=secondary, fontsize=9)
     ax.set_ylabel(f"5th percentile over {N_SPLIT_SUB} split-halves", color=secondary, fontsize=9)
-    ax.legend(frameon=False, fontsize=8.5, labelcolor=ink, loc="upper right", bbox_to_anchor=(1.0, 0.85))
+    ax.legend(frameon=False, fontsize=8, labelcolor=ink, loc="upper center",
+              bbox_to_anchor=(0.5, -0.16), ncol=2)
     fig.tight_layout()
     FIGURE.parent.mkdir(exist_ok=True)
     fig.savefig(FIGURE, dpi=200, facecolor=surface)
@@ -726,6 +784,7 @@ def main():
     gaps = eigen_gaps(Xz)
     sub = subspace_stability(Xz)
     k2, cand, rest = choose_tier2(Xz, k1)
+    looser_criteria(sub, cand, rest, k1, k2)
     plot_subspaces(sub, k1, k2)
 
     Ls, Ss, names, var_share = [L1], [tier_scores(pca, Xz, idx1, R1)], list(names1), list(var1)
@@ -752,6 +811,10 @@ def main():
         var_share += list(var2)
         p05 += list(p05_2[order])
         med += list(med_2[order])
+        vs_pc = pd.DataFrame([[congruence(L2[:, j], V[:, i]) for i in idx2] for j in range(len(idx2))],
+                             index=names2, columns=[f"PC{i + 1}" for i in idx2])
+        banner("TIER 2: congruence of each rotated axis with the unrotated components")
+        print(vs_pc.round(3).to_string())
 
     # ---------------- both tiers ----------------
     Ld = pd.DataFrame(np.hstack(Ls), index=feats, columns=names)
@@ -777,6 +840,8 @@ def main():
         gaps.to_excel(writer, sheet_name="eigen_gaps", index=False)
         sub.to_excel(writer, sheet_name="nested_subspaces", index=False)
         cand.to_excel(writer, sheet_name="tier2_candidates", index=False)
+        if k2 > k1:
+            vs_pc.to_excel(writer, sheet_name="tier2_vs_unrotated")
         rest.to_excel(writer, sheet_name="blocks_after_tier2", index=False)
         rot.to_excel(writer, sheet_name="rotated_axes", index=False)
         Ld.to_excel(writer, sheet_name="loadings")

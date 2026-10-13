@@ -694,13 +694,13 @@ efficient — it was built for statistical reporting, grouping by industry and
 function — but that is the point: reaching for the classification that exists,
 instead of recovering structure, gives up most of the information in the ratings.
 
-### 5.3 Determining the dimensions
+### 5.3 Recovering the stable dimensions
 
 The standardised feature matrix — 910 occupations by 216 variables — is
 decomposed by principal component analysis.
 
-The eigenvalues fall smoothly. Reaching 90 percent of the variance takes 56
-components, which is what heavy collinearity looks like: a great deal of
+The eigenvalues fall smoothly. Reaching 80 percent of the variance takes 21
+components and reaching 90 percent takes 56, which is what heavy collinearity looks like: a great deal of
 variance, little of it independent, and a long tail with no obvious break. A
 cumulative-variance cut-off — 50, 70 or 90 percent — is a heuristic. It decides
 how much variance to leave behind without asking whether the components it keeps
@@ -711,37 +711,45 @@ model the dimensions are to enter — rather than from the data.
 
 We ask instead which components are larger than chance, by Horn's parallel
 analysis. Each eigenvalue is compared with those of the same matrix with its
-correlations destroyed, here by permuting each column independently, fifty
+correlations destroyed, here by permuting each column independently, 200
 times. The permuted matrix has the same occupations, the same variables and the
 same distribution in every column as the real one, but no relationships between
 columns, so its eigenvalues show what data of this shape produce by chance.
 **Fourteen components exceed the 95th percentile of the null**, and together
 they account for 75.5 percent of the variance; the fifteenth (1.84, against a
-null of 1.85) does not. Table 5.1 lists the fourteen.
+null of 1.86) does not. Table 5.1 lists the components up to 80 percent of the
+variance.
 
-**Table 5.1 — Eigenvalues and parallel analysis**
+**Table 5.1 — Eigenvalues and parallel analysis, to 80 percent of the variance**
 
 | component | eigenvalue | % of variance | cumulative % | null eigenvalue, 95th percentile | above the null |
 |---|---|---|---|---|---|
 | 1 | 69.22 | 32.0 | 32.0 | 2.22 | yes |
 | 2 | 30.15 | 13.9 | 46.0 | 2.16 | yes |
-| 3 | 16.90 | 7.8 | 53.8 | 2.11 | yes |
+| 3 | 16.90 | 7.8 | 53.8 | 2.13 | yes |
 | 4 | 8.82 | 4.1 | 57.8 | 2.09 | yes |
-| 5 | 6.95 | 3.2 | 61.1 | 2.06 | yes |
-| 6 | 6.32 | 2.9 | 64.0 | 2.03 | yes |
+| 5 | 6.95 | 3.2 | 61.1 | 2.07 | yes |
+| 6 | 6.32 | 2.9 | 64.0 | 2.04 | yes |
 | 7 | 4.37 | 2.0 | 66.0 | 2.01 | yes |
 | 8 | 3.86 | 1.8 | 67.8 | 1.99 | yes |
 | 9 | 3.71 | 1.7 | 69.5 | 1.97 | yes |
-| 10 | 3.02 | 1.4 | 70.9 | 1.94 | yes |
+| 10 | 3.02 | 1.4 | 70.9 | 1.95 | yes |
 | 11 | 2.85 | 1.3 | 72.2 | 1.93 | yes |
 | 12 | 2.59 | 1.2 | 73.4 | 1.91 | yes |
 | 13 | 2.35 | 1.1 | 74.5 | 1.89 | yes |
 | 14 | 2.11 | 1.0 | 75.5 | 1.87 | yes |
+| 15 | 1.84 | 0.8 | 76.3 | 1.86 | no |
+| 16 | 1.75 | 0.8 | 77.1 | 1.84 | no |
+| 17 | 1.62 | 0.8 | 77.9 | 1.82 | no |
+| 18 | 1.47 | 0.7 | 78.6 | 1.81 | no |
+| 19 | 1.41 | 0.7 | 79.2 | 1.79 | no |
+| 20 | 1.27 | 0.6 | 79.8 | 1.78 | no |
+| 21 | 1.17 | 0.5 | 80.3 | 1.76 | no |
 
 Parallel analysis says which components are more than noise, not how many to
 keep. A coordinate system also needs its axes to mean the same thing when
 someone else estimates them, so we test the stability of each component. Each of
-the fourteen is refitted on 200 bootstrap resamples of the occupations and on 50
+the fourteen is refitted on 200 bootstrap resamples of the occupations and on 200
 random half-splits, every resample standardised and decomposed on its own, and
 matched back by Tucker's congruence coefficient. The bootstrap asks whether a
 component survives resampling the same occupations; the split-half asks whether
@@ -751,37 +759,39 @@ that an independent half of the occupations recovers the same direction in at
 least 95 percent of splits. The split-half is the stricter test and the one that
 decides.
 
-**Three components reproduce one by one, and they account for 53.8 percent of
+**Three components are stable on their own, and they account for 53.8 percent of
 the variance.**
 
-**Table 5.2 — Stability of each component (5th percentile of congruence) and the gap to the next eigenvalue**
+**Table 5.2 — Stability of each component (5th percentile of congruence)**
 
-| component | eigenvalue | % of variance | cumulative % | gap to the next, in sampling errors | bootstrap p05 | split-half p05 | verdict |
-|---|---|---|---|---|---|---|---|
-| 1 | 69.22 | 32.0 | 32.0 | 8.5 | 0.998 | 0.994 | stable |
-| 2 | 30.15 | 13.9 | 46.0 | 6.6 | 0.994 | 0.977 | stable |
-| 3 | 16.90 | 7.8 | 53.8 | 7.2 | 0.990 | 0.961 | stable |
-| 4 | 8.82 | 4.1 | 57.8 | 3.2 | 0.959 | 0.865 | not stable on its own |
-| 5 | 6.95 | 3.2 | 61.1 | 1.4 | 0.751 | 0.660 | not stable on its own |
-| 6 | 6.32 | 2.9 | 64.0 | 4.7 | 0.758 | 0.670 | not stable on its own |
-| 7 | 4.37 | 2.0 | 66.0 | 1.8 | 0.735 | 0.592 | not stable on its own |
-| 8 | 3.86 | 1.8 | 67.8 | 0.6 | 0.677 | 0.560 | not stable on its own |
-| 9 | 3.71 | 1.7 | 69.5 | 2.8 | 0.682 | 0.579 | not stable on its own |
-| 10 | 3.02 | 1.4 | 70.9 | 0.8 | 0.679 | 0.507 | not stable on its own |
-| 11 | 2.85 | 1.3 | 72.2 | 1.4 | 0.659 | 0.509 | not stable on its own |
-| 12 | 2.59 | 1.2 | 73.4 | 1.4 | 0.641 | 0.503 | not stable on its own |
-| 13 | 2.35 | 1.1 | 74.5 | 1.5 | 0.644 | 0.470 | not stable on its own |
-| 14 | 2.11 | 1.0 | 75.5 | 2.0 | 0.672 | 0.426 | not stable on its own |
+| component | % of variance | cumulative % | bootstrap p05 | split-half p05 | verdict |
+|---|---|---|---|---|---|
+| 1 | 32.0 | 32.0 | 0.998 | 0.994 | stable |
+| 2 | 13.9 | 46.0 | 0.994 | 0.974 | stable |
+| 3 | 7.8 | 53.8 | 0.990 | 0.959 | stable |
+| 4 | 4.1 | 57.8 | 0.959 | 0.838 | not stable in split-half |
+| 5 | 3.2 | 61.1 | 0.751 | 0.676 | not stable |
+| 6 | 2.9 | 64.0 | 0.758 | 0.666 | not stable |
+| 7 | 2.0 | 66.0 | 0.735 | 0.590 | not stable |
+| 8 | 1.8 | 67.8 | 0.677 | 0.561 | not stable |
+| 9 | 1.7 | 69.5 | 0.682 | 0.577 | not stable |
+| 10 | 1.4 | 70.9 | 0.679 | 0.493 | not stable |
+| 11 | 1.3 | 72.2 | 0.659 | 0.506 | not stable |
+| 12 | 1.2 | 73.4 | 0.641 | 0.501 | not stable |
+| 13 | 1.1 | 74.5 | 0.644 | 0.456 | not stable |
+| 14 | 1.0 | 75.5 | 0.672 | 0.409 | not stable |
 
-The three stable components leave 46.2 percent of the variance undescribed, while the fourteen components
-above chance hold 75.5 percent. That is too much to set aside. The gap column
-of Table 5.2 sets the distance from each eigenvalue to the next against the
-sampling error of an eigenvalue estimated on half the occupations, about λ√(2 / (n/2)) (North et al.,
-1982). The fifth and sixth eigenvalues lie only 1.4 such errors apart. When two
-eigenvalues are within about two sampling errors of each other, a second sample
-can mix the two components: each half of the occupations finds the same
-subspace but draws its axes through it at a different angle. Components like
-these should be judged by the subspace they span, not one by one.
+The three stable components leave 46.2 percent of the variance undescribed,
+while the fourteen components above chance hold 75.5 percent. That is too much
+to set aside. We set the gap between each eigenvalue and the next against the
+sampling error of an eigenvalue estimated on half the occupations, about
+λ√(2 / (n/2)) (North et al., 1982). The first three eigenvalues are 6.6 to 8.5
+such errors from their neighbours, but the fifth and sixth lie only 1.4 apart.
+When two eigenvalues are within about two sampling errors of each other, a
+second sample can mix the two components: each half of the occupations finds
+the same subspace but draws its axes through it at a different angle.
+Components like these should be judged by the subspace they span, not one by
+one.
 
 We therefore compare subspaces instead of components. For each k from 1
 to 14, the leading k components of one random half of the occupations are
@@ -794,74 +804,112 @@ own.
 ```{=html}
 <figure class="plot-figure">
   <img src="assets/subspace_stability.png" style="width: 100%; height: auto;"
-       alt="Line chart over k from 1 to 14 of two split-half stability measures. The leading-k subspace measure is about 0.97 to 0.99 for k from 1 to 3, falls to 0.86 at k = 4 and 0.25 at k = 5, recovers to 0.88 at k = 6, and stays at or below 0.68 from k = 7 to 14. The single-component measure follows it to k = 4 and then declines steadily from 0.68 to 0.42.">
+       alt="Line chart over k from 1 to 14 of two split-half stability measures. The leading-k subspace measure is about 0.97 to 0.99 for k from 1 to 3, falls to 0.86 at k = 4 and 0.28 at k = 5, recovers to 0.88 at k = 6, and stays at or below 0.66 from k = 7 to 14. The single-component measure follows it to k = 4 and then declines steadily from 0.68 to 0.41. The same measures on column-permuted data stay at or below 0.21.">
   <figcaption><b>Figure 5.1</b> — split-half stability of nested subspaces. For
-  each k, the 5th percentile over 100 random half-splits of the smallest
+  each k, the 5th percentile over 200 random half-splits of the smallest
   principal-angle cosine between the two halves' leading-k subspaces (blue), and
-  of the congruence of component k on its own (orange). Dotted line: the 0.90
-  criterion. Grey band: the k at which the half-sample eigenvalue falls below
-  the 95th percentile of eigenvalues from column-permuted halves. The
-  single-component values differ slightly from Table 5.2, which uses 50 splits;
-  the figure uses 100.</figcaption>
+  of the congruence of component k on its own (orange). Dashed lines: the 95th
+  percentile of the same two measures on 200 column-permuted matrices, each split
+  and decomposed in the same way. Dotted line: the 0.90 criterion. The
+  single-component values differ slightly from Table 5.2 because the splits are
+  drawn separately.</figcaption>
 </figure>
 ```
 
-Up to k = 3 the subspace and the single components agree, at 0.97 or better. At
-k = 5 the subspace collapses to 0.25, because five components cut the group of
+Up to k = 3 the subspace and the single components agree, at 0.96 or better. At
+k = 5 the subspace collapses to 0.28, because five components cut the group of
 three in two; at k = 6 it recovers to 0.88, while the fifth and sixth components
-on their own stay below 0.70. Nothing after the sixth recovers in this way.
-Taken as a block, components 4 to 6 reproduce: the root mean square of the
-cosines between the two halves' block subspaces has a fifth percentile of 0.934,
-and no other block that starts at the fourth component reaches the 0.90
-threshold (Table 5.3). Nor does any of the 28 contiguous blocks of two or more
-components between the seventh and the fourteenth; the best, the whole run from
-7 to 14, reaches 0.869.
+on their own stay below 0.70. Nothing after the sixth recovers in this way: the
+best later value, at k = 9, is 0.66. Every value in the figure lies well above
+what column-permuted data produce. We
+therefore expect components 4 to 6 to fail one by one because their directions
+are unstable, while the subspace they span is stable.
 
-**Table 5.3 — Split-half agreement of blocks of components (5th percentile over 100 splits)**
+To test this, each half of the occupations is decomposed on its own, and the
+principal angles are computed between the two halves' subspaces spanned by a
+given block of components. A block's agreement is the root mean square of the
+cosines of these angles. The squared cosine of a principal angle is the share of
+a direction in one subspace that lies in the other, so the mean squared cosine
+is the share of one half's subspace that the other half recovers, and its
+square root puts that share on the scale of a congruence; for a single
+component it is the congruence. A block reproduces when this is at least 0.90 in
+95 percent of 200 splits, the criterion applied to single components above.
+
+**Table 5.3 — Split-half agreement of blocks of components (5th percentile over 200 splits)**
 
 | components | RMS cosine | smallest cosine |
 |---|---|---|
-| 1–3 (for reference) | 0.988 | — |
-| 4–5 | 0.699 | 0.245 |
-| **4–6** | **0.934** | **0.878** |
-| 4–7 | 0.854 | 0.354 |
-| 4–8 | 0.847 | 0.023 |
+| 1–3 (for reference) | 0.988 | 0.974 |
+| 4 alone | 0.856 | 0.856 |
+| 5–6 | 0.879 | 0.826 |
+| 4–5 | 0.712 | 0.283 |
+| **4–6** | **0.936** | **0.881** |
+| 4–7 | 0.854 | 0.376 |
+| 4–8 | 0.847 | 0.026 |
 
-**A second tier spanned by components 4 to 6.** These components carry a further 10.2 percent
-of the variance, so the six dimensions together hold 64.0 percent. Of the 36.0
-percent that remains, 11.5 percent lies in components 7 to 14, which are larger
-than chance but reproduce neither one by one nor in blocks, and 24.5 percent lies
-beyond the fourteenth component, where parallel analysis cannot tell it from
-noise. Part of components 7 to 14 is curvature of the first six and error in the
-ratings; Section 5.5 examines what they contain.
+A single component in this table is compared position for position rather than
+by best match, so component 4 differs slightly from Table 5.2.
 
-**Rotated within their subspace, components 4 to 6 give stable axes.** A
-subspace that reproduces as a whole has no preferred axes inside it as
-estimated, but it can be given readable ones. Rotating components 4 to 6 by
-varimax within their own subspace, as Section 5.4 describes, gives three axes
-that each half of the occupations, decomposed and rotated from scratch,
-recovers at congruences of 0.924, 0.927 and 0.912 in the worst 5 percent of
-splits, against 0.660 and 0.670 for the fifth and sixth components unrotated.
-Varimax chooses axes by how simply the variables load on them, a criterion that
-does not depend on the nearly equal eigenvalues, so both halves arrive at the
-same axes. All six can therefore be named, which is the task of Section 5.4.
+Taken as a block, components 4 to 6 reproduce, at 0.936. Neither component 4
+alone nor the pair 5–6 does, and neither does any larger or smaller block that
+starts at the fourth component: the three reproduce together or not at all.
+Nor does any of the 13 blocks of two or three components between the seventh
+and the fourteenth; the closest, components 7 to 9, reaches 0.812.
 
-**The occupational space has a stable six-dimensional representation in two
-tiers.** The first tier is three axes that the data fixes one by one, carrying
-53.8 percent of the variance; the second is a three-dimensional subspace that
-the data fixes as a whole, whose rotated axes carry a further 10.2 percent. A
-study can work with the first tier alone when a broad picture is enough, and add
-the second when it needs to separate occupations that the first tier places
-together.
+**Components 4 to 6 span a stable subspace.** The stable structure of the
+occupational space is therefore not only the first three components: the
+subspace spanned by components 4 to 6 is stable as well. It carries a further
+10.2 percent of the variance, so the six components together hold 64.0
+percent.
+
+Why, then, are the components inside it unstable? Their eigenvalues are close,
+so each sample orients them differently within the same subspace. Axes chosen
+by a criterion that does not depend on the eigenvalues may then be stable. We
+test this by rotating within the subspace, here not to make the axes readable
+but to find out whether stable axes exist. In each half of the occupations,
+components 4 to 6 are recomputed and rotated by varimax, which picks the axes on
+which each variable loads either heavily or near zero; the two halves' axes are
+paired one to one and compared (Table 5.4).
+
+**Table 5.4 — Split-half congruence of components 4 to 6, as estimated and rotated within their subspace (200 splits)**
+
+| | p05 | median |
+|---|---|---|
+| component 4 | 0.838 | 0.939 |
+| component 5 | 0.676 | 0.802 |
+| component 6 | 0.666 | 0.804 |
+| rotated axis R4 | 0.922 | 0.955 |
+| rotated axis R5 | 0.926 | 0.954 |
+| rotated axis R6 | 0.914 | 0.949 |
+
+**Rotated within their subspace, components 4 to 6 give stable axes.** Each of
+the three rotated axes reproduces at 0.91 or more in 95 percent of splits.
+Varimax does not depend on the nearly equal eigenvalues, so both halves arrive
+at the same axes.
+
+**The occupational space has six stable dimensions.** Taking the first three
+components together with the three rotated axes, the principal components of
+O\*NET yield six stable axes, and the six-dimensional subspace they span is
+stable as well.  Research on occupational structure should take all six into account, but they are not
+of equal weight. The first three are the main ones and carry 53.8 percent of
+the variance; the other three carry 10.2 percent and matter where finer
+distinctions are needed. They also differ in breadth: each of the last three
+draws mainly on one half of O\*NET's Content Model, which Section 5.4 takes up.
 
 Nothing beyond the sixth component is stable under any looser criterion either.
 Taking the median of the split-half congruence instead of its fifth percentile,
 or lowering the threshold from 0.90 to 0.85, does not change the result: no
-single component after the sixth reaches a median congruence of 0.75, and,
+single component after the sixth reaches a median congruence of 0.80, and,
 judged by its worst-aligned direction, no block of them reaches 0.80 even at the
 median — the closest, components 7 to 9, whose eigenvalues are nearly equal,
-reaches 0.79, against 0.93 for components 4 to 6. The boundary after the sixth
-component does not depend on how strictly stability is defined.
+reaches 0.78, against 0.93 for components 4 to 6. The boundary after the sixth
+component does not depend on how strictly stability is defined. This does not
+make the occupational space six-dimensional. There are still 36% variance left to
+be accounted for, but the dimensions are not recoverable against sampling error. Components 7
+to 14 carry a further 11.5 percent of the variance, and the 24.5 percent beyond
+the fourteenth cannot be told from noise. Components 7 to 14 contain some local
+structure, curvature of the first six and error in the ratings; Section 5.5
+examines them.
 
 ### 5.4 What the three axes are
 

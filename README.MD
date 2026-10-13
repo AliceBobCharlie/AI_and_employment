@@ -19,7 +19,7 @@ python clean_master.py          #  2. drop, fill and derive           -> master_
 python check_data.py            #  3. data quality                    (Sections 4.2-4.3)
 
 python cluster_onet.py          #  4. are there clusters at all?       (Section 5.2)
-python pca_rotated.py           #  5. two tiers, six rotated axes     (Sections 5.3 and 5.5, Figure 5.1)
+python pca_rotated.py           #  5. two tiers, six rotated axes     (Section 5.3, Figure 5.1)
 python validate_tier1.py        #  6. do the tier-1 names hold up?     (Section 5.3; needs 4 and 5)
 python validate_tier2.py        #  7. R4-R6 without tier-1 curvature   (Section 5.5; needs 5)
 python content_model_halves.py  #  8. job and worker halves           (Section 5.4; needs 5)
@@ -96,18 +96,25 @@ do are in `validate_tier1.py`.
 `oblique_pattern.csv`, `pca_stability.xlsx`, `scree.png`,
 `assets/subspace_stability.png` (Figure 5.1)
 
-The main analysis, on the 216 feature columns only, in two tiers. Tier 1:
+The main analysis, on the 216 feature columns only, in two tiers. Every
+resampling experiment (bootstrap, split-halves, permutations) is repeated
+`N_REPEAT` = 200 times. Tier 1:
 eigenvalues and parallel analysis (reported, not used to choose), then
 bootstrap and split-half congruence of each unrotated component, which finds
 the components that reproduce one by one (the first three). Tier 2: the
 eigenvalue gaps against their sampling error (North's ratio), which shows
 components 4-6 to be nearly degenerate; split-half principal angles between
-the leading-k subspaces, k = 1 to 14 (Figure 5.1); then each candidate block
+the leading-k subspaces, k = 1 to 14, against the same statistic on
+column-permuted data (Figure 5.1); then each candidate block
 after tier 1 judged as a whole, by the root mean square of the principal-angle
-cosines between the two halves' block subspaces (p05 >= 0.90 over 100
+cosines between the two halves' block subspaces (p05 >= 0.90 over 200
 split-halves). The data picks components 4-6; the rotated axes of each
-candidate, and every block after tier 2 up to component 14, are reported as
-well. Each tier is varimax-rotated on its own, so R1-R3 are the same axes
+candidate, the smaller blocks inside the candidates (component 4 alone,
+components 5-6, ...) and every block of two or three components after tier 2
+up to component 14 are reported as well, and the same blocks are judged again
+by their medians to show that the boundary after tier 2 does not depend on
+how strictly stability is defined. The congruence of each rotated tier-2 axis
+with the unrotated components shows how far rotation moves them. Each tier is varimax-rotated on its own, so R1-R3 are the same axes
 whatever tier 2 turns out to be, and each axis is signed by a marker variable.
 The labour-market variables, which took no part in forming the axes, are
 correlated against all six, and a promax rotation of tier 1 checks whether its
