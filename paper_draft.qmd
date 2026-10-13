@@ -835,15 +835,6 @@ beyond the fourteenth component, where parallel analysis cannot tell it from
 noise. Part of components 7 to 14 is curvature of the first six and error in the
 ratings; Section 5.5 examines what they contain.
 
-Nothing beyond the sixth component is stable under any looser criterion either.
-Taking the median of the split-half congruence instead of its fifth percentile,
-or lowering the threshold from 0.90 to 0.85, does not change the result: no
-single component after the sixth reaches a median congruence of 0.75, and,
-judged by its worst-aligned direction, no block of them reaches 0.80 even at the
-median — the closest, components 7 to 9, whose eigenvalues are nearly equal,
-reaches 0.79, against 0.93 for components 4 to 6. The boundary after the sixth
-component does not depend on how strictly stability is defined.
-
 **Rotated within their subspace, components 4 to 6 give stable axes.** A
 subspace that reproduces as a whole has no preferred axes inside it as
 estimated, but it can be given readable ones. Rotating components 4 to 6 by
@@ -862,6 +853,15 @@ the data fixes as a whole, whose rotated axes carry a further 10.2 percent. A
 study can work with the first tier alone when a broad picture is enough, and add
 the second when it needs to separate occupations that the first tier places
 together.
+
+Nothing beyond the sixth component is stable under any looser criterion either.
+Taking the median of the split-half congruence instead of its fifth percentile,
+or lowering the threshold from 0.90 to 0.85, does not change the result: no
+single component after the sixth reaches a median congruence of 0.75, and,
+judged by its worst-aligned direction, no block of them reaches 0.80 even at the
+median — the closest, components 7 to 9, whose eigenvalues are nearly equal,
+reaches 0.79, against 0.93 for components 4 to 6. The boundary after the sixth
+component does not depend on how strictly stability is defined.
 
 ### 5.4 What the three axes are
 
@@ -1060,11 +1060,10 @@ qualification about R1's negative pole recorded above.
 random half of the occupations recovers each of them at a congruence of 0.96 or
 more even in the worst 5 percent of splits, a standard that many statistical
 results fail as soon as the sample or the scale changes slightly. Across
-features, they reappear whatever is done to the input: on the Level scale
-instead of Importance, from the job and the worker halves of the Content Model
+features, we actually did a b bunch of experiment settings, and they reappear whatever is done to the input: on a different scale, from the job and the worker halves of the Content Model
 decomposed separately, with the blocks of descriptors reweighted or some of
-them removed, and in an earlier release of O\*NET. In most of these variants
-each axis correlates at 0.98 or more with the axes reported here (Appendix A).
+them removed, and in an earlier release of O\*NET. (Appendix B) In most of these variants
+each axis correlates at least 0.90 or more with the axes reported here.
 Physical intensity, judgement and person-facing work are therefore likely to be
 basic features of the occupational space. Any analysis of these data should
 arrive at a similar structure, and even studies whose methods differ sharply
