@@ -906,7 +906,8 @@ median — the closest, components 7 to 9, whose eigenvalues are nearly equal,
 reaches 0.78, against 0.93 for components 4 to 6. The boundary after the sixth
 component does not depend on how strictly stability is defined. This does not
 make the occupational space six-dimensional. There are still 36% variance left to
-be accounted for, but the dimensions are not recoverable against sampling error. Components 7
+be accounted for, but the dimensions that carry it cannot be recovered reliably
+from different samples of occupations. Components 7
 to 14 carry a further 11.5 percent of the variance, and the 24.5 percent beyond
 the fourteenth cannot be told from noise. Components 7 to 14 contain some local
 structure, curvature of the first six and error in the ratings; Section 5.5
