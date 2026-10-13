@@ -773,14 +773,16 @@ the variance.**
 | 13 | 1.1 | 74.5 | 0.644 | 0.470 | not stable on its own |
 | 14 | 1.0 | 75.5 | 0.672 | 0.426 | not stable on its own |
 
+The first three are stable well beyond this criterion. They reappear almost unchanged whatever is done to the input: on the Level scale instead of Importance, with both scales together, or without the Knowledge block, each correlates at 0.98 or more with the axes reported here, and either half of O*NET’s Content Model recovers them on its own (Appendix A).
 The three stable components leave 46.2 percent of the variance undescribed, while the fourteen components
-above chance hold 75.5 percent. That is too much to set aside, and the
-eigenvalues show where to look. How reliably a component can be estimated
-depends less on the size of its eigenvalue than on its distance from its
-neighbours: an eigenvalue estimated on half the occupations carries a sampling
-error of about λ√(2 / (n/2)) (North et al., 1982), and when two eigenvalues lie
-within about two such errors of each other, a second sample can mix the two
-components.
+above chance hold 75.5 percent. That is too much to set aside. Table 5.3 sets
+the gap between neighbouring eigenvalues against the sampling error of an
+eigenvalue estimated on half the occupations, about λ√(2 / (n/2)) (North et al.,
+1982). The fifth and sixth eigenvalues lie only 1.4 such errors apart. When two
+eigenvalues are within about two sampling errors of each other, a second sample
+can mix the two components: each half of the occupations finds the same
+subspace but draws its axes through it at a different angle. Components like
+these should be judged by the subspace they span, not one by one.
 
 **Table 5.3 — Eigenvalue gaps against their sampling error**
 
@@ -801,15 +803,7 @@ components.
 | 13 | 2.35 | 1.1 | 1.5 |
 | 14 | 2.11 | 1.0 | 2.0 |
 
-The spectrum falls in steps. The first three eigenvalues are six to nine
-sampling errors apart from each other and from the fourth. The next three (8.8,
-6.9 and 6.3) are smaller, but stand clearly above the rest, 4.7 errors above the
-seventh, while the gaps among them are small: the fifth and sixth are only 1.4
-errors apart. Components 4 to 6 can therefore fail one at a time without
-describing nothing: each half of the occupations may find the same
-three-dimensional space and draw its axes through it at a different angle.
-
-This is tested by comparing subspaces instead of components. For each k from 1
+We therefore compare subspaces instead of components. For each k from 1
 to 14, the leading k components of one random half of the occupations are
 compared with those of the other half through the principal angles between the
 two subspaces (Björck and Golub, 1973), which do not depend on how either
@@ -853,13 +847,13 @@ components between the seventh and the fourteenth; the best, the whole run from
 | 4–7 | 0.854 | 0.354 |
 | 4–8 | 0.847 | 0.023 |
 
-**A secondary subspace spanned by component 4~6** Components 4 to 6 carry a further 10.2 percent
+**A second tier spanned by components 4 to 6.** These components carry a further 10.2 percent
 of the variance, so the six dimensions together hold 64.0 percent. Of the 36.0
 percent that remains, 11.5 percent lies in components 7 to 14, which are larger
 than chance but reproduce neither one by one nor in blocks, and 24.5 percent lies
 beyond the fourteenth component, where parallel analysis cannot tell it from
-noise. Part of components 7 to 14 contains curvature of the first six and error in the
-ratings; We will examine what they are in Section 5.5.
+noise. Part of components 7 to 14 is curvature of the first six and error in the
+ratings; Section 5.5 examines what they contain.
 
 **Rotated within their subspace, components 4 to 6 give stable axes.** A
 subspace that reproduces as a whole has no preferred axes inside it as
@@ -872,7 +866,13 @@ Varimax chooses axes by how simply the variables load on them, a criterion that
 does not depend on the nearly equal eigenvalues, so both halves arrive at the
 same axes. All six can therefore be named, which is the task of Section 5.4.
 
-**The occupational space has a stable 6-demensional representation of 2 tiers**
+**The occupational space has a stable six-dimensional representation in two
+tiers.** The first tier is three axes that the data fixes one by one, carrying
+53.8 percent of the variance; the second is a three-dimensional subspace that
+the data fixes as a whole, whose rotated axes carry a further 10.2 percent. A
+study can work with the first tier alone when a broad picture is enough, and add
+the second when it needs to separate occupations that the first tier places
+together.
 
 ### 5.4 What the three axes are
 
