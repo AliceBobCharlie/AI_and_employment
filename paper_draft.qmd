@@ -694,7 +694,7 @@ efficient — it was built for statistical reporting, grouping by industry and
 function — but that is the point: reaching for the classification that exists,
 instead of recovering structure, gives up most of the information in the ratings.
 
-### 5.3 Recovering the stable dimensions
+### 5.3 Recovering the dimensions
 
 The standardised feature matrix — 910 occupations by 216 variables — is
 decomposed by principal component analysis.
@@ -887,7 +887,7 @@ the three rotated axes reproduces at 0.91 or more in 95 percent of splits.
 Varimax does not depend on the nearly equal eigenvalues, so both halves arrive
 at the same axes.
 
-**The occupational space has six stable dimensions.** Taking the first three
+**The occupational space has six stable axes.** Taking the first three
 components together with the three rotated axes, the principal components of
 O\*NET yield six stable axes, and the six-dimensional subspace they span is
 stable as well.  Research on occupational structure should take all six into account, but they are not
