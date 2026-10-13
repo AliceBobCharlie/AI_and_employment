@@ -102,7 +102,7 @@ CLEAN = Path("output/master_clean.csv")
 OUT = Path("output/rating_error.xlsx")
 
 SEED = 0
-N_SIM = 50
+N_SIM = 200
 RHOS = [0.0, 0.1, 0.3]
 N_COMPONENTS_SHOWN = 30
 N_AXES = 6

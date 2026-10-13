@@ -94,7 +94,7 @@ FIGURE = Path("assets/subspace_stability.png")   # Figure 5.1; assets/ is publis
 SEED = 0
 STABLE_THRESH = 0.90
 K_MAX = 14          # nested subspaces examined
-N_REPEAT = 200      # repetitions of every resampling experiment below
+N_REPEAT = 200      # draws behind every percentile below: resamples, splits, null matrices
 N_SPLIT_SUB = N_REPEAT   # split-halves for subspaces and rotated axes
 TOP = 12            # loadings printed per pole
 N_PC = 8            # components examined one by one; last end of a tier-2 candidate
@@ -685,18 +685,16 @@ def looser_criteria(sub, cand, rest, k1, k2):
 
 
 def plot_subspaces(t, k1, k2):
-    """Figure 5.1: for each k, the 5th percentile over split-halves of (a) the
+    """Figure 5.1: for each k, the 5th percentile over split-halves of the
     smallest principal-angle cosine between the two halves' leading-k
-    subspaces and (b) the congruence of component k on its own, each with the
-    95th percentile of the same statistic on column-permuted data (dashed).
-    The ends of the two tiers are marked."""
+    subspaces, with the 95th percentile of the same statistic on
+    column-permuted data (dashed). The ends of the two tiers are marked.
+    Single components are in Table 5.2, not here."""
     k = t["k"].to_numpy()
     sub = t["min cos p05"].to_numpy()
-    one = t["single component k: congruence p05"].to_numpy()
     sub_null = t["null min cos p95"].to_numpy()
-    one_null = t["null single congruence p95"].to_numpy()
     ink, secondary, muted, grid, surface = "#0b0b0b", "#52514e", "#898781", "#e1e0d9", "#fcfcfb"
-    blue, orange = "#2a78d6", "#eb6834"
+    blue = "#2a78d6"
 
     fig, ax = plt.subplots(figsize=(8.0, 5.0), facecolor=surface)
     ax.set_facecolor(surface)
@@ -719,12 +717,9 @@ def plot_subspaces(t, k1, k2):
             fontsize=8, ha="right", va="bottom")
 
     ax.plot(k, sub, color=blue, linewidth=2, marker="o", markersize=7,
-            markeredgecolor=surface, markeredgewidth=1.5, label="leading-k subspace (smallest cosine)")
-    ax.plot(k, one, color=orange, linewidth=2, marker="s", markersize=6.5,
-            markeredgecolor=surface, markeredgewidth=1.5, label="component k on its own (congruence)")
+            markeredgecolor=surface, markeredgewidth=1.5,
+            label="leading-k subspace, smallest cosine (5th percentile)")
     ax.plot(k, sub_null, color=blue, linewidth=1.2, linestyle=(0, (4, 3)), alpha=0.7,
-            label="same, column-permuted data (95th percentile)")
-    ax.plot(k, one_null, color=orange, linewidth=1.2, linestyle=(0, (4, 3)), alpha=0.7,
             label="same, column-permuted data (95th percentile)")
     if k2 > k1:   # label the end of tier 2 and the point before it
         ax.annotate(f"{sub[k2 - 1]:.2f}", (k2, sub[k2 - 1]), xytext=(0, 9),

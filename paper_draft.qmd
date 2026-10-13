@@ -797,32 +797,30 @@ We therefore compare subspaces instead of components. For each k from 1
 to 14, the leading k components of one random half of the occupations are
 compared with those of the other half through the principal angles between the
 two subspaces (Björck and Golub, 1973), which do not depend on how either
-subspace is rotated within itself. Figure 5.1 sets the smallest cosine among the
-angles, the worst-aligned direction, beside the congruence of component k on its
-own.
+subspace is rotated within itself. Figure 5.1 shows the smallest cosine among
+the angles, the worst-aligned direction.
 
 ```{=html}
 <figure class="plot-figure">
   <img src="assets/subspace_stability.png" style="width: 100%; height: auto;"
-       alt="Line chart over k from 1 to 14 of two split-half stability measures. The leading-k subspace measure is about 0.97 to 0.99 for k from 1 to 3, falls to 0.86 at k = 4 and 0.28 at k = 5, recovers to 0.88 at k = 6, and stays at or below 0.66 from k = 7 to 14. The single-component measure follows it to k = 4 and then declines steadily from 0.68 to 0.41. The same measures on column-permuted data stay at or below 0.21.">
+       alt="Line chart over k from 1 to 14 of the split-half stability of the leading-k subspace. It is about 0.97 to 0.99 for k from 1 to 3, falls to 0.86 at k = 4 and 0.28 at k = 5, recovers to 0.88 at k = 6, and stays at or below 0.66 from k = 7 to 14, with deep dips to 0.03 at k = 8 and 0.07 at k = 10. The same measure on column-permuted data stays between 0.03 and 0.14.">
   <figcaption><b>Figure 5.1</b> — split-half stability of nested subspaces. For
   each k, the 5th percentile over 200 random half-splits of the smallest
-  principal-angle cosine between the two halves' leading-k subspaces (blue), and
-  of the congruence of component k on its own (orange). Dashed lines: the 95th
-  percentile of the same two measures on 200 column-permuted matrices, each split
-  and decomposed in the same way. Dotted line: the 0.90 criterion. The
-  single-component values differ slightly from Table 5.2 because the splits are
-  drawn separately.</figcaption>
+  principal-angle cosine between the two halves' leading-k subspaces. Dashed
+  line: the 95th percentile of the same measure on 200 column-permuted matrices,
+  each split and decomposed in the same way. Dotted line: the 0.90
+  criterion.</figcaption>
 </figure>
 ```
 
-Up to k = 3 the subspace and the single components agree, at 0.96 or better. At
-k = 5 the subspace collapses to 0.28, because five components cut the group of
-three in two; at k = 6 it recovers to 0.88, while the fifth and sixth components
-on their own stay below 0.70. Nothing after the sixth recovers in this way: the
-best later value, at k = 9, is 0.66. Every value in the figure lies well above
-what column-permuted data produce. We
-therefore expect components 4 to 6 to fail one by one because their directions
+Up to k = 3 the subspace reproduces at 0.97 or better. At k = 5 it collapses to
+0.28, because five components cut the group of components 4 to 6 in two; at
+k = 6 it recovers to 0.88, while the fifth and sixth components on their own
+stay below 0.70 (Table 5.2). Nothing after the sixth recovers in this way: the
+best later value, at k = 9, is 0.66. The deep dips at k = 8 and k = 10, to the
+level of column-permuted data, are the same effect as at k = 5: each cuts
+between two eigenvalues less than one sampling error apart. We therefore
+expect components 4 to 6 to fail one by one because their directions
 are unstable, while the subspace they span is stable.
 
 To test this, each half of the occupations is decomposed on its own, and the
@@ -846,6 +844,9 @@ component it is the congruence. A block reproduces when this is at least 0.90 in
 | **4–6** | **0.936** | **0.881** |
 | 4–7 | 0.854 | 0.376 |
 | 4–8 | 0.847 | 0.026 |
+| 7–9 | 0.812 | 0.652 |
+| 8–9 | 0.634 | 0.306 |
+| 10–11 | 0.561 | 0.116 |
 
 A single component in this table is compared position for position rather than
 by best match, so component 4 differs slightly from Table 5.2.
@@ -1148,8 +1149,8 @@ What is left once the bend is removed still reproduces. Removing the curvature
 of the first tier takes out 17 to 20 percent of the variance of the second,
 against 2 percent removed by the same fit on scrambled predictors. Done
 separately in each half of every split, so that the halves share nothing, the
-remainder reproduces as a subspace at 0.929 (cubic removal) or 0.923
-(nearest-neighbour removal), against 0.934 before, and its rotated axes at 0.90
+remainder reproduces as a subspace at 0.931 (cubic removal) or 0.924
+(nearest-neighbour removal), against 0.936 before, and its rotated axes at 0.90
 to 0.92. Decomposing the whole matrix again after the first three components and
 their curvature have been taken out of every column gives the same answer from
 the other side: the new decomposition leads with a three-dimensional block that
@@ -1276,9 +1277,9 @@ individual rating scales. Replacing every column by the normal scores of its
 ranks, which removes most of what a floor does to a single scale, leaves the
 eigenvalues and the leading subspaces almost unchanged (parallel analysis still
 counts fourteen components). And synthetic data built with the six-dimensional
-structure and a floor at each column's 25th percentile produce curvature in the
-first two components after the sixth (R² of 0.65 and 0.38) and almost none after
-them, not spread across all eight as here; with a floor at the 10th percentile
+structure and a floor at each column's 25th percentile produce curvature
+concentrated in two of the eight components after the sixth (R² of 0.61 and
+0.29) and almost none in the rest, not spread across all eight as here; with a floor at the 10th percentile
 they produce none.
 
 Rating error accounts for little of the first two tiers and much of what lies
@@ -1303,7 +1304,7 @@ it does not form structure that a second sample would recover. Part of it is
 specific to small groups of occupations. Searching components 7 to 14 for the
 direction along which occupations are most heavy-tailed finds an excess kurtosis
 of 3.4, against 1.2 for Gaussian data of the same size searched the same way,
-and 2.4 against 0.4 once the five most extreme occupations are dropped. The tail
+and 2.4 against 0.6 once the five most extreme occupations are dropped. The tail
 is the creative and visual media: art directors, set and exhibit designers,
 graphic designers, film and video editors, producers and directors, special
 effects artists and animators. The number of occupations falls steadily along the
@@ -1311,7 +1312,7 @@ tail rather than leaving a gap, so this is a long tail and not a separate group,
 and it is the kind of characteristic Section 5.3 described: real, confined to a
 few occupations, and without a direction that a random half of the occupations
 would reproduce. The second tier itself is not of this kind; its most
-heavy-tailed direction does not exceed the Gaussian null (0.57 against 0.67).
+heavy-tailed direction does not exceed the Gaussian null (0.57 against 0.61).
 
 So the picture is complete as far as this sample of occupations allows. Of
 components 7 to 14, about a quarter is curvature of the first six and a further

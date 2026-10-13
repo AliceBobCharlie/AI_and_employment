@@ -41,7 +41,7 @@ CLEAN = Path("output/master_clean.csv")
 AXES = Path("output/rotated_axes.csv")
 OUT = Path("output/content_model_halves.xlsx")
 
-N_SPLIT = 100
+N_SPLIT = 200
 K_HALF = 8
 HALVES = {"job": ("workact_im__", "workctx_cx__"),
           "worker": ("skills_im__", "abilities_im__", "knowledge_im__")}

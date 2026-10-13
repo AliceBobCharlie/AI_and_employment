@@ -257,11 +257,11 @@ multiple factor analysis. Run after `pca_rotated.py`.
 
 **`supplementary/pca_ete.py`** → `ete_axes.csv`
 
-Whether the education, training and experience block has axes of its own. Same
-procedure — stability, then rotation — followed by correlating the resulting
-axes with the rotated axes of `pca_rotated.py`, to see how far the preparation
-a job demands is separable from what the work requires. Run after
-`pca_rotated.py`.
+Whether the education, training and experience block has axes of its own. Its
+first two components are rotated and correlated with the rotated axes of
+`pca_rotated.py`, to see how far the preparation a job demands is separable
+from what the work requires. Descriptive only: the block is too small for a
+resampling test to mean much. Run after `pca_rotated.py`.
 
 ## Data-quality checks
 
