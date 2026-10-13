@@ -754,54 +754,34 @@ decides.
 **Three components reproduce one by one, and they account for 53.8 percent of
 the variance.**
 
-**Table 5.2 — Stability of each component (5th percentile of congruence)**
+**Table 5.2 — Stability of each component (5th percentile of congruence) and the gap to the next eigenvalue**
 
-| component | % of variance | cumulative % | bootstrap p05 | split-half p05 | verdict |
-|---|---|---|---|---|---|
-| 1 | 32.0 | 32.0 | 0.998 | 0.994 | stable |
-| 2 | 13.9 | 46.0 | 0.994 | 0.977 | stable |
-| 3 | 7.8 | 53.8 | 0.990 | 0.961 | stable |
-| 4 | 4.1 | 57.8 | 0.959 | 0.865 | not stable on its own |
-| 5 | 3.2 | 61.1 | 0.751 | 0.660 | not stable on its own |
-| 6 | 2.9 | 64.0 | 0.758 | 0.670 | not stable on its own |
-| 7 | 2.0 | 66.0 | 0.735 | 0.592 | not stable on its own |
-| 8 | 1.8 | 67.8 | 0.677 | 0.560 | not stable on its own |
-| 9 | 1.7 | 69.5 | 0.682 | 0.579 | not stable on its own |
-| 10 | 1.4 | 70.9 | 0.679 | 0.507 | not stable on its own |
-| 11 | 1.3 | 72.2 | 0.659 | 0.509 | not stable on its own |
-| 12 | 1.2 | 73.4 | 0.641 | 0.503 | not stable on its own |
-| 13 | 1.1 | 74.5 | 0.644 | 0.470 | not stable on its own |
-| 14 | 1.0 | 75.5 | 0.672 | 0.426 | not stable on its own |
+| component | eigenvalue | % of variance | cumulative % | gap to the next, in sampling errors | bootstrap p05 | split-half p05 | verdict |
+|---|---|---|---|---|---|---|---|
+| 1 | 69.22 | 32.0 | 32.0 | 8.5 | 0.998 | 0.994 | stable |
+| 2 | 30.15 | 13.9 | 46.0 | 6.6 | 0.994 | 0.977 | stable |
+| 3 | 16.90 | 7.8 | 53.8 | 7.2 | 0.990 | 0.961 | stable |
+| 4 | 8.82 | 4.1 | 57.8 | 3.2 | 0.959 | 0.865 | not stable on its own |
+| 5 | 6.95 | 3.2 | 61.1 | 1.4 | 0.751 | 0.660 | not stable on its own |
+| 6 | 6.32 | 2.9 | 64.0 | 4.7 | 0.758 | 0.670 | not stable on its own |
+| 7 | 4.37 | 2.0 | 66.0 | 1.8 | 0.735 | 0.592 | not stable on its own |
+| 8 | 3.86 | 1.8 | 67.8 | 0.6 | 0.677 | 0.560 | not stable on its own |
+| 9 | 3.71 | 1.7 | 69.5 | 2.8 | 0.682 | 0.579 | not stable on its own |
+| 10 | 3.02 | 1.4 | 70.9 | 0.8 | 0.679 | 0.507 | not stable on its own |
+| 11 | 2.85 | 1.3 | 72.2 | 1.4 | 0.659 | 0.509 | not stable on its own |
+| 12 | 2.59 | 1.2 | 73.4 | 1.4 | 0.641 | 0.503 | not stable on its own |
+| 13 | 2.35 | 1.1 | 74.5 | 1.5 | 0.644 | 0.470 | not stable on its own |
+| 14 | 2.11 | 1.0 | 75.5 | 2.0 | 0.672 | 0.426 | not stable on its own |
 
-The first three are stable well beyond this criterion. They reappear almost unchanged whatever is done to the input: on the Level scale instead of Importance, with both scales together, or without the Knowledge block, each correlates at 0.98 or more with the axes reported here, and either half of O*NET’s Content Model recovers them on its own (Appendix A).
 The three stable components leave 46.2 percent of the variance undescribed, while the fourteen components
-above chance hold 75.5 percent. That is too much to set aside. Table 5.3 sets
-the gap between neighbouring eigenvalues against the sampling error of an
-eigenvalue estimated on half the occupations, about λ√(2 / (n/2)) (North et al.,
+above chance hold 75.5 percent. That is too much to set aside. The gap column
+of Table 5.2 sets the distance from each eigenvalue to the next against the
+sampling error of an eigenvalue estimated on half the occupations, about λ√(2 / (n/2)) (North et al.,
 1982). The fifth and sixth eigenvalues lie only 1.4 such errors apart. When two
 eigenvalues are within about two sampling errors of each other, a second sample
 can mix the two components: each half of the occupations finds the same
 subspace but draws its axes through it at a different angle. Components like
 these should be judged by the subspace they span, not one by one.
-
-**Table 5.3 — Eigenvalue gaps against their sampling error**
-
-| component | eigenvalue | % of variance | gap to the next, in sampling errors |
-|---|---|---|---|
-| 1 | 69.22 | 32.0 | 8.5 |
-| 2 | 30.15 | 13.9 | 6.6 |
-| 3 | 16.90 | 7.8 | 7.2 |
-| 4 | 8.82 | 4.1 | 3.2 |
-| 5 | 6.95 | 3.2 | 1.4 |
-| 6 | 6.32 | 2.9 | 4.7 |
-| 7 | 4.37 | 2.0 | 1.8 |
-| 8 | 3.86 | 1.8 | 0.6 |
-| 9 | 3.71 | 1.7 | 2.8 |
-| 10 | 3.02 | 1.4 | 0.8 |
-| 11 | 2.85 | 1.3 | 1.4 |
-| 12 | 2.59 | 1.2 | 1.4 |
-| 13 | 2.35 | 1.1 | 1.5 |
-| 14 | 2.11 | 1.0 | 2.0 |
 
 We therefore compare subspaces instead of components. For each k from 1
 to 14, the leading k components of one random half of the occupations are
@@ -833,11 +813,11 @@ on their own stay below 0.70. Nothing after the sixth recovers in this way.
 Taken as a block, components 4 to 6 reproduce: the root mean square of the
 cosines between the two halves' block subspaces has a fifth percentile of 0.934,
 and no other block that starts at the fourth component reaches the 0.90
-threshold (Table 5.4). Nor does any of the 28 contiguous blocks of two or more
+threshold (Table 5.3). Nor does any of the 28 contiguous blocks of two or more
 components between the seventh and the fourteenth; the best, the whole run from
 7 to 14, reaches 0.869.
 
-**Table 5.4 — Split-half agreement of blocks of components (5th percentile over 100 splits)**
+**Table 5.3 — Split-half agreement of blocks of components (5th percentile over 100 splits)**
 
 | components | RMS cosine | smallest cosine |
 |---|---|---|
@@ -854,6 +834,15 @@ than chance but reproduce neither one by one nor in blocks, and 24.5 percent lie
 beyond the fourteenth component, where parallel analysis cannot tell it from
 noise. Part of components 7 to 14 is curvature of the first six and error in the
 ratings; Section 5.5 examines what they contain.
+
+Nothing beyond the sixth component is stable under any looser criterion either.
+Taking the median of the split-half congruence instead of its fifth percentile,
+or lowering the threshold from 0.90 to 0.85, does not change the result: no
+single component after the sixth reaches a median congruence of 0.75, and,
+judged by its worst-aligned direction, no block of them reaches 0.80 even at the
+median — the closest, components 7 to 9, whose eigenvalues are nearly equal,
+reaches 0.79, against 0.93 for components 4 to 6. The boundary after the sixth
+component does not depend on how strictly stability is defined.
 
 **Rotated within their subspace, components 4 to 6 give stable axes.** A
 subspace that reproduces as a whole has no preferred axes inside it as
@@ -1066,6 +1055,20 @@ judgement-intensive occupations, the physically light ones pay about \$19,000 mo
 the least formal check and the most direct: a name that does not fit its own
 extreme cases is wrong whatever the loadings say. All three survive it, with the
 qualification about R1's negative pole recorded above.
+
+**The three axes are exceptionally stable.** Across samples, an independent
+random half of the occupations recovers each of them at a congruence of 0.96 or
+more even in the worst 5 percent of splits, a standard that many statistical
+results fail as soon as the sample or the scale changes slightly. Across
+features, they reappear whatever is done to the input: on the Level scale
+instead of Importance, from the job and the worker halves of the Content Model
+decomposed separately, with the blocks of descriptors reweighted or some of
+them removed, and in an earlier release of O\*NET. In most of these variants
+each axis correlates at 0.98 or more with the axes reported here (Appendix A).
+Physical intensity, judgement and person-facing work are therefore likely to be
+basic features of the occupational space. Any analysis of these data should
+arrive at a similar structure, and even studies whose methods differ sharply
+from ours recover parts of these three axes.
 
 **Is the second tier a bend in the first?** Before the new axes are read, one
 explanation has to be ruled out. Principal component analysis describes linear
