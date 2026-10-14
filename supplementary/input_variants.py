@@ -58,13 +58,13 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from pca_rotated import (congruence, rotate_tier, subspace_cosines, standardize,  # noqa: E402
                          match_axes, SEED, STABLE_THRESH)
 
-CLEAN = Path("output/master_clean.csv")
-RAW = Path("output/master.csv")
-AXES = Path("output/rotated_axes.csv")
+CLEAN = Path("../output/master_clean.csv")
+RAW = Path("../output/master.csv")
+AXES = Path("../output/rotated_axes.csv")
 OUT = Path("output/input_variants.xlsx")
 
-N_SPLIT = 100
-N_PERM = 50
+N_SPLIT = 200
+N_PERM = 200
 K = 8                      # components and subspaces examined
 TIERS = [[0, 1, 2], [3, 4, 5]]
 

@@ -10,11 +10,14 @@ summing to ~100, with the highest category already dropped in the build):
   RL = required level of education, RW = related work experience,
   PT = on-site/in-plant training, OJ = on-the-job training.
 
-Procedure: PCA on the 37 ETE columns (z-scored) -> scree + bootstrap/split-half
-stability -> varimax-rotate the stable axes -> name them by rotated loadings ->
-then correlate the ETE axes with the three rotated axes of pca_rotated.py, to
-see whether the structure of the block is independent of the description of
-the work.
+Procedure: PCA on the 37 ETE columns (z-scored) -> varimax-rotate the first
+N_AXES components -> name them by rotated loadings -> then correlate the ETE
+axes with the rotated axes of pca_rotated.py, to see whether the structure of
+the block is independent of the description of the work.
+
+No resampling test: the block is small and its leading components carry little
+of its variance, so whether they reproduce on half the occupations says little.
+The analysis is descriptive.
 
 A supplementary analysis: run from the project root, after pca_rotated.py, as
     python supplementary/pca_ete.py
@@ -24,42 +27,27 @@ output/ete_axes.csv.
 
 import numpy as np
 import pandas as pd
-import matplotlib
-matplotlib.use("Agg")
-import matplotlib.pyplot as plt
 from pathlib import Path
 from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import PCA
 
-MASTER = Path("output/master_clean.csv")
-AXES = Path("output/rotated_axes.csv")
-OUTDIR = Path("output"); OUTDIR.mkdir(exist_ok=True)
+MASTER = Path("../output/master_clean.csv")
+AXES = Path("../output/rotated_axes.csv")
+OUTDIR = Path("../output"); OUTDIR.mkdir(exist_ok=True)
 SEED = 0
-N_PC = 6
+N_AXES = 2      # components rotated and reported
 TOP = 12
-B = 200
-N_SPLIT = 50
-STABLE_THRESH = 0.90
 
 
 # varimax and congruence are defined once, in pca_rotated.py, one folder up
 import sys, os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from pca_rotated import congruence, varimax as _varimax
+from pca_rotated import varimax as _varimax  # noqa: E402
 
 
 def varimax(Phi, gamma=1.0, q=100, tol=1e-6):
     L, _ = _varimax(Phi, gamma=gamma, q=q, tol=tol)
     return L
-
-
-def best_match(ref, cand):
-    return np.array([max(congruence(ref[i], cand[j]) for j in range(cand.shape[0]))
-                     for i in range(ref.shape[0])])
-
-
-def pca_load(M, k):
-    return PCA(n_components=k, random_state=SEED).fit(M).components_
 
 
 def ete_scale(col):
@@ -85,30 +73,7 @@ def main():
     print(f"\nPC1={ev[0]:.1%}, PC1-3={cum[2]:.1%}, PC1-6={cum[5]:.1%}, "
           f"to90%={int(np.argmax(cum >= .9)) + 1} PCs")
 
-    # stability
-    rng = np.random.default_rng(SEED); n = Ez.shape[0]
-    ref = pca.components_[:N_PC]
-    boot = np.full((B, N_PC), np.nan); sh = np.full((N_SPLIT, N_PC), np.nan)
-    for b in range(B):
-        idx = rng.integers(0, n, n)
-        try: boot[b] = best_match(ref, pca_load(Ez[idx], N_PC))
-        except Exception: pass
-    for s in range(N_SPLIT):
-        perm = rng.permutation(n); h1, h2 = perm[:n//2], perm[n//2:]
-        try: sh[s] = best_match(pca_load(Ez[h1], N_PC), pca_load(Ez[h2], N_PC))
-        except Exception: pass
-    print("\n" + "=" * 60)
-    print(f"ETE AXIS STABILITY (boot B={B}, split x{N_SPLIT})")
-    print("=" * 60)
-    k = 0
-    for j in range(N_PC):
-        bp = np.nanpercentile(boot[:, j], 5); sp = np.nanpercentile(sh[:, j], 5)
-        ok = bp >= STABLE_THRESH and sp >= STABLE_THRESH
-        if ok: k = j + 1
-        print(f"PC{j+1}  boot_p05={bp:.3f}  split_p05={sp:.3f}  "
-              f"{'STABLE' if ok else 'unstable'}")
-    print(f"-> {k} stable ETE axes")
-    k = max(k, 2)
+    k = N_AXES
 
     # varimax rotate
     L = (pca.components_[:k].T * np.sqrt(pca.explained_variance_[:k]))
@@ -164,7 +129,7 @@ def main():
                        index=title.index)
     out.insert(0, "title", title.values)
     out.to_csv(OUTDIR / "ete_axes.csv")
-    print(f"\n[ok] wrote ete_axes.csv")
+    print("\n[ok] wrote ete_axes.csv")
 
 
 if __name__ == "__main__":
