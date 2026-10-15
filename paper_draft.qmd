@@ -1324,24 +1324,25 @@ concentrated in two of the nine components after the sixth (R² of 0.62 and
 0.24) and almost none in the rest, not spread across all nine as here; with a floor at the 10th percentile
 they produce none.
 
-<!-- TO RERUN: the rating-error figures in this paragraph come from
-rating_error.py on the earlier 216-column matrix, with components 7 to 14 as the
-middle block. The script needs the O*NET text files (data_raw/) and does not yet
-read standard errors for the four working-time (CTP) columns. -->
+<!-- The rating-error figures come from rating_error.py on the 216 Importance and
+Context columns; the four working-time (CTP) columns are not yet included. The
+component shares are regrouped to components 7 to 15 from its per-component
+table. -->
 Rating error accounts for little of the first two tiers and much of what lies
 beyond them. Every O\*NET rating is a mean over a sample of incumbents,
 occupation experts or analysts, and O\*NET publishes the standard error of
 incumbent and analyst ratings, which make up 83 percent of the cells in the
-matrix. The mean squared standard error of an item, divided by the item's
-variance across occupations, is the share of the item that is sampling error in
-its ratings. Over the 216 items it averages 16.7 percent: 8 percent in Skills,
-10 in Abilities, 18 in Knowledge, 19 in Work Context and 28 in Work Activities,
-with the ratings that carry no standard error assumed to be as precise as those
-that do. Projected onto the components, it is 0.4 to 2.4 percent of the first
-tier, 2.6 to 5.9 percent of the second, 6.4 to 23 percent of components 7 to 14
-and 50 to 63 percent of everything beyond the fourteenth. Each range runs from
-errors independent across items to errors correlated at 0.3 among the items of
-one questionnaire, which a response style shared by one occupation's
+216 columns rated on the Importance and Context scales. The mean squared
+standard error of an item, divided by the item's variance across occupations,
+is the share of the item that is sampling error in its ratings. Over these 216
+items it averages 16.7 percent: 8 percent in Skills, 10 in Abilities, 18 in
+Knowledge, 19 in Work Context and 28 in Work Activities, with the ratings that
+carry no standard error assumed to be as precise as those that do. Projected
+onto the components of the same 216 columns, it is 0.4 to 2.4 percent of the
+first tier, 2.6 to 5.9 percent of the second, 6.6 to 22 percent of components 7
+to 15 and 51 to 65 percent of everything beyond the fifteenth. Each range runs
+from errors independent across items to errors correlated at 0.3 among the
+items of one questionnaire, which a response style shared by one occupation's
 respondents would produce and which the published data can neither confirm nor
 rule out.
 
@@ -1362,7 +1363,7 @@ heavy-tailed direction does not exceed the Gaussian null (0.56 against 0.61).
 
 So the picture is complete as far as this sample of occupations allows. Of
 components 7 to 15, about a quarter is curvature of the first six and a further
-6 to 23 percent is rating error; the remainder is item-specific content and the
+7 to 22 percent is rating error; the remainder is item-specific content and the
 features of small groups of occupations, none of which reproduces alone or in
 blocks. Beyond the fifteenth component, half to two thirds of the variance is
 rating error. The six axes, in two tiers, are the structure the data supports;
