@@ -213,13 +213,16 @@ Section 5.6 quotes. Values that `clean_master.py` filled in are left out, so eve
 computed on published values only. Unlike anything read off a PCA, the answer
 does not depend on how many feature columns happen to be in the matrix.
 
-**`plot_axes.py`** → `plot_data.csv`
+**`plot_axes.py`** → `plot_data.csv`, `axis_loadings.csv`
 
-The table the interactive figures are drawn from: each occupation's position on
-the three axes, with union coverage and employment. It needs `rotated_axes.csv`,
-so run it after `pca_rotated.py`. The figures themselves are drawn in the
-browser by plotly.js. `rotated_axes.csv` and `plot_data.csv` are both committed,
-so the axes can be downloaded without running anything.
+The tables the interactive figures are drawn from. `plot_data.csv` holds each
+occupation's position on the six axes, its SOC major group, union coverage and
+employment; `axis_loadings.csv` holds every feature variable's loading on the
+six axes, with its block of the Content Model, for the axis figures of
+Section 5.4 (Figures 5.2 to 5.4). It needs `rotated_axes.csv` and
+`rotated_loadings.csv`, so run it after `pca_rotated.py`. The figures
+themselves are drawn in the browser by plotly.js. `rotated_axes.csv` and both
+tables are committed, so the axes can be downloaded without running anything.
 
 **`corner_table.py`** → terminal
 
@@ -298,10 +301,10 @@ The paper is written in `paper_draft.qmd` and published as a web page with
 | `paper_draft.qmd` | the paper: title and abstract in the header, then the text |
 | `_quarto.yml` | page layout, fonts, and the scripts the page loads |
 | `theme.scss` | typography and colours |
-| `figures.js` | draws the interactive figures in the reader's browser with plotly.js, from `output/plot_data.csv` and `output/acs_young_share.csv` |
+| `figures.js` | draws the interactive figures in the reader's browser with plotly.js, from `output/plot_data.csv`, `output/axis_loadings.csv` and `output/acs_young_share.csv` |
 
-No Python runs when the page is built. The figures read `output/plot_data.csv`
-and `output/acs_young_share.csv` directly, so after re-running the analysis, run
+No Python runs when the page is built. The figures read `output/plot_data.csv`,
+`output/axis_loadings.csv` and `output/acs_young_share.csv` directly, so after re-running the analysis, run
 `plot_axes.py` and `acs_young_share.py` and commit the new CSVs for the page to
 pick them up.
 

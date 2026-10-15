@@ -1,7 +1,11 @@
 // figures.js -- draws the paper's interactive figures with plotly.js.
 //
 // Data: output/plot_data.csv, written by plot_axes.py. One row per occupation:
-// onet_soc, title, R1, R2, R3, employment, union.
+// onet_soc, title, soc_group, R1 to R6, union, employment.
+//
+// The axis figures of Section 5.4 also read output/axis_loadings.csv, written
+// by plot_axes.py: one row per feature variable, with its block of the Content
+// Model and its loading on each rotated axis.
 //
 // Figure 6.2 reads output/acs_young_share.csv, written by acs_young_share.py:
 // one row per matched O*NET occupation, with the change in the young-worker
@@ -15,6 +19,7 @@
   "use strict";
 
   const DATA_URL = "output/plot_data.csv";
+  const LOADINGS_URL = "output/axis_loadings.csv";
   const YOUNG_URL = "output/acs_young_share.csv";
   const SIZE_MAX = 16;
   const FONT = '"Source Sans 3", "Helvetica Neue", Arial, sans-serif';
@@ -86,7 +91,9 @@
     const employment = col("employment");
     return {
       title: records.map((r) => r.title),
+      group: records.map((r) => r.soc_group),
       R1: col("R1"), R2: col("R2"), R3: col("R3"),
+      R4: col("R4"), R5: col("R5"), R6: col("R6"),
       union: col("union"),
       employment: employment,
       size: employment.map((e) => Math.log1p(e)),
@@ -413,6 +420,165 @@
     return Plotly.newPlot(el, traces, layout, CONFIG);
   }
 
+  // ---------------------------------------------------------------- axis figures
+
+  // What one rotated axis is made of (Section 5.4), in two panels that share
+  // nothing but the figure. Above: every feature variable's loading on the
+  // axis, one row per block of the Content Model, so no variable is left out
+  // of the picture. Below: every occupation's score, one row per SOC major
+  // group, ordered by the group's median; a bar marks the median and a blue
+  // point the occupation closest to it, which is named under the group. Points
+  // in a row are spread vertically by a fixed offset, not at random, so the
+  // figure is the same on every load.
+
+  const BLOCK_ORDER = ["Skills", "Abilities", "Knowledge", "Work Activities", "Work Context"];
+  const AXIS_BLUE = "#2a78d6";
+  const AXIS_GREY = "#8c8c8c";
+  const STRONG = 0.5;          // loadings counted as strong in the panel heading
+  const TITLE_MAX = 46;        // characters of an occupation title shown under its group
+
+  function spread(i, width) {
+    // Golden-ratio sequence: evenly spread, never the same twice in a row.
+    return (((i * 0.6180339887) % 1) - 0.5) * width;
+  }
+
+  function shorten(text, n) {
+    return text.length > n ? text.slice(0, n - 1).trimEnd() + "…" : text;
+  }
+
+  function loadingColumns(records) {
+    return {
+      variable: records.map((r) => r.variable),
+      block: records.map((r) => r.block),
+      value: (k) => records.map((r) => Number(r[k])),
+    };
+  }
+
+  function axisFigure(d, L, k) {
+    const name = DIMS[k] ? DIMS[k].name : k;
+    const traces = [];
+
+    // ---- top panel: loadings
+    const load = L.value(k);
+    const rowOf = BLOCK_ORDER.map((_, i) => BLOCK_ORDER.length - 1 - i);   // first block on top
+    traces.push({
+      type: "scatter", mode: "markers",
+      x: load,
+      y: L.block.map((b, i) => rowOf[BLOCK_ORDER.indexOf(b)] + spread(i, 0.6)),
+      xaxis: "x", yaxis: "y",
+      text: L.variable,
+      customdata: L.block,
+      hovertemplate: "<b>%{text}</b><br>%{customdata}<br>Loading: %{x:+.2f}<extra></extra>",
+      marker: { color: AXIS_BLUE, size: 7, opacity: 0.65, line: { width: 0 } },
+      showlegend: false,
+    });
+    const strongPos = load.filter((v) => v >= STRONG).length;
+    const strongNeg = load.filter((v) => v <= -STRONG).length;
+
+    // ---- bottom panel: occupations by SOC major group
+    const scores = d[k];
+    const groups = [...new Set(d.group)];
+    const members = Object.fromEntries(groups.map((g) => [g, []]));
+    d.group.forEach((g, i) => members[g].push(i));
+    const med = Object.fromEntries(groups.map((g) => [g, median(members[g].map((i) => scores[i]))]));
+    groups.sort((a, b) => med[a] - med[b]);          // highest median at the top
+    const row = Object.fromEntries(groups.map((g, j) => [g, j]));
+    const closest = Object.fromEntries(groups.map((g) => [g, members[g].reduce((best, i) =>
+      Math.abs(scores[i] - med[g]) < Math.abs(scores[best] - med[g]) ? i : best)]));
+
+    traces.push({
+      type: "scatter", mode: "markers",
+      x: scores,
+      y: d.group.map((g, i) => row[g] + spread(i, 0.5)),
+      xaxis: "x2", yaxis: "y2",
+      text: d.title,
+      customdata: d.group,
+      hovertemplate: "<b>%{text}</b><br>%{customdata}<br>" + name + ": %{x:+.2f}<extra></extra>",
+      marker: { color: AXIS_GREY, size: 6, opacity: 0.55, line: { width: 0 } },
+      showlegend: false,
+    });
+    traces.push({
+      type: "scatter", mode: "markers",
+      x: groups.map((g) => med[g]),
+      y: groups.map((g) => row[g]),
+      xaxis: "x2", yaxis: "y2",
+      text: groups,
+      hovertemplate: "<b>%{text}</b><br>Group median: %{x:+.2f}<extra></extra>",
+      marker: { symbol: "line-ns", size: 20, line: { width: 3, color: "#000000" } },
+      showlegend: false,
+    });
+    traces.push({
+      type: "scatter", mode: "markers",
+      x: groups.map((g) => scores[closest[g]]),
+      y: groups.map((g) => row[g]),
+      xaxis: "x2", yaxis: "y2",
+      text: groups.map((g) => d.title[closest[g]]),
+      customdata: groups,
+      hovertemplate: "<b>%{text}</b><br>%{customdata}<br>" + name +
+        ": %{x:+.2f}<br>closest to the group median<extra></extra>",
+      marker: { color: AXIS_BLUE, size: 10, line: { width: 1.5, color: "#ffffff" } },
+      showlegend: false,
+    });
+
+    const xaxis = (title, range) => ({
+      title: { text: title, standoff: 6 },
+      range: range,
+      zeroline: true, zerolinecolor: "#8c8c8c", zerolinewidth: 1,
+      showgrid: true, gridcolor: "#ececec",
+      linecolor: "#000000", ticks: "outside",
+    });
+    const yaxis = (domain, labels) => ({
+      domain: domain,
+      tickvals: labels.map((_, i) => i),
+      ticktext: labels,
+      range: [-0.6, labels.length - 0.4],
+      showgrid: false, zeroline: false, fixedrange: true,
+      ticks: "", automargin: true,
+      tickfont: { size: 12.5 },
+    });
+
+    const span = Math.max(...scores.map(Math.abs)) * 1.05;
+    const layout = Object.assign(baseLayout(), {
+      plot_bgcolor: "#ffffff",
+      margin: { l: 16, r: 16, t: 28, b: 48 },
+      xaxis: Object.assign(xaxis("Loading on " + name.toLowerCase(), [-1, 1]), { anchor: "y" }),
+      yaxis: yaxis([0.8, 1], rowOf.map((_, r) => BLOCK_ORDER[BLOCK_ORDER.length - 1 - r])),
+      xaxis2: Object.assign(xaxis(name + " (standard deviations)", [-span, span]), { anchor: "y2" }),
+      yaxis2: yaxis([0, 0.71], groups.map((g) =>
+        g + "<br><span style=\"font-size:11px;color:#52514e\">" +
+        shorten(d.title[closest[g]], TITLE_MAX) + "</span>")),
+      annotations: [
+        {
+          xref: "paper", yref: "paper", x: 0, y: 1.0, yanchor: "bottom", xanchor: "left",
+          showarrow: false, font: { family: FONT, size: 13, color: "#52514e" },
+          text: "All " + load.length + " variables: " + strongPos + " load at +" +
+            STRONG.toFixed(1) + " or above, " + strongNeg + " at −" + STRONG.toFixed(1) + " or below",
+        },
+        {
+          xref: "paper", yref: "paper", x: 0, y: 0.725, yanchor: "bottom", xanchor: "left",
+          showarrow: false, font: { family: FONT, size: 13, color: "#52514e" },
+          text: "All " + scores.length + " occupations, by SOC major group",
+        },
+      ],
+    });
+    return { data: traces, layout: layout };
+  }
+
+  async function drawAxisFigures(targets, d) {
+    if (!targets.length) return;
+    let L;
+    try {
+      L = loadingColumns(await loadCsv(LOADINGS_URL));
+    } catch (err) {
+      showError(targets, "The figure data could not be loaded (" + err.message + "). " + LOAD_HELP);
+      return;
+    }
+    targets.forEach((el) => {
+      const fig = axisFigure(d, L, el.dataset.axis);
+      Plotly.newPlot(el, fig.data, fig.layout, CONFIG);
+    });
+  }
+
   // ---------------------------------------------------------------- start
 
   async function loadCsv(url) {
@@ -432,8 +598,8 @@
     });
   }
 
-  async function drawAxesFigures(space, section, select) {
-    const targets = [space, section].filter(Boolean);
+  async function drawAxesFigures(space, section, select, axisPlots) {
+    const targets = [space, section].filter(Boolean).concat(axisPlots);
     if (!targets.length) return;
     let d;
     try {
@@ -444,6 +610,7 @@
     }
     if (space) drawSpace(space, d);
     if (section && select) drawSections(section, select, d);
+    drawAxisFigures(axisPlots, d);
   }
 
   async function drawYoungFigure(young) {
@@ -463,7 +630,8 @@
     const section = document.getElementById("plot-section");
     const select = document.getElementById("section-select");
     const young = document.getElementById("plot-young");
-    const targets = [space, section, young].filter(Boolean);
+    const axisPlots = [...document.querySelectorAll(".plot-axis[data-axis]")];
+    const targets = [space, section, young].filter(Boolean).concat(axisPlots);
     if (!targets.length) return;
 
     if (typeof Plotly === "undefined") {
@@ -473,7 +641,7 @@
 
     // Separate data files, loaded independently, so a missing file leaves
     // only its own figure empty.
-    drawAxesFigures(space, section, select);
+    drawAxesFigures(space, section, select, axisPlots);
     drawYoungFigure(young);
   }
 
