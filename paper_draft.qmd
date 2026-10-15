@@ -230,19 +230,11 @@ other labour-market variables and the market part of the Content Model; Section
 O\*NET publishes most of the blocks we keep on more than one scale, so the first
 choice is which to keep. Work Context is the simpler case. Each of its 55 rated
 items has five ordered categories, from "never" to "every day" or from "not
-important at all" to "extremely important", and O\*NET publishes both the
+important at all" to "extremely important", which add up to 100%, and O\*NET publishes both the
 percentage of respondents in each category (CXP) and their weighted mean, the
-Context rating (CX). We keep CX. The mean holds most of what the percentages
-hold: across the 55 items, a cubic in the mean explains a median of 71 percent
-of the variance of the category percentages across occupations. What remains
-has a single direction that reproduces across halves of the occupations, and it
-carries little information. It separates occupations whose incumbents all meet a
-condition occasionally, a few times a month or a year, from occupations whose
-incumbents are polarised, some never meeting it and others meeting it every
-day. Occupational health and safety specialists and hydrologists, who visit
-sites from time to time, are at one end; bakers and subway operators are at
-the other. Using the percentages would
-also distort the matrix. Even with one category per item dropped, since the
+Context rating (CX). CX holds most of what the percentages
+hold, it explains a median of 71 percent of the variance of the category percentages across occupations.
+Using all the percentages would distort the matrix. Even with one category per item dropped, since the
 five sum to 100, they make 220 columns, more than the other four blocks
 together, and Work Context would dominate the variance. Weighting them down
 would prevent that, but no criterion fixes the weight. It would have to be set
@@ -257,9 +249,7 @@ Work Schedules is a nominal item, so the mean of its category codes has no
 meaning, and the mean of Duration cannot tell an occupation of part-time and
 long-hours workers from one in which everyone works forty hours. We use the
 percentages, leaving out the standard category of each item, 40 hours and
-regular, since the three sum to 100. The four columns kept, less than 40
-hours, more than 40 hours, irregular and seasonal, record how far an
-occupation's working time departs from a standard week.
+regular, since the three sum to 100.
 
 Four of the blocks — Skills, Abilities, Knowledge and Work Activities — are
 published on two scales at once. Importance records how consequential a
