@@ -315,17 +315,7 @@ Pages. The rendered site is never committed. This requires Settings â†’ Pages â†
 Source to be set to *GitHub Actions*.
 
 ## Conventions
- 
-- The six rotated axes are signed by marker variables. For tier 1, positive
-  means physically intensive, judgement-intensive and person-facing
-  respectively. For tier 2 the markers are medicine and dentistry (R4), the
-  importance of being exact or accurate (R5) and sales and marketing (R6);
-  their signs carry no claim about substitutability. The
-  first is a level of physical capability demanded, not a contrast between
-  embodied and symbolic work: its negative pole is low physical demand, which in
-  this data covers both verbal work and light service work. Whether the positive
-  pole is also the pole less amenable to substitution is a conjecture and is
-  treated as one.
+
 - The sign anchors, `varimax`, `congruence`, the tier rotation and the
   subspace helpers are defined once, in `pca_rotated.py`; the other scripts
   import them rather than carrying their own copies.
