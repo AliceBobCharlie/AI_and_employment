@@ -14,11 +14,11 @@ Every analysis reads the clean table. What it does, and why:
   Calibration Technologists and Technicians, which is rated on Work Activities
   and Work Context but not on the other three.
 
-  COLUMNS. The feature matrix (Importance for four blocks, CX for Work
-  Context), the four education, training and experience scales, and the
-  external variables. Everything else stays in the raw master only: the Level
-  scale, Work Context CT, CXP and CTP, and the importance of certification and
-  of apprenticeship. The comparison with Level in Appendix A reads Level from
+  COLUMNS. The feature matrix (Importance for four blocks; for Work Context,
+  CX for the 55 items rated on it and CTP for the two working-time items), the
+  four education, training and experience scales, and the external variables.
+  Everything else stays in the raw master only: the Level scale, Work Context
+  CT and CXP, and the importance of certification and of apprenticeship. The comparison with Level in Appendix A reads Level from
   the raw master for the occupations kept here, where it has no gaps.
 
   EDUCATION. Required education is published on RL for some occupations and
@@ -27,6 +27,15 @@ Every analysis reads the clean table. What it does, and why:
   twelve categories match in number and order; 10 and 11 were reworded (First
   Professional Degree became Doctor's Degree, Professional Practice; Doctoral
   Degree became Doctor's Degree, Research/Scholarship).
+
+  WORKING TIME. Duration of Typical Work Week (less than 40 hours, 40 hours,
+  more than 40) and Work Schedules (regular, irregular, seasonal) are
+  published only on categories. Their percentages enter the feature matrix
+  rather than the CT mean: Work Schedules is nominal, and the mean of
+  Duration cannot tell part-time from long hours. The percentages of each
+  item sum to 100, so the standard category (40 hours, regular) is dropped,
+  leaving four columns. Nine occupations have no CTP ratings; their cells
+  take the column median. The rows kept do not depend on these items.
 
   HIGHEST CATEGORY. The categories of each education, training and experience
   scale sum to 100, so the highest is implied by the rest and is dropped.
@@ -59,6 +68,9 @@ OUT = Path("output/master_clean.csv")
 
 ID_COLUMNS = ["onet_soc", "title"]
 FEATURE_PREFIXES = ["skills_im", "abilities_im", "knowledge_im", "workact_im", "workctx_cx"]
+WORKING_TIME = "workctx_ctp"     # in the feature matrix; not used to select rows
+CTP_STANDARD = {"Duration of Typical Work Week": "c2",    # 40 hours
+                "Work Schedules": "c1"}                   # regular
 ETE_PREFIXES = ["ete_rl", "ete_rw", "ete_pt", "ete_oj"]
 
 WAGE_LEVELS = ["ext_wage_median", "ext_wage_mean", "ext_wage_p10",
@@ -99,6 +111,12 @@ def merge_education(df):
     return df.drop(columns=rq_cols)
 
 
+def working_time_columns(df):
+    """The CTP columns kept: every category but the standard one of each item."""
+    return [c for c in columns_with(df, WORKING_TIME)
+            if c.split("__")[2] != CTP_STANDARD[c.split("__")[1]]]
+
+
 def drop_highest_category(df):
     dropped = []
     for prefix in ETE_PREFIXES:
@@ -111,6 +129,7 @@ def drop_highest_category(df):
 
 def select_columns(df):
     features = [c for p in FEATURE_PREFIXES for c in columns_with(df, p)]
+    features += working_time_columns(df)
     ete = [c for p in ETE_PREFIXES for c in columns_with(df, p)]
     ext = [c for c in df.columns if c.startswith("ext_")]
     return df[ID_COLUMNS + features + ete + ["soc6"] + ext].copy()
@@ -157,7 +176,7 @@ def clean(df):
 
     values = [c for c in df.columns if c not in ID_COLUMNS + ["soc6"]]
     still = df[values].isna()
-    for prefix in ETE_PREFIXES:
+    for prefix in [WORKING_TIME] + ETE_PREFIXES:
         cols = columns_with(df, prefix)
         rows = int(still[cols].any(axis=1).sum())
         if rows:
@@ -175,7 +194,7 @@ def clean(df):
 def main():
     print(f"reading {SRC}")
     df = clean(pd.read_csv(SRC, low_memory=False))
-    feats = sum(len(columns_with(df, p)) for p in FEATURE_PREFIXES)
+    feats = sum(len(columns_with(df, p)) for p in FEATURE_PREFIXES + [WORKING_TIME])
     ete = sum(len(columns_with(df, p)) for p in ETE_PREFIXES)
     ext = len([c for c in df.columns if c.startswith("ext_")])
     print(f"clean table: {df.shape[0]} occupations; {feats} feature, "

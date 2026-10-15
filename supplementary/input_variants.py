@@ -70,7 +70,7 @@ TIERS = [[0, 1, 2], [3, 4, 5]]
 
 IM = ("skills_im__", "abilities_im__", "knowledge_im__", "workact_im__")
 LV = ("skills_lv__", "abilities_lv__", "knowledge_lv__", "workact_lv__")
-CX = ("workctx_cx__",)
+CX = ("workctx_cx__", "workctx_ctp__")    # Work Context as in the paper: CX and CTP
 VARIANTS = {
     "IM/CX (the paper's matrix)": IM + CX,
     "LV/CX": LV + CX,

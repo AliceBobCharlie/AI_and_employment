@@ -43,7 +43,7 @@ OUT = Path("output/content_model_halves.xlsx")
 
 N_SPLIT = 200
 K_HALF = 8
-HALVES = {"job": ("workact_im__", "workctx_cx__"),
+HALVES = {"job": ("workact_im__", "workctx_cx__", "workctx_ctp__"),
           "worker": ("skills_im__", "abilities_im__", "knowledge_im__")}
 
 

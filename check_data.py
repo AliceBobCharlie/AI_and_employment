@@ -28,14 +28,16 @@ O*NET text files themselves.
                   predicted from the Importance matrix by ridge regression
                   (five-fold cross-validated R2, scaler and penalty fitted
                   in-fold, Level columns z-scored).
-  E  Work Context Category scale
-                  The two CT items against the 216 feature columns: their
-                  closest CX items, the cross-validated R2 with which the 216
-                  columns predict them, and the variance they would add that
-                  the 216 columns do not already hold.
+  E  Work Context categories
+                  What the category percentages (CXP) of the 55 CX items hold
+                  beyond their mean: how much of the category shares a cubic
+                  in the mean explains, item by item; and the structure of
+                  what is left, by PCA with a permutation null and
+                  split-halves, its first component set against the
+                  within-occupation spread of the ratings.
   F  the final matrix
-                  Columns and missing cells per block of the 910 x 216
-                  matrix (Table 4.1).
+                  Columns and missing cells, as published, per block of the
+                  910 x 220 matrix (Table 4.1).
   G  labour-market variables
                   For the 910 occupations, raw values: which occupations miss
                   which variable, and each variable's distribution and skew.
@@ -69,7 +71,8 @@ FEATURE_BLOCKS = {
     "workctx":   (["Work Context"], "CX"),
 }
 FEATURE_PREFIXES = ("skills_im__", "abilities_im__", "knowledge_im__",
-                    "workact_im__", "workctx_cx__")
+                    "workact_im__", "workctx_cx__", "workctx_ctp__")
+N_DRAWS = 200            # permutations and split-halves in section E
 TEXT_COLUMNS = {
     "O*NET-SOC Code": "soc", "Element Name": "element", "Scale ID": "scale",
     "Category": "category", "Data Value": "value", "Standard Error": "se",
@@ -230,41 +233,90 @@ def section_im_lv(M, kept):
             "im_lv_elements": P.drop(columns=["im", "lv"])}
 
 
-def section_ct(M, C):
-    banner("E. WORK CONTEXT CATEGORY SCALE -- what the two CT items would add")
-    feats = [c for c in C.columns if c.startswith(FEATURE_PREFIXES)]
-    X = C[feats].to_numpy(float)
-    ct = [c for c in M.columns if c.startswith("workctx_ct__")]
-    rows, unique = [], 0.0
-    for c in ct:
-        y = M.loc[C.index, c].to_numpy(float)
-        ok = ~np.isnan(y)
-        r = pd.Series({f: np.corrcoef(C.loc[ok, f], y[ok])[0, 1]
-                       for f in feats if f.startswith("workctx_cx__")})
-        top = r.abs().sort_values(ascending=False).head(3).index
-        pred = cv_predictions(X[ok], y[ok])
-        r2 = 1 - ((y[ok] - pred) ** 2).sum() / ((y[ok] - y[ok].mean()) ** 2).sum()
-        unique += 1 - r2
-        rows.append({"item": c.split("__", 1)[1], "occupations": int(ok.sum()),
-                     "closest CX items (r)": "; ".join(f"{t.split('__', 1)[1]} {r[t]:+.2f}" for t in top),
-                     "R2 from the 216 columns": r2})
-    T = pd.DataFrame(rows)
-    p = len(feats) + len(ct)
-    summary = pd.DataFrame([{"measure": f"variance the CT items add beyond the 216 columns, "
-                                        f"share of a {p}-column matrix", "value": unique / p},
-                            {"measure": f"their share of a {p}-column matrix in total", "value": len(ct) / p}])
-    show(T.set_index("item")); print(); show(summary.set_index("measure"))
-    return {"ct_items": T, "ct_summary": summary}
+def section_cxp(M, C):
+    banner("E. WORK CONTEXT CATEGORIES -- what CXP holds beyond the CX mean")
+    items = [c.split("__", 1)[1] for c in C.columns if c.startswith("workctx_cx__")]
+    k = np.arange(1, 6)
+    n = len(C)
+    r_mean, r2_mean, r2_mean_sd, resid, sd, n_filled = [], [], [], [], [], 0
+    for item in items:
+        P = M.loc[C.index, [f"workctx_cxp__{item}__c{c}" for c in k]].to_numpy(float)
+        n_filled += int(np.isnan(P).sum())
+        P = np.where(np.isnan(P), np.nanmedian(P, axis=0), P)
+        P = P / P.sum(axis=1, keepdims=True)
+        mean = P @ k
+        spread = np.sqrt((P * (k - mean[:, None]) ** 2).sum(axis=1))
+        r_mean.append(np.corrcoef(mean, C[f"workctx_cx__{item}"])[0, 1])
+        total = ((P - P.mean(axis=0)) ** 2).sum()
+
+        def residual(D):
+            D = np.column_stack([np.ones(n), D])
+            return P - D @ np.linalg.lstsq(D, P, rcond=None)[0]
+        e = residual(np.column_stack([mean, mean ** 2, mean ** 3]))
+        r2_mean.append(1 - (e ** 2).sum() / total)
+        e2 = residual(np.column_stack([mean, mean ** 2, mean ** 3, spread, spread * mean]))
+        r2_mean_sd.append(1 - (e2 ** 2).sum() / total)
+        resid.append(e[:, :4])               # four free shares per item
+        sd.append(spread)
+    E = np.hstack(resid)
+    E = E[:, E.std(axis=0) > 1e-9]
+    mean_sd = np.mean(sd, axis=0)
+
+    def decompose(X):
+        Z = (X - X.mean(axis=0)) / X.std(axis=0)
+        _, s_, vt = np.linalg.svd(Z, full_matrices=False)
+        return s_ ** 2 / (len(Z) - 1), vt.T, Z @ vt.T
+
+    ev, V, T = decompose(E)
+    rng = np.random.default_rng(SEED)
+    null = np.array([decompose(rng.permuted(E, axis=0))[0][:10] for _ in range(N_DRAWS)])
+    above = ev[:10] > np.percentile(null, 95, axis=0)
+    split = []
+    for _ in range(N_DRAWS):
+        perm = rng.permutation(n)
+        _, V1, _ = decompose(E[perm[: n // 2]])
+        _, V2, _ = decompose(E[perm[n // 2:]])
+        split.append(np.abs(V1[:, :3].T @ V2[:, :8]).max(axis=1))
+    split = np.percentile(split, 5, axis=0)
+    t = T[:, 0] / np.sqrt(ev[0])
+    titles = C["title"].to_numpy()
+    order = np.argsort(t)
+    summary = pd.DataFrame([
+        {"measure": "Work Context items rated on CX", "value": len(items)},
+        {"measure": "CXP cells missing for the 910 (filled at the column median here)", "value": n_filled},
+        {"measure": "r(CX, mean of the CXP categories), median over items", "value": np.median(r_mean)},
+        {"measure": "category-share variance explained by a cubic in the mean, median", "value": np.median(r2_mean)},
+        {"measure": "  10th percentile over items", "value": np.percentile(r2_mean, 10)},
+        {"measure": "  90th percentile over items", "value": np.percentile(r2_mean, 90)},
+        {"measure": "  with the within-occupation sd added", "value": np.median(r2_mean_sd)},
+        {"measure": "residual beyond the mean: components above the permutation null",
+         "value": int(np.argmin(above)) if not above.all() else 10},
+        {"measure": "  component 1, % of residual variance", "value": 100 * ev[0] / ev.sum()},
+        {"measure": "  component 2, % of residual variance", "value": 100 * ev[1] / ev.sum()},
+        {"measure": "  split-half congruence p05, component 1", "value": split[0]},
+        {"measure": "  split-half congruence p05, component 2", "value": split[1]},
+        {"measure": "  split-half congruence p05, component 3", "value": split[2]},
+        {"measure": "  r(component 1, mean within-occupation sd)", "value": np.corrcoef(t, mean_sd)[0, 1]},
+        {"measure": "CXP columns with one category per item dropped", "value": 4 * len(items)},
+    ])
+    poles = pd.DataFrame({"low end of component 1": titles[order[:10]],
+                          "high end of component 1": titles[order[::-1][:10]]})
+    show(summary.set_index("measure"))
+    print("\nthe two ends of the first component beyond the mean (sign arbitrary):")
+    show(poles)
+    return {"cxp_summary": summary.astype({"value": float}), "cxp_poles": poles}
 
 
-def section_matrix(C):
+def section_matrix(M, C):
     banner("F. THE FINAL MATRIX (Table 4.1)")
     feats = [c for c in C.columns if c.startswith(FEATURE_PREFIXES)]
     blocks = pd.Series([c.split("__")[0] for c in feats], index=feats)
+    published = M.loc[C.index, feats].apply(pd.to_numeric, errors="coerce")
     T = pd.DataFrame({"columns": blocks.value_counts(),
-                      "missing cells": C[feats].isna().sum().groupby(blocks).sum()})
+                      "missing cells as published": published.isna().sum().groupby(blocks).sum()})
     T.loc["total"] = T.sum()
-    print(f"{len(C)} occupations x {len(feats)} columns")
+    print(f"{len(C)} occupations x {len(feats)} columns; missing cells take the "
+          "column median in clean_master.py")
     show(T)
     return {"final_matrix": T.reset_index(names="block")}
 
@@ -310,8 +362,8 @@ def main():
     sheets.update(section_flags(rows, kept))
     sheets.update(section_se(rows, kept))
     sheets.update(section_im_lv(M, kept))
-    sheets.update(section_ct(M, C))
-    sheets.update(section_matrix(C))
+    sheets.update(section_cxp(M, C))
+    sheets.update(section_matrix(M, C))
     sheets.update(section_external(M, kept))
 
     OUT.parent.mkdir(exist_ok=True)

@@ -13,7 +13,7 @@ classic case is the arch or horseshoe effect. The same question is asked at
 both tier boundaries, after component 3 and after component 6, and first
 among the tier-1 axes themselves.
 
-Everything is computed on the paper's matrix: the 910 occupations and 216
+Everything is computed on the paper's matrix: the 910 occupations and 220
 feature columns of output/master_clean.csv (Importance for Abilities, Skills,
 Knowledge and Work Activities, Context for Work Context), z-scored with the
 population sd as in pca_rotated.py. PC scores are divided by the square root
@@ -79,7 +79,7 @@ PART 1 -- THE BOUNDARY AT 3: is the second tier curvature of the first?
       (one R2 over the three targets, which does not depend on the rotation
       within it).
   1b  Which bends: each square and product of R1-R3, the share of its
-      variance lying in the span of PC1-3, PC4-6, PC7-14 and PC15-216 (in
+      variance lying in the span of PC1-3, PC4-6, PC7-15 and PC16-220 (in
       sample), against the share a random vector would have, m / (n - 1) for
       a span of m directions. A term in PC1-3 is mostly skewness of the axes
       themselves; a term in PC4-6 is tier-1 curvature absorbed by tier 2.
@@ -92,7 +92,7 @@ PART 1 -- THE BOUNDARY AT 3: is the second tier curvature of the first?
       cosines, p05 over N_SPLIT_SUB split-halves, against 0.90 as in
       pca_rotated.py; the original 4-6 block is scored on the same splits.
         A  the PC4-6 scores with the curvature removed; the covariances of
-           the residual scores with the 216 columns are the residual's
+           the residual scores with the 220 columns are the residual's
            directions, which validate_tier2.py interprets. Compared as a
            subspace, and axis by axis: each half is varimax-rotated on its
            own, its residual axes are paired one to one with the full-sample
@@ -107,9 +107,9 @@ PART 1 -- THE BOUNDARY AT 3: is the second tier curvature of the first?
       with North's gap ratio; and principal cosines between the residual
       spaces and the original 4-6.
 
-PART 2 -- THE BOUNDARY AT 6: are components 7-14 curvature of 1-6?
-  2a  Each of PC7 ... PC14 predicted from PC1 ... PC6 by the three models
-      (quadratic 27 terms, cubic 83), with nulls, and the 7-14 block as a
+PART 2 -- THE BOUNDARY AT 6: are components 7-15 curvature of 1-6?
+  2a  Each of PC7 ... PC15 (the components above the parallel-analysis null, K_MAX in pca_rotated.py) predicted from PC1 ... PC6 by the three models
+      (quadratic 27 terms, cubic 83), with nulls, and the 7-15 block as a
       whole. Honesty check: PCA refitted on each training fold and the test
       occupations projected onto it, so nothing about a test occupation
       enters the components it is scored on. Robustness: the block R2
@@ -123,11 +123,11 @@ PART 2 -- THE BOUNDARY AT 6: are components 7-14 curvature of 1-6?
       against the eigenvalues after removing PC1-6 linearly (eigenvalues 7,
       8, ...), and against the same removal with row-permuted squares and
       products. The shrinkage beyond that baseline is what curvature accounts
-      for. No stability test is repeated here: no block within 7-14 holds
+      for. No stability test is repeated here: no block within 7-15 holds
       even with the curvature in (pca_rotated.py), and removing variance
       cannot make one hold.
   2c  Which bends: the same span shares as 1b for all 21 squares and products
-      of R1-R6, sorted by the share in PC7-14.
+      of R1-R6, sorted by the share in PC7-15.
 
 PART 3 -- ROBUSTNESS: is the curvature the floor of the rating scales?
       Each column replaced by the normal scores of its ranks, which removes
@@ -137,7 +137,7 @@ PART 3 -- ROBUSTNESS: is the curvature the floor of the rating scales?
       nested split-half stability curve of pca_rotated.py on the transformed
       matrix.
 
-Where components 7-14 load by block (candidate method factors) is in
+Where components 7-15 load by block (candidate method factors) is in
 rating_error.py, with the rest of the rating-error analysis.
 
 Run from the project root:  python check_curvature.py
@@ -154,7 +154,7 @@ from sklearn.neighbors import KNeighborsRegressor, NearestNeighbors
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import PolynomialFeatures, StandardScaler
 
-from pca_rotated import (STABLE_THRESH, N_SPLIT_SUB, TIER1_ANCHORS, TIER2_ANCHORS,
+from pca_rotated import (STABLE_THRESH, N_SPLIT_SUB, TIER1_ANCHORS, TIER2_ANCHORS, K_MAX,
                          split_statistics, subspace_cosines, varimax, congruence,
                          sign_and_order, match_axes, rotate_tier, promax)
 
@@ -163,9 +163,10 @@ OUT = Path("output/curvature_check.xlsx")
 
 SEED = 0
 FEATURE_PREFIXES = ("skills_im__", "abilities_im__", "knowledge_im__",
-                    "workact_im__", "workctx_cx__")
+                    "workact_im__", "workctx_cx__", "workctx_ctp__")
 N_LEAD = 6               # components whose curvature is tested
-TARGETS = range(6, 14)   # PC7 ... PC14 (zero-based)
+TARGETS = range(6, K_MAX)   # PC7 to the last component above the parallel-analysis null
+BAND = f"7-{K_MAX}"         # label for that block
 N_FOLDS, N_REPEATS = 5, 4
 N_PERM = 200             # permutations for the nulls in A, B and C
 N_PERM_KNN = 200         # permutations for the kNN nulls
@@ -298,8 +299,8 @@ def null_p95(kind, X, y, rng, n_perm):
 
 def refit_in_fold(Xraw, kind, seed=SEED):
     """Test A with the PCA refitted inside each training fold. Returns
-    out-of-fold R2 per target (PC7-14 of each fold's own decomposition) and
-    for the 7-14 block as a whole."""
+    out-of-fold R2 per target (PC7 onwards, as in TARGETS, of each fold's own
+    decomposition) and for that block as a whole."""
     n = len(Xraw)
     pred = np.empty((n, len(TARGETS)))
     actual = np.empty((n, len(TARGETS)))
@@ -571,11 +572,12 @@ def section_c(Z, T, rng):
             "shrinkage %": 100 * (1 - quad[j] / lin[j]),
             "baseline shrinkage %": 100 * (1 - b.mean() / lin[j]),
         })
-    total = {"position (original component)": "sum over positions 1-8",
-             "eigenvalue after removing PC1-6 linearly": lin[:8].sum(),
-             "after also removing their squares and products": quad[:8].sum(),
-             "baseline: permuted squares and products, mean": base[:, :8].sum(axis=1).mean(),
-             "baseline p05": np.percentile(base[:, :8].sum(axis=1), 5)}
+    m = len(TARGETS)
+    total = {"position (original component)": f"sum over positions 1-{m}",
+             "eigenvalue after removing PC1-6 linearly": lin[:m].sum(),
+             "after also removing their squares and products": quad[:m].sum(),
+             "baseline: permuted squares and products, mean": base[:, :m].sum(axis=1).mean(),
+             "baseline p05": np.percentile(base[:, :m].sum(axis=1), 5)}
     total["shrinkage %"] = 100 * (1 - total["after also removing their squares and products"]
                                   / total["eigenvalue after removing PC1-6 linearly"])
     total["baseline shrinkage %"] = 100 * (1 - total["baseline: permuted squares and products, mean"]
@@ -605,7 +607,7 @@ def section_d(Xraw, Z, rng):
     min_cos, msq_cos, single, _ = split_statistics(Zr, rng, N_SPLIT_D)
     min_o, msq_o, single_o, _ = split_statistics(Z, rng, N_SPLIT_D)
     rows = []
-    for k in range(1, 15):
+    for k in range(1, K_MAX + 1):
         c = subspace_cosines(V[:, :k], Vr[:, :k])
         rows.append({
             "k": k,
@@ -621,8 +623,8 @@ def section_d(Xraw, Z, rng):
         })
     table = pd.DataFrame(rows)
     pa = {"original": parallel_count(Z, rng), "normal scores": parallel_count(Zr, rng)}
-    share = {"original, first 14": ev[:14].sum() / Z.shape[1],
-             "normal scores, first 14": evr[:14].sum() / Z.shape[1]}
+    share = {"original, first K_MAX": ev[:K_MAX].sum() / Z.shape[1],
+             "normal scores, first K_MAX": evr[:K_MAX].sum() / Z.shape[1]}
     return table, pa, share
 
 
@@ -640,8 +642,8 @@ def section_e(ev, V, rng):
         Zs = standardize(X)
         evs, Vs, Ts = pca(Zs)
         table, blk, _ = section_a(evs, Vs, Ts, None, rng, label=f"synthetic, floor at p{int(q * 100)}")
-        rows.append(table.assign(**{"7-14 block quadratic R2": blk["quadratic"],
-                                    "7-14 block kNN R2": blk["kNN"]}))
+        rows.append(table.assign(**{f"{BAND} block quadratic R2": blk["quadratic"],
+                                    f"{BAND} block kNN R2": blk["kNN"]}))
     return pd.concat(rows, ignore_index=True)
 
 
@@ -656,7 +658,7 @@ def span_r2(y, B):
 def section_g(ev, V, T, cols):
     """Which squares and products of the rotated axes R1-R6 carry the
     curvature: for each of the 21 terms, the share of its variance that lies in
-    the span of PC1-6, of PC7-14 and of PC15-216 (in-sample). By chance alone a
+    the span of PC1-6, of PC7 to PC K_MAX and of the rest (in-sample). By chance alone a
     vector falls in a span of m directions in proportion m / (n - 1)."""
     S, L = tiered_scores(ev, V, T, cols, return_loadings=True)
     top = [cols[int(np.argmax(np.abs(L[:, j])))].split("__", 1)[1] for j in range(N_LEAD)]
@@ -670,18 +672,18 @@ def section_g(ev, V, T, cols):
                 "term": f"R{i + 1}^2" if i == j else f"R{i + 1} x R{j + 1}",
                 "in span of PC1-3 (tier 1)": span_r2(term, T[:, :3]),
                 "in span of PC4-6 (tier 2)": span_r2(term, T[:, 3:6]),
-                "in span of PC7-14": span_r2(term, T[:, 6:14]),
-                "in span of PC15-216": span_r2(term, T[:, 14:]),
+                f"in span of PC{BAND}": span_r2(term, T[:, 6:K_MAX]),
+                f"in span of PC{K_MAX + 1}-{T.shape[1]}": span_r2(term, T[:, K_MAX:]),
             })
-    table = pd.DataFrame(rows).sort_values("in span of PC7-14", ascending=False)
-    chance = {"chance, span of 3": 3 / (n - 1), "chance, PC7-14": 8 / (n - 1),
-              "chance, PC15-216": (T.shape[1] - 14) / (n - 1)}
+    table = pd.DataFrame(rows).sort_values(f"in span of PC{BAND}", ascending=False)
+    chance = {"chance, span of 3": 3 / (n - 1), f"chance, PC{BAND}": (K_MAX - 6) / (n - 1),
+              f"chance, PC{K_MAX + 1}-{T.shape[1]}": (T.shape[1] - K_MAX) / (n - 1)}
     key = pd.DataFrame({"axis": names})
     return table, chance, key
 
 
 def outlier_check(T, rng_seed=SEED, drop_share=0.02):
-    """7-14 block R2 (quadratic) without the occupations most extreme in PC1-6,
+    """Block R2 of PC7 onwards (quadratic) without the occupations most extreme in PC1-6,
     keeping the full-sample decomposition."""
     d2 = (T[:, :N_LEAD] ** 2).sum(axis=1)
     keep = d2 <= np.quantile(d2, 1 - drop_share)
@@ -791,8 +793,8 @@ def part_1c_full_sample(X, feats):
             rows.append({"space": name, "cosines": ", ".join(f"{v:.3f}" for v in c),
                          "RMS cosine": rms(c),
                          "share in PC4-6": share[K1:K2].sum() / 3,
-                         "share in PC7-14": share[K2:14].sum() / 3,
-                         "share beyond PC14": share[14:].sum() / 3})
+                         f"share in PC{BAND}": share[K2:K_MAX].sum() / 3,
+                         f"share beyond PC{K_MAX}": share[K_MAX:].sum() / 3})
         c = subspace_cosines(full[f"A {m}"], full[f"B {m}"][:, :3])
         rows.append({"space": f"A {m} against B 1-3 {m}",
                      "cosines": ", ".join(f"{v:.3f}" for v in c), "RMS cosine": rms(c)})
@@ -881,15 +883,15 @@ def main():
     full_axes, removed, spectrum, same = part_1c_full_sample(Xraw, cols)
     subspaces, axes = part_1c_split_halves(Xraw, full_axes)
 
-    print("[2a] harmonics of PC1-6 in PC7-14")
+    print(f"[2a] harmonics of PC1-6 in PC{BAND}")
     a_table, a_block, a_refit = section_a(ev, V, T, Xraw, rng)
     trimmed, n_dropped = outlier_check(T)
     a_summary = pd.DataFrame([{
-        "7-14 block R2, quadratic": a_block["quadratic"], "7-14 block R2, cubic": a_block["cubic"],
-        "7-14 block R2, kNN": a_block["kNN"],
-        "7-14 block R2, quadratic, PCA refitted in fold": a_refit["quadratic"],
-        "7-14 block R2, kNN, PCA refitted in fold": a_refit["kNN"],
-        f"7-14 block R2, quadratic, without the {n_dropped} most extreme occupations": trimmed}])
+        f"{BAND} block R2, quadratic": a_block["quadratic"], f"{BAND} block R2, cubic": a_block["cubic"],
+        f"{BAND} block R2, kNN": a_block["kNN"],
+        f"{BAND} block R2, quadratic, PCA refitted in fold": a_refit["quadratic"],
+        f"{BAND} block R2, kNN, PCA refitted in fold": a_refit["kNN"],
+        f"{BAND} block R2, quadratic, without the {n_dropped} most extreme occupations": trimmed}])
     print("[2a] positive control")
     e_table = section_e(ev, V, rng)
     print("[2b] spectrum after removing the curvature of PC1-6")
@@ -899,8 +901,8 @@ def main():
     d_table, d_pa, d_share = section_d(Xraw, Z, rng)
     d_summary = pd.DataFrame([{"parallel analysis, original": d_pa["original"],
                                "parallel analysis, normal scores": d_pa["normal scores"],
-                               "variance in first 14, original": d_share["original, first 14"],
-                               "variance in first 14, normal scores": d_share["normal scores, first 14"]}])
+                               f"variance in first {K_MAX}, original": d_share["original, first K_MAX"],
+                               f"variance in first {K_MAX}, normal scores": d_share["normal scores, first K_MAX"]}])
 
     sheets = {"0a_mean_dependence": mean0, "0b_beyond_the_mean": beyond0,
               "0c_R2_by_R1_decile": deciles0, "0c_R1_R2_corners": corners0,

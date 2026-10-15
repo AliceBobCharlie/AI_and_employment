@@ -34,7 +34,7 @@ Three checks, each using something the PCA did not see:
 Then:
 
   4. ROBUSTNESS. Tier 1 is refitted with the labour-market variables added
-     to the 216 feature columns, with wages as two summaries and as all nine
+     to the 220 feature columns, with wages as two summaries and as all nine
      wage columns, and compared with the published axes.
 
   5. POLES. The facts the paper states about the poles of R1 and R2: how many
@@ -232,7 +232,7 @@ def check_endpoints(S):
 
 def check_robustness(L, m, tiers, heading="4. ROBUSTNESS"):
     """Would the axes change if the labour-market variables took part in
-    forming them? They are a handful of columns against 216, so they should
+    forming them? They are a handful of columns against 220, so they should
     not -- but that is worth demonstrating rather than asserting. tiers gives
     the components of the axes in L (e.g. [[0, 1, 2]] for R1-R3). Returns the
     congruences."""

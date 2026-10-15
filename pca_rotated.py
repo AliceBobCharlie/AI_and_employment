@@ -7,7 +7,8 @@ in two tiers (Section 5.3, Figure 5.1).
 Key design choices:
   - ONLY the O*NET feature blocks enter the decomposition: Abilities, Skills,
     Knowledge and Work Activities on the Importance scale, plus Work Context on
-    the Context scale. 216 columns, z-scored.
+    the Context scale and, for its two working-time items, as category
+    percentages. 220 columns, z-scored.
   - The labour-market variables and the education, training and experience
     distributions are HELD OUT and correlated against the finished axes. An
     axis cannot be said to predict wages if wages helped to build it. Wages
@@ -18,7 +19,7 @@ Tier 1 (Section 5.3):
   1. Eigenvalues, scree and Horn's parallel analysis (reported, not used to
      choose: the count depends on how many items measure the same thing).
   2. Component by component: bootstrap and split-half congruence of each
-     unrotated component, PC1 to PC14. The leading components that pass one by
+     unrotated component, PC1 to PC15 (K_MAX). The leading components that pass one by
      one (p05 >= 0.90 on both) form tier 1.
   3. Tier 1 is varimax-rotated on its own and signed by marker variables
      (TIER1_ANCHORS). No later component enters this rotation, so R1-R3 do not
@@ -31,7 +32,7 @@ Tier 2 (Section 5.3):
      sample size, lambda * sqrt(2 / (n/2)) (North et al. 1982). A ratio near
      or below 2 means two components can swap or mix between samples.
   5. Nested subspaces: split-half principal angles between the leading-k
-     subspaces, k = 1 to 14 (Figure 5.1). The null is the same statistic on
+     subspaces, k = 1 to 15 (Figure 5.1). The null is the same statistic on
      column-permuted matrices: each permuted matrix is split in half, both
      halves are decomposed, and the smallest cosine and the single-component
      congruence are computed exactly as for the data. Its 95th percentile is
@@ -47,7 +48,7 @@ Tier 2 (Section 5.3):
      8, e.g. component 4 alone and components 5-6) is reported as well, to
      show whether tier 2 splits further.
   7. The same block measure for every contiguous block of two or three
-     components after tier 2, up to component 14. Larger blocks are left
+     components after tier 2, up to component 15. Larger blocks are left
      out: their RMS cosine is pulled up by their best-aligned directions and
      their smallest cosine pulled down by their worst, so neither is
      comparable with a block of three.
@@ -93,7 +94,8 @@ FIGURE = Path("assets/subspace_stability.png")   # Figure 5.1; assets/ is publis
 
 SEED = 0
 STABLE_THRESH = 0.90
-K_MAX = 14          # nested subspaces examined
+K_MAX = 15          # components above the parallel-analysis null: examined one by one,
+                    # in nested subspaces and in blocks (main() warns if the count changes)
 N_REPEAT = 200      # draws behind every percentile below: resamples, splits, null matrices
 N_SPLIT_SUB = N_REPEAT   # split-halves for subspaces and rotated axes
 TOP = 12            # loadings printed per pole
@@ -104,11 +106,12 @@ N_SPLIT = N_REPEAT  # split-halves for the component-by-component check
 N_NULL = N_REPEAT   # permuted matrices for the nested-subspace null
 N_PERM = N_REPEAT   # permutations for parallel analysis
 
-# The feature matrix: Importance for four blocks, the Context scale for Work Context.
+# The feature matrix: Importance for four blocks; for Work Context, the Context
+# scale and the category percentages of the two working-time items.
 FEATURE_PREFIXES = ("skills_im__", "abilities_im__", "knowledge_im__",
-                    "workact_im__", "workctx_cx__")
+                    "workact_im__", "workctx_cx__", "workctx_ctp__")
 # Job-oriented blocks (what the work involves); the rest describe the worker.
-JOB_PREFIXES = ("workact_im__", "workctx_cx__")
+JOB_PREFIXES = ("workact_im__", "workctx_cx__", "workctx_ctp__")
 
 # Labour-market columns correlated against the axes. Wages appear as a level
 # and a dispersion: the nine raw wage columns are collinear.
@@ -151,8 +154,10 @@ def load_and_prep():
 
 
 def block_of(col):
-    """'abilities_im__Oral Comprehension' -> 'abilities_im'."""
-    return col.split("__", 1)[0]
+    """'abilities_im__Oral Comprehension' -> 'abilities_im'. The working-time
+    columns (CTP) count with the rest of Work Context, as 'workctx_cx'."""
+    block = col.split("__", 1)[0]
+    return "workctx_cx" if block == "workctx_ctp" else block
 
 
 def banner(text):
@@ -415,7 +420,7 @@ def eigen_table(pca):
                       "eigenvalue": ev[:20], "% variance": 100 * share[:20],
                       "cumulative %": 100 * np.cumsum(share)[:20]})
     banner("EIGENVALUES")
-    print(t.head(14).round(2).to_string(index=False))   # the 14 above the noise null
+    print(t.head(K_MAX).round(2).to_string(index=False))   # those above the noise null
     print(f"components to reach 90% of variance: "
           f"{int(np.argmax(np.cumsum(share) >= .9)) + 1}")
     return t
@@ -760,6 +765,10 @@ def main():
     # ---------------- tier 1 ----------------
     eig = eigen_table(pca)
     pa = parallel_analysis(Xz, lam)
+    n_above = int(pa["above null"].cumprod().sum())
+    if n_above != K_MAX:
+        print(f"[warn] {n_above} components exceed the null but K_MAX = {K_MAX}; "
+              "set K_MAX to match")
     comp, k1 = component_stability(Xz, pca.components_[:K_MAX])
     k1 = max(k1, 2)                       # rotate at least two components
     idx1 = list(range(k1))

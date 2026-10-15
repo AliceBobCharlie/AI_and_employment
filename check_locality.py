@@ -7,7 +7,7 @@ Components after the sixth do not reproduce on independent halves of the
 occupations. One reading is that they describe features only a few
 occupations have (a licence, a clinical setting, a craft): real, but local.
 This script tests that reading on the unrotated components of the paper's
-matrix (216 feature columns, z-scored). Nothing here uses the rotated axes.
+matrix (220 feature columns, z-scored). Nothing here uses the rotated axes.
 
   PART A  the heaviest tail in each subspace. If a subspace holds a small
           group of occupations off to one side, some direction in it has a
@@ -15,8 +15,8 @@ matrix (216 feature columns, z-scored). Nothing here uses the rotated axes.
           flat or two-humped distribution (negative excess kurtosis). k-means
           and the silhouette are poor at finding a small group next to a large
           one, which is why kurtosis is used. For each subspace -- PC1-3,
-          PC4-6, PC4-6 with the curvature of PC1-3 removed, PC7-14, PC4-14 and
-          PC1-14 -- the scores are whitened and the directions of largest and
+          PC4-6, PC4-6 with the curvature of PC1-3 removed, PC7-15, PC4-15 and
+          PC1-15 -- the scores are whitened and the directions of largest and
           smallest excess kurtosis are searched for (projection pursuit: L-BFGS
           on the unit sphere, from N_STARTS random starts). Searching more
           dimensions finds more extreme values by chance, so each subspace is
@@ -26,9 +26,9 @@ matrix (216 feature columns, z-scored). Nothing here uses the rotated axes.
           most extreme occupations (a lone outlier collapses, a group does
           not), the occupation counts along the tail (a gap or a second hump
           marks a group, a steady fall a long tail) and the occupations in it.
-          Each component PC1-14 is also scored on its own.
+          Each component PC1-15 is also scored on its own.
 
-  PART B  every direction in PC7-14. Part A finds the single heaviest tail; one
+  PART B  every direction in PC7-15. Part A finds the single heaviest tail; one
           local direction does not make the whole band local. With the
           quadratic curvature of PC1-6 removed, the band is searched again,
           one direction at a time: the heaviest tail, then the heaviest in
@@ -70,11 +70,11 @@ from scipy.stats import kurtosis, norm, rankdata, skew
 from sklearn.cluster import KMeans
 from sklearn.preprocessing import PolynomialFeatures
 
-from pca_rotated import MASTER, OUTDIR, SEED, FEATURE_PREFIXES, standardize, banner
+from pca_rotated import MASTER, OUTDIR, SEED, FEATURE_PREFIXES, K_MAX, standardize, banner
 from cluster_onet import bimodality
 
 OUT = OUTDIR / "check_locality.xlsx"
-N_COMPONENTS = 14       # components above the parallel-analysis null
+N_COMPONENTS = K_MAX    # components above the parallel-analysis null
 K_AXES = 6              # the two tiers
 N_STARTS = 30           # random starts per kurtosis search
 N_NULL = 200            # Gaussian samples for each search's null
@@ -82,9 +82,9 @@ TAIL_SD = 3             # a Gaussian puts 0.27% of cases beyond 3 sd
 N_TRIM = 5              # extreme occupations dropped in the outlier check
 TOP_SHARE = 0.10        # top share of occupations in Part B
 SUBSPACES = {"PC1-3 (tier 1)": (0, 3), "PC4-6 (tier 2)": (3, 6),
-             "PC4-6 without curvature of PC1-3": (3, 6), "PC7-14": (6, 14),
-             "PC4-14 (all after tier 1)": (3, 14), "PC1-14": (0, 14)}
-BAND = (6, 14)          # Part B: PC7-14
+             "PC4-6 without curvature of PC1-3": (3, 6), f"PC7-{K_MAX}": (6, K_MAX),
+             f"PC4-{K_MAX} (all after tier 1)": (3, K_MAX), f"PC1-{K_MAX}": (0, K_MAX)}
+BAND = (6, K_MAX)       # Part B: PC7 to the last component above the null
 N_SPLITS = 20           # Part C: random halves
 REGIONS = (4, 8)        # Part C: numbers of regions
 M_DIRS = (1, 2, 4, 8)   # Part C: directions per model
@@ -237,7 +237,7 @@ def part_a_subspaces(Z, titles, feats):
 
 
 # --------------------------------------------------------------------------- #
-# Part B: every direction in PC7-14
+# Part B: every direction in PC7 to PC K_MAX
 # --------------------------------------------------------------------------- #
 def heaviest_direction(Y, rng):
     """Unit vector a, in Y's own coordinates, along which Y @ a has the
@@ -290,7 +290,7 @@ def rank_normal(X):
 
 
 def part_b_directions(Z, titles, label):
-    banner(f"PART B -- every direction in PC7-14, curvature of PC1-6 removed ({label})")
+    banner(f"PART B -- every direction in PC7-{K_MAX}, curvature of PC1-6 removed ({label})")
     rng = np.random.default_rng(SEED)
     T = scores(Z, N_COMPONENTS)
     a, z = BAND
@@ -411,7 +411,7 @@ def main():
         comp.to_excel(writer, sheet_name="components", index=False)
         sub.to_excel(writer, sheet_name="subspaces", index=False)
         tails.to_excel(writer, sheet_name="tail_occupations", index=False)
-        dirs.to_excel(writer, sheet_name="directions_7_14", index=False)
+        dirs.to_excel(writer, sheet_name=f"directions_7_{K_MAX}", index=False)
         reg.to_excel(writer, sheet_name="regions", index=False)
         reg_raw.to_excel(writer, sheet_name="regions_by_split", index=False)
     print(f"\n[ok] wrote {OUT}")

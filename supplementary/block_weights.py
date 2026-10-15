@@ -5,8 +5,8 @@ block_weights.py -- does the structure depend on how much weight each block
 carries? (Appendix B)
 
 In the paper's matrix every column has variance 1, so a block weighs in
-proportion to its number of columns: Work Context 55, Abilities 52, Work
-Activities 41, Skills 35, Knowledge 33. Each scheme below z-scores the 216
+proportion to its number of columns: Work Context 59 (55 CX and 4 CTP),
+Abilities 52, Work Activities 41, Skills 35, Knowledge 33. Each scheme below z-scores the 220
 columns as before and then multiplies every column of block b by w_b:
 
   equal columns   w_b = 1, the paper's matrix, as a reference row
@@ -36,7 +36,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from input_variants import analyse, load, matrix, report, IM, CX  # noqa: E402
-from pca_rotated import standardize                              # noqa: E402
+from pca_rotated import standardize, block_of                    # noqa: E402
 
 OUT = Path("output/block_weights.xlsx")
 
@@ -48,7 +48,7 @@ def leading_eigenvalue(Z):
 def main():
     clean, raw, paper = load()
     X = matrix(clean, raw, IM + CX)
-    blocks = np.array([c.split("__")[0] for c in X.columns])
+    blocks = np.array([block_of(c) for c in X.columns])     # CTP counts with Work Context
     Z = standardize(X.to_numpy(float))
 
     schemes = {"equal columns (the paper's matrix)": {b: 1.0 for b in set(blocks)},

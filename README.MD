@@ -49,7 +49,7 @@ sequence; see below.
 | table | what it is |
 |---|---|
 | `output/master.csv` | The raw table: every O*NET-SOC code in O*NET 31.0, rated or not; every scale of the five feature blocks and of education, training and experience, as published; the labour-market variables joined on the six-digit SOC code. Nothing dropped, filled or derived. |
-| `output/master_clean.csv` | Analysis-ready: the 910 occupations rated in all five feature blocks, the 216 feature columns, the 37 education, training and experience columns, and the labour-market variables, every gap filled and the derived columns added. All of this lives in `clean_master.py` and nowhere else. |
+| `output/master_clean.csv` | Analysis-ready: the 910 occupations rated in all five feature blocks, the 220 feature columns, the 37 education, training and experience columns, and the labour-market variables, every gap filled and the derived columns added. All of this lives in `clean_master.py` and nowhere else. |
 | standardisation | Deliberately **not** stored. Each analysis z-scores its own matrix, because `check_orthogonality.py` must fit its scaler on training folds only; pre-standardising would leak test-fold information into the cross-validated R². |
 
 ## Building the data
@@ -65,13 +65,17 @@ self-employment) is read as 0.
 **`clean_master.py`** → `master_clean.csv`
 
 Keeps the occupations rated in all five feature blocks, keeps the Importance
-scale for four blocks and the Context scale for Work Context, merges the two
+scale for four blocks and, for Work Context, the Context scale (CX) and the
+category percentages (CTP) of the two working-time items, Duration of Typical
+Work Week and Work Schedules, with the standard category of each (40 hours,
+regular) dropped. Merges the two
 education scales (RL and RQ), drops the highest category of each education,
 training and experience scale, and fills the remaining gaps: self-employment at
 0 for occupations absent from the BLS table, wages and everything else at the
-column median. Adds the three wage ratios, `ext_employment_log`,
-`ext_wage_level_log` and `ext_wage_disp_p90p10`. The Level scale stays in the
-raw table only.
+column median, as are the CTP cells of the nine occupations without them.
+Adds the three wage ratios, `ext_employment_log`, `ext_wage_level_log` and
+`ext_wage_disp_p90p10`. The Level scale and the Work Context category
+percentages of the CX items (CXP) stay in the raw table only.
 
 ## Results
 
@@ -96,7 +100,7 @@ do are in `validate_tier1.py`.
 `oblique_pattern.csv`, `pca_stability.xlsx`, `scree.png`,
 `assets/subspace_stability.png` (Figure 5.1)
 
-The main analysis, on the 216 feature columns only, in two tiers. Every
+The main analysis, on the 220 feature columns only, in two tiers. Every
 resampling experiment (bootstrap, split-halves, permutations) is repeated
 `N_REPEAT` = 200 times. Tier 1:
 eigenvalues and parallel analysis (reported, not used to choose), then
@@ -138,7 +142,7 @@ leading components.
 
 What R4-R6 measure. First the part of each axis that R1-R3 can predict
 non-linearly (quadratic, cubic and nearest-neighbour fits, out of fold) is
-removed; the residual is then read through its correlations with the 216
+removed; the residual is then read through its correlations with the 220
 columns, its share in the job and worker halves and in each block, the
 occupations at its ends and in its middle, and its correlations with the
 labour-market variables, required education and the Work Context items on
@@ -202,7 +206,7 @@ comparing regional and global directions on held-out occupations.
 **`check_orthogonality.py`** → `orthogonality.xlsx`
 
 How much of each labour-market variable the description of the work can
-predict, by ridge regression with cross-validated R², from all 216 feature
+predict, by ridge regression with cross-validated R², from all 220 feature
 columns and from each feature block alone (Section 5.6); the education,
 training and experience block column by column; and the descriptive figures
 Section 5.6 quotes. Values that `clean_master.py` filled in are left out, so every R² is
@@ -271,8 +275,9 @@ Every fact Sections 4.2 and 4.3 state about the quality of the data. Which
 O*NET-SOC codes are rated, and what the unrated ones are; Recommend Suppress
 and Not Relevant flags per block and scale; the share of ratings with a
 standard error; how closely Importance and Level agree, element by element and
-as whole matrices; what the two Work Context Category items would add; the
-missing cells of the final matrix (Table 4.1); and the missingness and
+as whole matrices; what the Work Context category percentages (CXP) hold
+beyond their mean (CX); the missing cells of the final matrix as published
+(Table 4.1); and the missingness and
 distributions of the labour-market variables, which established that their
 gaps are structural rather than scattered and which variables need a log. The
 flags and standard errors are not in the master table, so this script reads
@@ -331,4 +336,3 @@ Source to be set to *GitHub Actions*.
   239200 always means "at least this much".
 - Each analysis script names the columns it uses by their block prefix, e.g.
   `skills_im__` or `workctx_cx__`; there is no shared column module.
- 

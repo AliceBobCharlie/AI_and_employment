@@ -29,7 +29,7 @@ whatever is new. So the order here is: remove first, then interpret.
      check_curvature.py part 1a (permutation nulls), and whether what is
      left still reproduces in part 1c; here it is only removed.
 
-  2. WHAT THE RESIDUAL IS. The correlation of each of the 216 feature columns
+  2. WHAT THE RESIDUAL IS. The correlation of each of the 220 feature columns
      with the axis (equal to its loading), with the fitted part and with the
      residual. The strongest residual correlations name the axis; the
      strongest fitted-part correlations show what was removed. Also: the
@@ -75,7 +75,7 @@ from sklearn.preprocessing import PolynomialFeatures
 from pca_rotated import (MASTER, OUTDIR, SEED, FEATURE_PREFIXES, JOB_PREFIXES, ECON,
                         TIER1_ANCHORS, AXES, LOADINGS, TOP, standardize, eigen,
                         block_of, banner, congruence)
-from check_curvature import model, N_FOLDS, N_REPEATS
+from check_curvature import fit_predict, N_FOLDS, N_REPEATS
 from validate_tier1 import element_categories, check_robustness
 
 OUT = OUTDIR / "validate_tier2.xlsx"
@@ -120,7 +120,7 @@ def oof_predict(kind, X, y):
     preds = np.empty((N_REPEATS, len(y)))
     for r in range(N_REPEATS):
         for train, test in KFold(N_FOLDS, shuffle=True, random_state=SEED + r).split(X):
-            preds[r, test] = model(kind).fit(X[train], y[train]).predict(X[test])
+            preds[r, test] = fit_predict(kind, X[train], y[train][:, None], X[test])[:, 0]
     r2 = 1 - ((y - preds) ** 2).sum(axis=1) / ((y - y.mean()) ** 2).sum()
     return preds.mean(axis=0), r2
 

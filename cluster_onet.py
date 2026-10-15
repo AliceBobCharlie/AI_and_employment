@@ -74,8 +74,9 @@ SEED = 0
 # not part of the original skill network.
 SKILL_PREFIXES = ("skills_im__", "abilities_im__", "knowledge_im__", "workact_im__")
 # Part A uses the feature matrix the axes are estimated from: the four blocks
-# above on Importance, plus Work Context on the Context scale.
-FEATURE_PREFIXES = SKILL_PREFIXES + ("workctx_cx__",)
+# above on Importance, plus Work Context (the Context scale and the category
+# percentages of the two working-time items).
+FEATURE_PREFIXES = SKILL_PREFIXES + ("workctx_cx__", "workctx_ctp__")
 
 
 # --------------------------------------------------------------------------- #
@@ -227,7 +228,7 @@ def figures(curves, results):
 
 def main():
     df = pd.read_csv(MASTER, index_col="onet_soc")
-    # Part A asks about OCCUPATIONS, so it uses the same 216-column feature
+    # Part A asks about OCCUPATIONS, so it uses the same 220-column feature
     # matrix the axes are estimated from -- otherwise the silhouettes and the
     # axes would describe different spaces.
     feats = [c for c in df.columns if c.startswith(FEATURE_PREFIXES)]

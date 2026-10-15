@@ -4,7 +4,7 @@
 check_orthogonality.py -- how much of each labour-market variable can the
 description of the work predict? (Section 5.6)
 
-Each target is regressed on the 216 feature columns by ridge regression, and
+Each target is regressed on the 220 feature columns by ridge regression, and
 scored by five-fold cross-validated R2: the penalty is chosen and the scaler
 fitted inside each training fold. A high R2 means the variable restates
 occupational content; a low one means it carries information the features do
@@ -14,7 +14,7 @@ Values that clean_master.py filled in are left out of each regression rather
 than predicted, so every R2 is computed on published values only.
 
 Sections:
-  A  the R2 table of Section 5.6: R2 from all 216 features, and from each feature block alone
+  A  the R2 table of Section 5.6: R2 from all 220 features, and from each feature block alone
   B  the education, training and experience block column by column: median R2,
      counts below 0.3 and above 0.6, and the variance-weighted R2 of the block
   C  descriptive figures quoted in Section 5.6: employment, self-employment
@@ -39,9 +39,10 @@ OUT = Path("output/orthogonality.xlsx")
 SEED = 0
 ALPHAS = np.logspace(-2, 5, 30)
 
-# The feature matrix: Importance for four blocks, the Context scale for Work Context.
+# The feature matrix: Importance for four blocks; for Work Context, the Context
+# scale and the category percentages of the two working-time items.
 FEATURE_PREFIXES = ("skills_im__", "abilities_im__", "knowledge_im__",
-                    "workact_im__", "workctx_cx__")
+                    "workact_im__", "workctx_cx__", "workctx_ctp__")
 
 # The eight labour-market variables, each with the raw columns it is computed
 # from (used to tell published values from filled ones).
@@ -171,10 +172,11 @@ def main():
     raw = pd.read_csv(RAW, index_col="onet_soc", low_memory=False)
     feats = [c for c in clean.columns if c.startswith(FEATURE_PREFIXES)]
     X = clean[feats].to_numpy(float)
-    # each feature block alone, e.g. the 55 Work Context columns
+    # each feature block alone, e.g. the 59 Work Context columns (CX and CTP)
     blocks = {}
     for c in feats:
-        blocks.setdefault(c.split("__", 1)[0], []).append(c)
+        block = c.split("__", 1)[0]
+        blocks.setdefault("workctx_cx" if block == "workctx_ctp" else block, []).append(c)
     print(f"{len(clean)} occupations, {len(feats)} feature columns")
 
     # B first: the ETE row of the R2 table of Section 5.6 comes from it.
