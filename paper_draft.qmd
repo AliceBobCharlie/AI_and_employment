@@ -941,26 +941,14 @@ examines them.
 ### 5.4 What the six axes are
 
 Section 5.3 found six stable dimensions. To see what each of them represents, we
-rotate the components into axes that can be read, and then check each reading
-against evidence that took no part in the decomposition.
-
-Rotation replaces the components with another set of orthogonal axes spanning
-the same subspace. The subspace, and the total variance it carries, stay as they
-are; only the directions reported within it change. Varimax chooses the rotation
-that maximises the variance of the squared loadings on each axis, so that every
-variable loads either heavily or near zero, and each axis is defined by a small
-group of variables that can be named. Components 1 to 3 and components 4 to 6
-are rotated separately, as in Section 5.3, so the first three axes do not depend
-on the other three. An occupation's score on an axis is its component scores
-rotated in the same way, so the six axes are uncorrelated across occupations and
-their shares of the variance add up: R1 to R3 carry 53.1 percent between them,
-R4 to R6 a further 10.2 percent.
-
-The sign of each axis is fixed by a marker variable that is set to load
-positively — manual dexterity for R1, complex problem solving for R2, assisting
-and caring for others for R3, medicine and dentistry for R4, the importance of
-being exact or accurate for R5, and sales and marketing for R6 — so that each
-axis points the same way whatever sample it is estimated from.
+rotate the components into orthogonal axes that can be read, while keeping the subspace they span the same.
+We then check each reading against evidence that took no part in the decomposition.
+The method we use is Varimax, to ensure the axes rotated are still orthogonal to each other.
+Varimax chooses the rotation that maximises the variance of the squared loadings on each axis, so that every
+variable loads either heavily or near zero. The rotated axes have their directions and variances they carried
+changed, but The subspace, and the total variance it carries, stay as they are. The sign of each axis is fixed by a marker variable that is set to load
+positively  so that each axis points the same way whatever sample it is estimated from.
+Here are the rotated axes and the variances they carry:
 
 ```{=html}
 <figure class="plot-figure">
