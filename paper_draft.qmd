@@ -962,6 +962,19 @@ and caring for others for R3, medicine and dentistry for R4, the importance of
 being exact or accurate for R5, and sales and marketing for R6 — so that each
 axis points the same way whatever sample it is estimated from.
 
+```{=html}
+<figure class="plot-figure">
+  <div class="plot plot-axis" id="plot-axis-R1" data-axis="R1" role="img"
+       aria-label="Two panels for the physical intensity axis: above, the loadings of all 220 variables, by block of the Content Model; below, the scores of all 910 occupations, by SOC major group."></div>
+  <figcaption><b>Figure 5.2</b> — physical intensity (R1). Above: the loading of each of the
+  220 variables on the axis, by block of O\*NET's Content Model. Below: each
+  occupation's score on the axis, by SOC major group, the groups ordered by
+  their median; the bar marks the median and the blue point the occupation
+  closest to it, which is named under the group. Hover for the name of any
+  variable or occupation.</figcaption>
+</figure>
+```
+
 **R1 (24.0 percent of variance): physical intensity.** The positive pole loads on
 depth perception (0.88), reaction time (0.88), inspecting equipment (0.87),
 operation and control (0.86), multilimb coordination (0.86), exposure to
@@ -991,9 +1004,35 @@ axes orthogonal to it take a further 29.2 percent between them. The dichotomy
 points along a real direction and accounts for less than half of what
 distinguishes one occupation from another.
 
+```{=html}
+<figure class="plot-figure">
+  <div class="plot plot-axis" id="plot-axis-R2" data-axis="R2" role="img"
+       aria-label="Two panels for the judgement axis: above, the loadings of all 220 variables, by block of the Content Model; below, the scores of all 910 occupations, by SOC major group."></div>
+  <figcaption><b>Figure 5.3</b> — judgement (R2). Above: the loading of each of the
+  220 variables on the axis, by block of O\*NET's Content Model. Below: each
+  occupation's score on the axis, by SOC major group, the groups ordered by
+  their median; the bar marks the median and the blue point the occupation
+  closest to it, which is named under the group. Hover for the name of any
+  variable or occupation.</figcaption>
+</figure>
+```
+
 **R2 (19.4 percent): judgement.** The axis runs from judgement-intensive work to procedure-following work. The positive pole loads on complex problem solving (0.86), systems analysis (0.86), deductive reasoning (0.85), systems evaluation (0.85), critical thinking (0.84), judgement and decision making (0.82) and analysing data or information (0.78); its extremes are physicists, robotics engineers, biochemists, nuclear engineers and chief executives. The negative pole loads on time spent making repetitive motions (−0.55), a working week of less than 40 hours (−0.49), time standing (−0.48), trunk strength (−0.48), bending or twisting the body (−0.47), dynamic strength (−0.47) and stamina (−0.46). Its extreme occupations are a special kind of manual work: sustained, physically repetitive, performed to a given routine - models, groundskeepers, dishwashers, dancers, textile pressers, refuse collectors — but the pole is not a manual pole. Clerical work sits on it too: cashiers at −2.22, proofreaders at −1.76, switchboard operators at −1.73, court reporters at −1.61, word processors and typists at −1.09, general office clerks at −1.12, the first four of them below the axis's tenth percentile of −1.32. Of the fifty-one codes in the office and administrative support major group, forty-four are negative.
 
 Judgement here is not knowledge, and the two should not be run together. Among O*NET's own expert categories, reported below, the essential skills load at 0.73 (ways of working) and 0.68 (foundational areas), while the ten knowledge categories range from −0.05 to 0.42. Structured knowledge is not what the positive pole is made of; a good deal of the work that draws on the most structured knowledge — credentialed clinical and technical roles, several of which sit below zero here — is among the most procedural.
+
+```{=html}
+<figure class="plot-figure">
+  <div class="plot plot-axis" id="plot-axis-R3" data-axis="R3" role="img"
+       aria-label="Two panels for the person-facing work axis: above, the loadings of all 220 variables, by block of the Content Model; below, the scores of all 910 occupations, by SOC major group."></div>
+  <figcaption><b>Figure 5.4</b> — person-facing work (R3). Above: the loading of each of the
+  220 variables on the axis, by block of O\*NET's Content Model. Below: each
+  occupation's score on the axis, by SOC major group, the groups ordered by
+  their median; the bar marks the median and the blue point the occupation
+  closest to it, which is named under the group. Hover for the name of any
+  variable or occupation.</figcaption>
+</figure>
+```
 
 **R3 (9.8 percent): person-facing work.** The positive pole loads on assisting
 and caring for others (0.75), psychology (0.75), performing for or working
@@ -1594,7 +1633,7 @@ every occupation in the data has a position in it.
 <figure class="plot-figure">
   <div class="plot plot-3d" id="plot-space" role="img"
        aria-label="Three-dimensional scatter plot of 910 occupations on the physical intensity, judgement and person-facing axes, coloured by union coverage."></div>
-  <figcaption><b>Figure 5.2</b> — the 910 occupations in the three-axis space,
+  <figcaption><b>Figure 5.5</b> — the 910 occupations in the three-axis space,
   coloured by union coverage. Drag to rotate; hold ⌘ or Ctrl and scroll to
   zoom. Marker size is log employment; hover for the occupation. On every axis,
   + means harder to automate.
@@ -1623,7 +1662,7 @@ dataset can be placed in a single figure and located by eye.
 
 
 
-The space is the one drawn in Figure 5.2. Occupations fill it rather than
+The space is the one drawn in Figure 5.5. Occupations fill it rather than
 gathering into groups, there is no region of concentration,
 and no partition of them into types is supported by the data. This matters for
 how the rest of the discussion should be read. Any boundary drawn in this space
