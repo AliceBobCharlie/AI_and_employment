@@ -938,54 +938,29 @@ the fifteenth cannot be told from noise. Components 7 to 15 contain some local
 structure, curvature of the first six and error in the ratings; Section 5.5
 examines them.
 
-### 5.4 What the three axes are
+### 5.4 What the six axes are
 
-We have three directions that survive re-estimation. What they mean is a separate
-question, and this section answers it by rotating them into a form that can be
-read, then checking the reading against evidence the decomposition did not see.
+Section 5.3 found six stable dimensions. To see what each of them represents, we
+rotate the components into axes that can be read, and then check each reading
+against evidence that took no part in the decomposition.
 
-The components as estimated are directions of maximum variance, which is a
-criterion about magnitude and not about meaning; they typically load a little on
-many variables and are hard to read. Rotation addresses this without changing
-anything substantive: it leaves the subspace spanned by the three components
-exactly as it was, and alters only which directions within that subspace are
-reported, choosing ones on which each variable loads either heavily or near
-zero. We apply varimax, which maximises the variance of the squared loadings
-within each component.
+Rotation replaces the components with another set of orthogonal axes spanning
+the same subspace. The subspace, and the total variance it carries, stay as they
+are; only the directions reported within it change. Varimax chooses the rotation
+that maximises the variance of the squared loadings on each axis, so that every
+variable loads either heavily or near zero, and each axis is defined by a small
+group of variables that can be named. Components 1 to 3 and components 4 to 6
+are rotated separately, as in Section 5.3, so the first three axes do not depend
+on the other three. An occupation's score on an axis is its component scores
+rotated in the same way, so the six axes are uncorrelated across occupations and
+their shares of the variance add up: R1 to R3 carry 53.1 percent between them,
+R4 to R6 a further 10.2 percent.
 
-Two conventions are fixed at this point. Because an eigenvector is defined only
-up to sign, each axis is anchored on a marker variable — manual dexterity,
-complex problem solving, and assisting and caring for others — and its sign set
-so the marker loads positively; without an anchor a small change in the input
-can flip an axis and silently invert every statement about it. And occupation
-scores are computed by standardising the unrotated scores and then rotating,
-rather than by using the loadings as weights: loadings carry a
-square-root-of-eigenvalue scaling, and because the eigenvalues differ, using
-them as weights yields correlated scores where an orthogonal rotation should
-yield uncorrelated ones. The maximum absolute correlation among the resulting
-three sets of scores is 0.00.
-
-Rotation buys interpretability at a price that has to be paid explicitly.
-Varimax constrains the reported axes to remain orthogonal, so it cannot itself
-tell us whether the axes are orthogonal in the data or only by construction. The
-question matters, because a coordinate system whose axes are correlated is a
-different object from one whose axes are not: positions in it cannot be read
-independently. We therefore refit with promax, an oblique rotation which begins
-from the varimax solution and fits a transformation to a sharpened target without
-requiring orthogonality. The resulting factor correlations are **−0.194** between
-R1 and R2, **−0.173** between R1 and R3 and **0.254** between R2 and R3, and the
-axes are the same axes: congruence between the varimax and promax solutions is
-0.991, 0.991 and 0.990.
-
-Those correlations are small but they are not zero, and we report them as
-measured rather than rounding them away. Orthogonality is therefore close to
-what the data prefers, not exactly what it prefers: the axes are near enough to
-independent that reporting the variance shares additively and reading positions
-one coordinate at a time are sound approximations, and far enough from it that
-a reader should not treat a high score on one axis as carrying no information
-about another. The largest of the three, 0.254 between judgement and
-person-facing work, is the one to keep in mind when Section 6 reads positions off
-a two-dimensional section.
+The sign of each axis is fixed by a marker variable that is set to load
+positively — manual dexterity for R1, complex problem solving for R2, assisting
+and caring for others for R3, medicine and dentistry for R4, the importance of
+being exact or accurate for R5, and sales and marketing for R6 — so that each
+axis points the same way whatever sample it is estimated from.
 
 **R1 (24.0 percent of variance): physical intensity.** The positive pole loads on
 depth perception (0.88), reaction time (0.88), inspecting equipment (0.87),
