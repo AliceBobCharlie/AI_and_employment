@@ -1,57 +1,47 @@
-# Whitelist .gitignore -- ignore everything, then allow only what should ship.
-# New notes and drafts stay untracked by default, which is the point: nothing
-# reaches the remote unless it is named here.
+---
+pagetitle: "Figures — the occupation space"
+description: "The 910 US occupations of the paper, on three axes, at full size."
+output-file: figures.html
+toc: false
+page-layout: custom
+---
 
-# 1. ignore every file
-*
+::: {.figure-page}
 
-# 2. but let git descend into directories, so the rules below can match inside
-!*/
+[← Back to the paper](index.html){.back-link}
 
-# 3. scripts, documents and the web paper
-!.gitignore
-!*.md
-!*.MD
-!*.py
-!*.qmd
-!_quarto.yml
-!*.scss
-!*.js
-!.github/workflows/*.yml
+# Figures {.figure-page-title}
 
-# 4. raw data: never committed -- large, and all of it is publicly downloadable.
-#    Ship the download instructions instead.
-data_raw/*
-!data_raw/README.md
+The 910 occupations of the paper, on the three axes recovered from O\*NET.
+On every axis, **+ means harder to automate**. The coordinates are in
+[`output/plot_data.csv`](output/plot_data.csv), one row per occupation.
 
-# 5. output: the data tables other people need, nothing else.
-#    master_clean.csv is the input every analysis script reads, so with it a
-#    reader can reproduce the axes without rebuilding from source; master.csv
-#    holds the raw values it was made from.
-#    rotated_axes.csv and plot_data.csv are shipped so that the axes can be
-#    downloaded directly and the web paper can draw its figures from them.
-#    Figures are not stored: the web paper draws them in the browser.
-output/*
-!output/master.csv
-!output/master_clean.csv
-!output/rotated_axes.csv
-!output/plot_data.csv
-# The axis figures of Section 5.4 draw every variable's loading from this.
-!output/axis_loadings.csv
-# Figure 6.2 is drawn from this. It holds occupation-level shares aggregated
-# from the IPUMS extract, not the microdata, which stays in data_raw/.
-!output/acs_young_share.csv
-!assets/*.png
+## The occupation space in three dimensions {#space}
 
-# 6. junk
-__pycache__/
-.ipynb_checkpoints/
-.DS_Store
-reports/
-.idea/
-# Quarto build output. The last two lines are the exact form Quarto looks
-# for, so keeping them here stops it appending them on every render.
-_site/
-.quarto/
-/.quarto/
-**/*.quarto_ipynb
+```{=html}
+<figure class="plot-figure">
+  <div class="plot plot-3d" id="plot-space" role="img"
+       aria-label="Three-dimensional scatter plot of 910 occupations on the physical intensity, judgement and person-facing axes, coloured by union coverage."></div>
+  <figcaption><b>Figure 6.1</b> — the three-axis space, coloured by union
+  coverage. Drag to rotate; hold ⌘ or Ctrl and scroll to zoom. Marker size is
+  log employment; hover for the occupation.</figcaption>
+</figure>
+```
+
+## The pairwise sections {#sections}
+
+```{=html}
+<figure class="plot-figure">
+  <div class="plot-controls">
+    <label for="section-select">Section</label>
+    <select id="section-select"></select>
+  </div>
+  <div class="plot plot-2d" id="plot-section" role="img"
+       aria-label="Scatter plot of 910 occupations on two of the axes; the menu above chooses the pair."></div>
+  <figcaption><b>Figure 6.3</b> — any two axes plotted against each other; the
+  menu chooses the pair. Dotted lines mark the medians; marker size is log
+  employment.</figcaption>
+</figure>
+```
+
+:::
