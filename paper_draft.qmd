@@ -978,9 +978,8 @@ the variance of the rotated axes R1~R6.
   <figcaption><b>Figure 5.2</b> — physical intensity (R1). Above: the loading of each of the
   220 variables on the axis, by block of O\*NET's Content Model. Below: each
   occupation's score on the axis, by SOC major group, the groups ordered by
-  their median; the bar marks the median and the blue point the occupation
-  closest to it, which is named under the group. Hover for the name of any
-  variable or occupation.</figcaption>
+  their median, which the bar marks. Hover for the name of any variable or
+  occupation.</figcaption>
 </figure>
 ```
 
@@ -1020,9 +1019,8 @@ distinguishes one occupation from another.
   <figcaption><b>Figure 5.3</b> — judgement (R2). Above: the loading of each of the
   220 variables on the axis, by block of O\*NET's Content Model. Below: each
   occupation's score on the axis, by SOC major group, the groups ordered by
-  their median; the bar marks the median and the blue point the occupation
-  closest to it, which is named under the group. Hover for the name of any
-  variable or occupation.</figcaption>
+  their median, which the bar marks. Hover for the name of any variable or
+  occupation.</figcaption>
 </figure>
 ```
 
@@ -1037,9 +1035,8 @@ Judgement here is not knowledge, and the two should not be run together. Among O
   <figcaption><b>Figure 5.4</b> — person-facing work (R3). Above: the loading of each of the
   220 variables on the axis, by block of O\*NET's Content Model. Below: each
   occupation's score on the axis, by SOC major group, the groups ordered by
-  their median; the bar marks the median and the blue point the occupation
-  closest to it, which is named under the group. Hover for the name of any
-  variable or occupation.</figcaption>
+  their median, which the bar marks. Hover for the name of any variable or
+  occupation.</figcaption>
 </figure>
 ```
 
@@ -1238,6 +1235,18 @@ For comparison, each half reproduces each of R1 to R3 at 0.86 or more. R5 is
 almost entirely a property of how the work is specified, R6 mainly of what the
 worker has to know, and R4 of both, with the job half dominant.
 
+```{=html}
+<figure class="plot-figure">
+  <div class="plot plot-axis" id="plot-axis-R4" data-axis="R4" role="img"
+       aria-label="Two panels for the manipulation against navigation axis: above, the loadings of all 220 variables, by block of the Content Model; below, the scores of all 910 occupations, by SOC major group."></div>
+  <figcaption><b>Figure 5.5</b> — manipulation against navigation (R4). Above: the loading of each of the
+  220 variables on the axis, by block of O\*NET's Content Model. Below: each
+  occupation's score on the axis, by SOC major group, the groups ordered by
+  their median, which the bar marks. Hover for the name of any variable or
+  occupation.</figcaption>
+</figure>
+```
+
 *R4: close manual work at a fixed clinical site, against work on the move.* The
 positive pole of the remainder correlates with medicine and dentistry (0.46),
 exposure to disease (0.38) and to radiation (0.33), assisting and caring for
@@ -1262,6 +1271,18 @@ of the navigation and vehicle items correlates −0.40 with the remainder, a
 composite of the manipulation items 0.23; the contrast between the two
 correlates 0.72. The negative pole is defined by navigation, the positive pole
 by manipulation together with the clinical setting and its knowledge.
+
+```{=html}
+<figure class="plot-figure">
+  <div class="plot plot-axis" id="plot-axis-R5" data-axis="R5" role="img"
+       aria-label="Two panels for the fixed standard against open-ended work axis: above, the loadings of all 220 variables, by block of the Content Model; below, the scores of all 910 occupations, by SOC major group."></div>
+  <figcaption><b>Figure 5.6</b> — fixed standard against open-ended work (R5). Above: the loading of each of the
+  220 variables on the axis, by block of O\*NET's Content Model. Below: each
+  occupation's score on the axis, by SOC major group, the groups ordered by
+  their median, which the bar marks. Hover for the name of any variable or
+  occupation.</figcaption>
+</figure>
+```
 
 *R5: work with a fixed correct standard, against open-ended work.* The positive
 pole correlates with the importance of repeating the same tasks (0.59) and of
@@ -1288,6 +1309,18 @@ place sits at the fixed-standard pole. For AI the pole cuts two ways, and we
 record it as a conjecture: a fixed correct standard is what makes it possible to
 check whether a system's output is right, while a high consequence of error
 raises the cost of the outputs that are wrong.
+
+```{=html}
+<figure class="plot-figure">
+  <div class="plot plot-axis" id="plot-axis-R6" data-axis="R6" role="img"
+       aria-label="Two panels for the commercial against specialist work axis: above, the loadings of all 220 variables, by block of the Content Model; below, the scores of all 910 occupations, by SOC major group."></div>
+  <figcaption><b>Figure 5.7</b> — commercial against specialist work (R6). Above: the loading of each of the
+  220 variables on the axis, by block of O\*NET's Content Model. Below: each
+  occupation's score on the axis, by SOC major group, the groups ordered by
+  their median, which the bar marks. Hover for the name of any variable or
+  occupation.</figcaption>
+</figure>
+```
 
 *R6: running a business, against specialist work.* R6 is the axis least affected
 by the bend, and its poles hardly change. The positive pole correlates with
@@ -1642,7 +1675,7 @@ every occupation in the data has a position in it.
 <figure class="plot-figure">
   <div class="plot plot-3d" id="plot-space" role="img"
        aria-label="Three-dimensional scatter plot of 910 occupations on the physical intensity, judgement and person-facing axes, coloured by union coverage."></div>
-  <figcaption><b>Figure 5.5</b> — the 910 occupations in the three-axis space,
+  <figcaption><b>Figure 5.8</b> — the 910 occupations in the three-axis space,
   coloured by union coverage. Drag to rotate; hold ⌘ or Ctrl and scroll to
   zoom. Marker size is log employment; hover for the occupation. On every axis,
   + means harder to automate.
@@ -1671,7 +1704,7 @@ dataset can be placed in a single figure and located by eye.
 
 
 
-The space is the one drawn in Figure 5.5. Occupations fill it rather than
+The space is the one drawn in Figure 5.8. Occupations fill it rather than
 gathering into groups, there is no region of concentration,
 and no partition of them into types is supported by the data. This matters for
 how the rest of the discussion should be read. Any boundary drawn in this space

@@ -28,6 +28,9 @@
     R1: { name: "Physical intensity", low: "symbolic", high: "embodied" },
     R2: { name: "Judgement", low: "procedural", high: "complex" },
     R3: { name: "Person-facing work", low: "technical", high: "caring" },
+    R4: { name: "Manipulation against navigation" },
+    R5: { name: "Fixed standard against open-ended work" },
+    R6: { name: "Commercial against specialist work" },
     union: { name: "Union coverage" },
   };
 
@@ -426,24 +429,31 @@
   // nothing but the figure. Above: every feature variable's loading on the
   // axis, one row per block of the Content Model, so no variable is left out
   // of the picture. Below: every occupation's score, one row per SOC major
-  // group, ordered by the group's median; a bar marks the median and a blue
-  // point the occupation closest to it, which is named under the group. Points
-  // in a row are spread vertically by a fixed offset, not at random, so the
-  // figure is the same on every load.
+  // group, ordered by the group's median, which a bar marks. Points in a row
+  // are spread vertically by a fixed offset, not at random, so the figure is
+  // the same on every load.
 
   const BLOCK_ORDER = ["Skills", "Abilities", "Knowledge", "Work Activities", "Work Context"];
   const AXIS_BLUE = "#2a78d6";
   const AXIS_GREY = "#8c8c8c";
   const STRONG = 0.5;          // loadings counted as strong in the panel heading
-  const TITLE_MAX = 46;        // characters of an occupation title shown under its group
+  const LINE_MAX = 28;         // characters per line of a group's name: every name fits in two lines
 
   function spread(i, width) {
     // Golden-ratio sequence: evenly spread, never the same twice in a row.
     return (((i * 0.6180339887) % 1) - 0.5) * width;
   }
 
-  function shorten(text, n) {
-    return text.length > n ? text.slice(0, n - 1).trimEnd() + "…" : text;
+  function wrap(text, n) {
+    // Break between words so that no line is longer than n characters, unless
+    // a single word is.
+    const lines = [];
+    text.split(" ").forEach((word) => {
+      const last = lines[lines.length - 1];
+      if (last !== undefined && (last + " " + word).length <= n) lines[lines.length - 1] = last + " " + word;
+      else lines.push(word);
+    });
+    return lines.join("<br>");
   }
 
   function loadingColumns(records) {
@@ -483,8 +493,6 @@
     const med = Object.fromEntries(groups.map((g) => [g, median(members[g].map((i) => scores[i]))]));
     groups.sort((a, b) => med[a] - med[b]);          // highest median at the top
     const row = Object.fromEntries(groups.map((g, j) => [g, j]));
-    const closest = Object.fromEntries(groups.map((g) => [g, members[g].reduce((best, i) =>
-      Math.abs(scores[i] - med[g]) < Math.abs(scores[best] - med[g]) ? i : best)]));
 
     traces.push({
       type: "scatter", mode: "markers",
@@ -507,19 +515,6 @@
       marker: { symbol: "line-ns", size: 20, line: { width: 3, color: "#000000" } },
       showlegend: false,
     });
-    traces.push({
-      type: "scatter", mode: "markers",
-      x: groups.map((g) => scores[closest[g]]),
-      y: groups.map((g) => row[g]),
-      xaxis: "x2", yaxis: "y2",
-      text: groups.map((g) => d.title[closest[g]]),
-      customdata: groups,
-      hovertemplate: "<b>%{text}</b><br>%{customdata}<br>" + name +
-        ": %{x:+.2f}<br>closest to the group median<extra></extra>",
-      marker: { color: AXIS_BLUE, size: 10, line: { width: 1.5, color: "#ffffff" } },
-      showlegend: false,
-    });
-
     const xaxis = (title, range) => ({
       title: { text: title, standoff: 6 },
       range: range,
@@ -544,9 +539,7 @@
       xaxis: Object.assign(xaxis("Loading on " + name.toLowerCase(), [-1, 1]), { anchor: "y" }),
       yaxis: yaxis([0.8, 1], rowOf.map((_, r) => BLOCK_ORDER[BLOCK_ORDER.length - 1 - r])),
       xaxis2: Object.assign(xaxis(name + " (standard deviations)", [-span, span]), { anchor: "y2" }),
-      yaxis2: yaxis([0, 0.71], groups.map((g) =>
-        g + "<br><span style=\"font-size:11px;color:#52514e\">" +
-        shorten(d.title[closest[g]], TITLE_MAX) + "</span>")),
+      yaxis2: yaxis([0, 0.71], groups.map((g) => wrap(g, LINE_MAX))),
       annotations: [
         {
           xref: "paper", yref: "paper", x: 0, y: 1.0, yanchor: "bottom", xanchor: "left",
