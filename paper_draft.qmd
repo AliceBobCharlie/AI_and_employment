@@ -888,6 +888,11 @@ subspace spanned by components 4 to 6 is stable as well. It carries a further
 10.2 percent of the variance, so the six components together hold 63.3
 percent.
 
+A reader may wonder whether the subspace spanned by components 4 to 6 is merely
+the curvature of the first three. We tested this: with the curvature of
+components 1 to 3 removed, the subspace is still stable. The test is reported in
+Section 5.5.
+
 Why, then, are the components inside it unstable? Their eigenvalues are close,
 so each sample orients them differently within the same subspace. Axes chosen
 by a criterion that does not depend on the eigenvalues may then be stable. We
@@ -904,22 +909,20 @@ paired one to one and compared (Table 5.4).
 | component 4 | 0.863 | 0.944 |
 | component 5 | 0.668 | 0.809 |
 | component 6 | 0.674 | 0.813 |
-| rotated axis R4 | 0.922 | 0.954 |
-| rotated axis R5 | 0.924 | 0.953 |
-| rotated axis R6 | 0.913 | 0.946 |
+| rotated axis 1 | 0.922 | 0.954 |
+| rotated axis 2 | 0.924 | 0.953 |
+| rotated axis 3 | 0.913 | 0.946 |
 
 **Rotated within their subspace, components 4 to 6 give stable axes.** Each of
 the three rotated axes reproduces at 0.91 or more in 95 percent of splits.
 Varimax does not depend on the nearly equal eigenvalues, so both halves arrive
 at the same axes.
 
-**The occupational space has six stable axes.** Taking the first three
-components together with the three rotated axes, the principal components of
-O\*NET yield six stable axes, and the six-dimensional subspace they span is
-stable as well.  Research on occupational structure should take all six into account, but they are not
-of equal weight. The first three are the main ones and carry 53.1 percent of
-the variance; the other three carry 10.2 percent and matter where finer
-distinctions are needed. They also differ in breadth: each of the last three
+**The occupational space has six stable dimensions.** Taking the first three components together with the three rotated axes, the principal components of O*NET yield six stable axes, and the six-dimensional subspace they span is stable as well. Research on occupational
+structure should take all six dimensions into account, but they are not of
+equal weight. The first three are the main ones and carry 53.1 percent of the
+variance; the other three carry 10.2 percent and matter where finer distinctions
+are needed. They also differ in breadth: each of the last three
 draws mainly on one half of O\*NET's Content Model, which Section 5.4 takes up.
 
 Nothing beyond the sixth component is stable under any looser criterion either.
@@ -941,14 +944,33 @@ examines them.
 ### 5.4 What the six axes are
 
 Section 5.3 found six stable dimensions. To see what each of them represents, we
-rotate the components into orthogonal axes that can be read, while keeping the subspace they span the same.
-We then check each reading against evidence that took no part in the decomposition.
-The method we use is Varimax, to ensure the axes rotated are still orthogonal to each other.
-Varimax chooses the rotation that maximises the variance of the squared loadings on each axis, so that every
-variable loads either heavily or near zero. The rotated axes have their directions and variances they carried
-changed, but The subspace, and the total variance it carries, stay as they are. The sign of each axis is fixed by a marker variable that is set to load
-positively  so that each axis points the same way whatever sample it is estimated from.
-Here are the rotated axes and the variances they carry:
+rotate the components into orthogonal axes that can be read, keeping the
+subspace they span unchanged.
+
+Varimax is (introduce Varimax algrithm and why it make rotated axes orthogonal).
+We apply varimax to components 1~3 and 4~6 each within the subspace they span. The sign of each axis
+is fixed by a marker variable that is set to load positively, so that each axis
+points the same way whatever sample it is estimated from.
+
+Rotation changes the direction of each axis and the variance it
+carries, but not the subspace or the total variance in it. Table 5.5 shows
+the variance of the rotated axes R1~R6.
+
+TODO: Delete the name, marker variable.
+**Table 5.5 — The six rotated axes**
+
+| axis | name | rotated within | marker variable | % of variance |
+|---|---|---|---|---|
+| R1 | physical intensity | components 1–3 | manual dexterity | 24.0 |
+| R2 | judgement | components 1–3 | complex problem solving | 19.4 |
+| R3 | person-facing work | components 1–3 | assisting and caring for others | 9.8 |
+| R4 | manipulation against navigation | components 4–6 | medicine and dentistry | 3.6 |
+| R5 | fixed correct standard against open-ended work | components 4–6 | importance of being exact or accurate | 3.3 |
+| R6 | commercial against specialist work | components 4–6 | sales and marketing | 3.3 |
+| | **R1–R3** | | | **53.1** |
+| | **R4–R6** | | | **10.2** |
+| | **all six** | | | **63.3** |
+
 
 ```{=html}
 <figure class="plot-figure">
