@@ -904,14 +904,14 @@ paired one to one and compared (Table 5.4).
 
 **Table 5.4 — Split-half congruence of components 4 to 6, as estimated and rotated within their subspace (200 splits)**
 
-| | p05 | median |
-|---|---|---|
-| component 4 | 0.863 | 0.944 |
-| component 5 | 0.668 | 0.809 |
-| component 6 | 0.674 | 0.813 |
-| rotated axis 1 | 0.922 | 0.954 |
-| rotated axis 2 | 0.924 | 0.953 |
-| rotated axis 3 | 0.913 | 0.946 |
+|                | p05 | median |
+|----------------|---|---|
+| component 4    | 0.863 | 0.944 |
+| component 5    | 0.668 | 0.809 |
+| component 6    | 0.674 | 0.813 |
+| rotated axis 4 | 0.922 | 0.954 |
+| rotated axis 5 | 0.924 | 0.953 |
+| rotated axis 6 | 0.913 | 0.946 |
 
 **Rotated within their subspace, components 4 to 6 give stable axes.** Each of
 the three rotated axes reproduces at 0.91 or more in 95 percent of splits.
