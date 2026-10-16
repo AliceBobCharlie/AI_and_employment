@@ -956,20 +956,19 @@ Rotation changes the direction of each axis and the variance it
 carries, but not the subspace or the total variance in it. Table 5.5 shows
 the variance of the rotated axes R1~R6.
 
-TODO: Delete the name, marker variable.
 **Table 5.5 — The six rotated axes**
 
-| axis | name | rotated within | marker variable | % of variance |
-|---|---|---|---|---|
-| R1 | physical intensity | components 1–3 | manual dexterity | 24.0 |
-| R2 | judgement | components 1–3 | complex problem solving | 19.4 |
-| R3 | person-facing work | components 1–3 | assisting and caring for others | 9.8 |
-| R4 | manipulation against navigation | components 4–6 | medicine and dentistry | 3.6 |
-| R5 | fixed correct standard against open-ended work | components 4–6 | importance of being exact or accurate | 3.3 |
-| R6 | commercial against specialist work | components 4–6 | sales and marketing | 3.3 |
-| | **R1–R3** | | | **53.1** |
-| | **R4–R6** | | | **10.2** |
-| | **all six** | | | **63.3** |
+| axis | rotated within | % of variance |
+|---|---|---|
+| R1 | components 1–3 | 24.0 |
+| R2 | components 1–3 | 19.4 |
+| R3 | components 1–3 | 9.8 |
+| R4 | components 4–6 | 3.6 |
+| R5 | components 4–6 | 3.3 |
+| R6 | components 4–6 | 3.3 |
+| **R1–R3** | | **53.1** |
+| **R4–R6** | | **10.2** |
+| **all six** | | **63.3** |
 
 
 ```{=html}
