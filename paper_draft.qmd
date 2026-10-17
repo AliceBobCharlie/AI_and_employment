@@ -993,11 +993,12 @@ below.
 ```
 
 R1 is the medium of the work: **physical against symbolic**. Its positive end
-combines operating equipment, moving the body and exposure to hazards, and is
-reached by millwrights, electricians and pilots. Its negative end is
-information handled at a desk, in numbers as much as in words: writers and
-professors of law lie there, and so do payroll clerks and data scientists.
-Physical means working in and on the physical world, not physical strain:
+combines operating equipment, moving the body and exposure to hazards, and the
+top tenth of occupations is mostly construction (31), installation and repair
+(27) and transport (15). Its negative end is information handled at a desk, in
+numbers as much as in words: writers and professors of law lie there, and so do
+payroll clerks and data scientists. The two ends trade off (r = −0.56): the
+more physical an occupation's work, the less symbolic it is. Physical means working in and on the physical world, not physical strain:
 airline pilots score high, while janitors and maids sit near the middle.
 
 ```{=html}
@@ -1017,15 +1018,16 @@ cognitive, analytical and managerial variable loads positively on it, led by
 complex problem solving and systems analysis, and physicists, engineers and
 chief executives lie at its positive end. Its negative end is work that demands
 little of any kind, physical or clerical: dishwashers and fast-food workers,
-cashiers and proofreaders. Complexity is independent of the medium; airline
-pilots and construction managers rank among the most complex occupations.
-Complexity is also distinct from routine, which belongs to R5.
+cashiers and proofreaders. Many of these are entry-level jobs, and in the
+bottom tenth a third of workers work fewer than 40 hours a week. Complexity is
+independent of the medium; airline pilots and construction managers rank among
+the most complex occupations.
 
 ```{=html}
 <figure class="plot-figure">
   <div class="plot plot-axis" id="plot-axis-R3" data-axis="R3" role="img"
-       aria-label="Two panels for the people against technical work axis: above, the loadings of all 220 variables, by block of the Content Model; below, the scores of all 910 occupations, by SOC major group."></div>
-  <figcaption><b>Figure 5.4</b> — people against technical work (R3). Above: the loading of each of the
+       aria-label="Two panels for the people against artefact work axis: above, the loadings of all 220 variables, by block of the Content Model; below, the scores of all 910 occupations, by SOC major group."></div>
+  <figcaption><b>Figure 5.4</b> — people against artefact work (R3). Above: the loading of each of the
   220 variables on the axis, by block of O\*NET's Content Model. Below: each
   occupation's score on the axis, by SOC major group, the groups ordered by
   their median, which the bar marks. Hover for the name of any variable or
@@ -1033,12 +1035,14 @@ Complexity is also distinct from routine, which belongs to R5.
 </figure>
 ```
 
-R3 is the object of the work: **people against technical**. Its
-positive end is acting on a person's condition or conduct, controlling as much
-as caring, and is led by police and correctional officers, emergency physicians
-and nurses. Its negative end is engineering, design and programming, held by
-engineers, software developers and toolmakers. Technical work lies at this end
-in either medium: machine-tool operators share it with data scientists.
+R3 is the object of the work: **people against artefacts**. Its positive end
+is acting on a person's condition or conduct, controlling as much as caring,
+and is led by police and correctional officers, emergency physicians and
+nurses. Its negative end is designing, making and checking artefacts, from
+machined parts to software, held by engineers, software developers and
+toolmakers; it also holds mathematical and theoretical research, whose
+artefacts are formal systems. The two ends are unrelated rather than opposed (r = −0.02), so an
+occupation can involve both, and those that do lie in the middle.
 
 ```{=html}
 <figure class="plot-figure">
@@ -1053,12 +1057,15 @@ in either medium: machine-tool operators share it with data scientists.
 ```
 
 R4 is how physical work is done: **hands-on against field**. Its positive end
-is precise work by hand at close range on a patient, a specimen or a workpiece, led by surgeons, dentists and laboratory technologists, with
-machinists and printing press operators further in. Its negative end is work
-carried out at changing sites, held by truck drivers, wildlife wardens,
-building inspectors and real estate appraisers. The vehicle is the means of
-reaching the work, not the work itself: appraisers lie further out than bus
-drivers.
+loads on medicine and dentistry, finger dexterity and
+physical proximity: precise work by hand at close range on a patient, a
+specimen or a workpiece, led by surgeons, dentists and laboratory
+technologists, with machinists and printing press operators further in. Its
+negative end loads on working in vehicles and outdoors, geography and
+transportation: work carried out at changing sites, held by truck drivers,
+wildlife wardens, building inspectors and real estate appraisers. Both ends
+are largely physical work; the middle holds occupations that
+do both, such as electricians, and desk work that does neither.
 
 ```{=html}
 <figure class="plot-figure">
@@ -1073,12 +1080,14 @@ drivers.
 ```
 
 R5 is how standardised the work is: **standardised against open-ended**. Its
-positive end is a stream of similar cases handled by fixed rules, accurately
-and under time pressure, and is led by typists, clerks, claims adjusters and
-dispatchers, with air traffic controllers and pilots further in. Its negative
-end is work with no single correct output: teaching, creative work and
-research, from choreographers and actors to school teachers and professors of
-the humanities. The repetition this axis measures is that of information and
+positive end loads on repeating the same tasks, being exact or accurate, the
+degree of automation and time pressure, and is led by typists, clerks, claims
+adjusters and dispatchers, with air traffic controllers and pilots further in.
+These are occupations whose work has a correct answer and where timeliness and
+accuracy matter. Its negative end loads on instructing, thinking creatively,
+fine arts and history: teaching, creative work and research, which have no
+single correct output, from choreographers and actors to school teachers and
+professors of the humanities. The repetition this axis measures is that of information and
 control work; repetitive manual work lies near the middle.
 
 ```{=html}
@@ -1094,11 +1103,14 @@ control work; repetitive manual work lies near the middle.
 ```
 
 R6 is whether the work is done through commerce or by the individual:
-**commercial against individual**. Its positive end is buying, selling and
-running an operation, with its money, materials and staff, and is led by
-managers, buyers, designers, jewellers and barbers. Its negative end is work
-done by the person's own expertise and attention, as by pilots, air traffic
-controllers, physicians and judicial law clerks. The axis divides a single
+**commercial against individual**. Its positive end loads on sales and
+marketing, administration and management, and managing money, materials and
+staff, and is led by managers, buyers, designers, jewellers and barbers: it is
+management and commerce, whether of people or of assets. Its negative end is
+work done by the person’s own expertise and attention, loads on medicine,
+science and perceptual attention, and is led by pilots, air traffic controllers,
+physicians and judicial law clerks; it holds many kinds of occupation, whose
+common feature is that their work is not commercial. The axis divides a single
 field: medical and health services managers lie at the commercial end, family
 physicians at the individual end.
 
