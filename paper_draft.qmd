@@ -947,28 +947,33 @@ Section 5.3 found six stable dimensions. To see what each of them represents, we
 rotate the components into orthogonal axes that can be read, keeping the
 subspace they span unchanged.
 
-Varimax is (introduce Varimax algrithm and why it make rotated axes orthogonal).
-We apply varimax to components 1~3 and 4~6 each within the subspace they span. The sign of each axis
+Varimax (Kaiser, 1958) rotates a set of components by multiplying their loading
+matrix by an orthogonal matrix, chosen so that the variance of the squared
+loadings on each axis, summed over the axes, is as large as possible. That sum
+is largest when every variable loads heavily on one axis and close to zero on
+the others, so each rotated axis is carried by a group of variables of its own
+and can be read from them. Because the rotation matrix is orthogonal, it turns
+the axes rigidly about the origin: the rotated axes stay at right angles to one
+another, the occupations' scores on them stay uncorrelated, and together they
+span exactly the subspace of the components they were rotated from.
+We apply varimax to components 1–3 and 4–6 each within the subspace they span. The sign of each axis
 is fixed by a marker variable that is set to load positively, so that each axis
 points the same way whatever sample it is estimated from.
 
 Rotation changes the direction of each axis and the variance it
 carries, but not the subspace or the total variance in it. Table 5.5 shows
-the variance of the rotated axes R1~R6.
+the variance of the rotated axes R1–R6.
 
 **Table 5.5 — The six rotated axes**
 
-| axis | rotated within | % of variance |
-|---|---|---|
-| R1 | components 1–3 | 24.0 |
-| R2 | components 1–3 | 19.4 |
-| R3 | components 1–3 | 9.8 |
-| R4 | components 4–6 | 3.6 |
-| R5 | components 4–6 | 3.3 |
-| R6 | components 4–6 | 3.3 |
-| **R1–R3** | | **53.1** |
-| **R4–R6** | | **10.2** |
-| **all six** | | **63.3** |
+| axis | subspace | % of variance | cumulative % |
+|---|---|---|---|
+| R1 | first (components 1–3) | 24.0 | 24.0 |
+| R2 | first (components 1–3) | 19.4 | 43.4 |
+| R3 | first (components 1–3) | 9.8 | 53.1 |
+| R4 | second (components 4–6) | 3.6 | 56.7 |
+| R5 | second (components 4–6) | 3.3 | 60.0 |
+| R6 | second (components 4–6) | 3.3 | 63.3 |
 
 
 ```{=html}
@@ -2122,6 +2127,8 @@ Handel, M. J. (2016). The O\*NET content model: Strengths and limitations. *Jour
 Humlum, A., & Vestergaard, E. (2025). *Large language models, small labor market effects*. Becker Friedman Institute Working Paper; NBER Working Paper 33777. [WP]
 
 Jones, C. I., & Tonetti, C. (2026). *Past automation and future A.I.: How weak links tame the growth explosion* (Version 0.3, 15 January 2026). Unpublished manuscript, Stanford GSB and NBER. [WP] [the authors describe the draft as very preliminary; cite the version and date with any figure]
+
+Kaiser, H. F. (1958). The varimax criterion for analytic rotation in factor analysis. *Psychometrika*, 23(3), 187–200. https://doi.org/10.1007/BF02289233
 
 Kleiner, M. M., & Krueger, A. B. (2013). Analyzing the extent and influence of occupational licensing on the labor market. *Journal of Labor Economics*, 31(S1), S173–S202. https://doi.org/10.1086/669060
 
