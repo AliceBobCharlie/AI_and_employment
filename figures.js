@@ -25,12 +25,12 @@
   const FONT = '"Source Sans 3", "Helvetica Neue", Arial, sans-serif';
 
   const DIMS = {
-    R1: { name: "Physical intensity", low: "symbolic", high: "embodied" },
-    R2: { name: "Judgement", low: "procedural", high: "complex" },
-    R3: { name: "Person-facing work", low: "technical", high: "caring" },
-    R4: { name: "Manipulation against navigation" },
-    R5: { name: "Fixed standard against open-ended work" },
-    R6: { name: "Commercial against specialist work" },
+    R1: { name: "Physical against symbolic work", low: "symbolic", high: "physical" },
+    R2: { name: "Complex against simple work", low: "simple", high: "complex" },
+    R3: { name: "People against technical work", low: "technical", high: "people" },
+    R4: { name: "Hands-on against field work" },
+    R5: { name: "Standardised against open-ended work" },
+    R6: { name: "Commercial against individual work" },
     union: { name: "Union coverage" },
   };
 

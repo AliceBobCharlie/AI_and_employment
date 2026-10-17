@@ -975,12 +975,16 @@ the variance of the rotated axes R1–R6.
 | R5 | second (components 4–6) | 3.3 | 60.0 |
 | R6 | second (components 4–6) | 3.3 | 63.3 |
 
+For each rotated axis, a figure shows the loadings of the 220 variables,
+grouped by block of the Content Model, and the positions of all 910 occupations
+on the axis, grouped by SOC major group. Each axis is read from its figure
+below.
 
 ```{=html}
 <figure class="plot-figure">
   <div class="plot plot-axis" id="plot-axis-R1" data-axis="R1" role="img"
-       aria-label="Two panels for the physical intensity axis: above, the loadings of all 220 variables, by block of the Content Model; below, the scores of all 910 occupations, by SOC major group."></div>
-  <figcaption><b>Figure 5.2</b> — physical intensity (R1). Above: the loading of each of the
+       aria-label="Two panels for the physical against symbolic work axis: above, the loadings of all 220 variables, by block of the Content Model; below, the scores of all 910 occupations, by SOC major group."></div>
+  <figcaption><b>Figure 5.2</b> — physical against symbolic work (R1). Above: the loading of each of the
   220 variables on the axis, by block of O\*NET's Content Model. Below: each
   occupation's score on the axis, by SOC major group, the groups ordered by
   their median, which the bar marks. Hover for the name of any variable or
@@ -988,18 +992,117 @@ the variance of the rotated axes R1–R6.
 </figure>
 ```
 
-**R1 (24.0 percent of variance): physical intensity.** The positive pole loads on
-depth perception (0.88), reaction time (0.88), inspecting equipment (0.87),
-operation and control (0.86), multilimb coordination (0.86), exposure to
-hazardous equipment (0.86) and operating vehicles (0.85); its extreme
-occupations are manufactured building and mobile home installers, millwrights,
-wind turbine technicians, oil and gas service unit operators and electricians.
-The negative pole loads on time spent sitting (−0.63), indoor environmentally
-controlled conditions (−0.54), and speaking, written and oral expression (−0.52
-to −0.51); its extremes are poets, proofreaders, writers, professors of foreign
-languages, law and philosophy, and judicial law clerks.
+R1 is the medium of the work: **physical against symbolic**. Its positive end
+combines operating equipment, moving the body and exposure to hazards, and is
+reached by millwrights, electricians and pilots. Its negative end is
+information handled at a desk, in numbers as much as in words: writers and
+professors of law lie there, and so do payroll clerks and data scientists.
+Physical means working in and on the physical world, not physical strain:
+airline pilots score high, while janitors and maids sit near the middle.
 
-The two poles are both real, but they are not measured to the same depth. Seventy-five of the 220 columns load above +0.5 on R1 and only ten below −0.5, the most negative being time spent sitting at −0.63; a composite of the physical and psychomotor abilities correlates +0.874 with the axis, a composite of the language skills −0.542. So the negative pole is a construct and not an absence — reading, writing, speaking, English language and working with computers all sit between −0.49 and −0.52 — but it is a narrower one than the embodied complex opposite it, because O*NET describes physical work with more items than it describes symbolic work. Two things follow for reading a position on this axis. A large positive score is a stronger statement than a large negative one. And work that is light in both media sits near the middle rather than at the symbolic end: janitors are at −0.04, dishwashers at −0.50, waiters at −0.69 and cashiers at −0.98, against poets at −2.06, proofreaders at −1.93 and judicial law clerks at −1.84. The symbolic pole is where language-intensive work is, not where physically undemanding work is.
+```{=html}
+<figure class="plot-figure">
+  <div class="plot plot-axis" id="plot-axis-R2" data-axis="R2" role="img"
+       aria-label="Two panels for the complex against simple work axis: above, the loadings of all 220 variables, by block of the Content Model; below, the scores of all 910 occupations, by SOC major group."></div>
+  <figcaption><b>Figure 5.3</b> — complex against simple work (R2). Above: the loading of each of the
+  220 variables on the axis, by block of O\*NET's Content Model. Below: each
+  occupation's score on the axis, by SOC major group, the groups ordered by
+  their median, which the bar marks. Hover for the name of any variable or
+  occupation.</figcaption>
+</figure>
+```
+
+R2 is the complexity of the work: **complex against simple**. Almost every
+cognitive, analytical and managerial variable loads positively on it, led by
+complex problem solving and systems analysis, and physicists, engineers and
+chief executives lie at its positive end. Its negative end is work that demands
+little of any kind, physical or clerical: dishwashers and fast-food workers,
+cashiers and proofreaders. Complexity is independent of the medium; airline
+pilots and construction managers rank among the most complex occupations.
+Complexity is also distinct from routine, which belongs to R5.
+
+```{=html}
+<figure class="plot-figure">
+  <div class="plot plot-axis" id="plot-axis-R3" data-axis="R3" role="img"
+       aria-label="Two panels for the people against technical work axis: above, the loadings of all 220 variables, by block of the Content Model; below, the scores of all 910 occupations, by SOC major group."></div>
+  <figcaption><b>Figure 5.4</b> — people against technical work (R3). Above: the loading of each of the
+  220 variables on the axis, by block of O\*NET's Content Model. Below: each
+  occupation's score on the axis, by SOC major group, the groups ordered by
+  their median, which the bar marks. Hover for the name of any variable or
+  occupation.</figcaption>
+</figure>
+```
+
+R3 is the object of the work: **people against technical**. Its
+positive end is acting on a person's condition or conduct, controlling as much
+as caring, and is led by police and correctional officers, emergency physicians
+and nurses. Its negative end is engineering, design and programming, held by
+engineers, software developers and toolmakers. Technical work lies at this end
+in either medium: machine-tool operators share it with data scientists.
+
+```{=html}
+<figure class="plot-figure">
+  <div class="plot plot-axis" id="plot-axis-R4" data-axis="R4" role="img"
+       aria-label="Two panels for the hands-on against field work axis: above, the loadings of all 220 variables, by block of the Content Model; below, the scores of all 910 occupations, by SOC major group."></div>
+  <figcaption><b>Figure 5.5</b> — hands-on against field work (R4). Above: the loading of each of the
+  220 variables on the axis, by block of O\*NET's Content Model. Below: each
+  occupation's score on the axis, by SOC major group, the groups ordered by
+  their median, which the bar marks. Hover for the name of any variable or
+  occupation.</figcaption>
+</figure>
+```
+
+R4 is how physical work is done: **hands-on against field**. Its positive end
+is precise work by hand at close range on a patient, a specimen or a workpiece, led by surgeons, dentists and laboratory technologists, with
+machinists and printing press operators further in. Its negative end is work
+carried out at changing sites, held by truck drivers, wildlife wardens,
+building inspectors and real estate appraisers. The vehicle is the means of
+reaching the work, not the work itself: appraisers lie further out than bus
+drivers.
+
+```{=html}
+<figure class="plot-figure">
+  <div class="plot plot-axis" id="plot-axis-R5" data-axis="R5" role="img"
+       aria-label="Two panels for the standardised against open-ended work axis: above, the loadings of all 220 variables, by block of the Content Model; below, the scores of all 910 occupations, by SOC major group."></div>
+  <figcaption><b>Figure 5.6</b> — standardised against open-ended work (R5). Above: the loading of each of the
+  220 variables on the axis, by block of O\*NET's Content Model. Below: each
+  occupation's score on the axis, by SOC major group, the groups ordered by
+  their median, which the bar marks. Hover for the name of any variable or
+  occupation.</figcaption>
+</figure>
+```
+
+R5 is how standardised the work is: **standardised against open-ended**. Its
+positive end is a stream of similar cases handled by fixed rules, accurately
+and under time pressure, and is led by typists, clerks, claims adjusters and
+dispatchers, with air traffic controllers and pilots further in. Its negative
+end is work with no single correct output: teaching, creative work and
+research, from choreographers and actors to school teachers and professors of
+the humanities. The repetition this axis measures is that of information and
+control work; repetitive manual work lies near the middle.
+
+```{=html}
+<figure class="plot-figure">
+  <div class="plot plot-axis" id="plot-axis-R6" data-axis="R6" role="img"
+       aria-label="Two panels for the commercial against individual work axis: above, the loadings of all 220 variables, by block of the Content Model; below, the scores of all 910 occupations, by SOC major group."></div>
+  <figcaption><b>Figure 5.7</b> — commercial against individual work (R6). Above: the loading of each of the
+  220 variables on the axis, by block of O\*NET's Content Model. Below: each
+  occupation's score on the axis, by SOC major group, the groups ordered by
+  their median, which the bar marks. Hover for the name of any variable or
+  occupation.</figcaption>
+</figure>
+```
+
+R6 is whether the work is done through commerce or by the individual:
+**commercial against individual**. Its positive end is buying, selling and
+running an operation, with its money, materials and staff, and is led by
+managers, buyers, designers, jewellers and barbers. Its negative end is work
+done by the person's own expertise and attention, as by pilots, air traffic
+controllers, physicians and judicial law clerks. The axis divides a single
+field: medical and health services managers lie at the commercial end, family
+physicians at the individual end.
+
+<!-- Moved here from the readings of the axes, unchanged; to be revised. -->
 
 R1 is also the direction along which the clustering of Section 5.2 failed most
 informatively. If one insists on splitting the 910 occupations in two, the best
@@ -1016,48 +1119,6 @@ direction that corresponds to it takes 24.0 percent of the variance, and the two
 axes orthogonal to it take a further 29.2 percent between them. The dichotomy
 points along a real direction and accounts for less than half of what
 distinguishes one occupation from another.
-
-```{=html}
-<figure class="plot-figure">
-  <div class="plot plot-axis" id="plot-axis-R2" data-axis="R2" role="img"
-       aria-label="Two panels for the judgement axis: above, the loadings of all 220 variables, by block of the Content Model; below, the scores of all 910 occupations, by SOC major group."></div>
-  <figcaption><b>Figure 5.3</b> — judgement (R2). Above: the loading of each of the
-  220 variables on the axis, by block of O\*NET's Content Model. Below: each
-  occupation's score on the axis, by SOC major group, the groups ordered by
-  their median, which the bar marks. Hover for the name of any variable or
-  occupation.</figcaption>
-</figure>
-```
-
-**R2 (19.4 percent): judgement.** The axis runs from judgement-intensive work to procedure-following work. The positive pole loads on complex problem solving (0.86), systems analysis (0.86), deductive reasoning (0.85), systems evaluation (0.85), critical thinking (0.84), judgement and decision making (0.82) and analysing data or information (0.78); its extremes are physicists, robotics engineers, biochemists, nuclear engineers and chief executives. The negative pole loads on time spent making repetitive motions (−0.55), a working week of less than 40 hours (−0.49), time standing (−0.48), trunk strength (−0.48), bending or twisting the body (−0.47), dynamic strength (−0.47) and stamina (−0.46). Its extreme occupations are a special kind of manual work: sustained, physically repetitive, performed to a given routine - models, groundskeepers, dishwashers, dancers, textile pressers, refuse collectors — but the pole is not a manual pole. Clerical work sits on it too: cashiers at −2.22, proofreaders at −1.76, switchboard operators at −1.73, court reporters at −1.61, word processors and typists at −1.09, general office clerks at −1.12, the first four of them below the axis's tenth percentile of −1.32. Of the fifty-one codes in the office and administrative support major group, forty-four are negative.
-
-Judgement here is not knowledge, and the two should not be run together. Among O*NET's own expert categories, reported below, the essential skills load at 0.73 (ways of working) and 0.68 (foundational areas), while the ten knowledge categories range from −0.05 to 0.42. Structured knowledge is not what the positive pole is made of; a good deal of the work that draws on the most structured knowledge — credentialed clinical and technical roles, several of which sit below zero here — is among the most procedural.
-
-```{=html}
-<figure class="plot-figure">
-  <div class="plot plot-axis" id="plot-axis-R3" data-axis="R3" role="img"
-       aria-label="Two panels for the person-facing work axis: above, the loadings of all 220 variables, by block of the Content Model; below, the scores of all 910 occupations, by SOC major group."></div>
-  <figcaption><b>Figure 5.4</b> — person-facing work (R3). Above: the loading of each of the
-  220 variables on the axis, by block of O\*NET's Content Model. Below: each
-  occupation's score on the axis, by SOC major group, the groups ordered by
-  their median, which the bar marks. Hover for the name of any variable or
-  occupation.</figcaption>
-</figure>
-```
-
-**R3 (9.8 percent): person-facing work.** The positive pole loads on assisting
-and caring for others (0.75), psychology (0.75), performing for or working
-directly with the public (0.73), therapy and counselling (0.71) and dealing with
-unpleasant, angry or discourteous people (0.71); its extremes are correctional
-officer supervisors, police officers, detectives, emergency physicians and
-flight attendants. The negative pole loads on engineering and technology
-(−0.49), design (−0.47), production and processing (−0.41) and programming
-(−0.39); its extremes are mechanical drafters, model makers, electronics
-engineers, software developers, data scientists and mathematicians. The
-positive pole is not care in the emotional-labour sense — conflict handling
-loads nearly as heavily as caring. What its occupations share is direct public contact with responsibility
-attached.
-
 
 **What the structure turns out to match.** The method of Section 2 was to
 recover the structure first and compare it with theory afterwards, so this is
@@ -1240,110 +1301,15 @@ For comparison, each half reproduces each of R1 to R3 at 0.86 or more. R5 is
 almost entirely a property of how the work is specified, R6 mainly of what the
 worker has to know, and R4 of both, with the job half dominant.
 
-```{=html}
-<figure class="plot-figure">
-  <div class="plot plot-axis" id="plot-axis-R4" data-axis="R4" role="img"
-       aria-label="Two panels for the manipulation against navigation axis: above, the loadings of all 220 variables, by block of the Content Model; below, the scores of all 910 occupations, by SOC major group."></div>
-  <figcaption><b>Figure 5.5</b> — manipulation against navigation (R4). Above: the loading of each of the
-  220 variables on the axis, by block of O\*NET's Content Model. Below: each
-  occupation's score on the axis, by SOC major group, the groups ordered by
-  their median, which the bar marks. Hover for the name of any variable or
-  occupation.</figcaption>
-</figure>
-```
+The two poles are both real, but they are not measured to the same depth. Seventy-five of the 220 columns load above +0.5 on R1 and only ten below −0.5, the most negative being time spent sitting at −0.63; a composite of the physical and psychomotor abilities correlates +0.874 with the axis, a composite of the language skills −0.542. So the negative pole is a construct and not an absence — reading, writing, speaking, English language and working with computers all sit between −0.49 and −0.52 — but it is a narrower one than the embodied complex opposite it, because O*NET describes physical work with more items than it describes symbolic work. Two things follow for reading a position on this axis. A large positive score is a stronger statement than a large negative one. And work that is light in both media sits near the middle rather than at the symbolic end: janitors are at −0.04, dishwashers at −0.50, waiters at −0.69 and cashiers at −0.98, against poets at −2.06, proofreaders at −1.93 and judicial law clerks at −1.84. The symbolic pole is where language-intensive work is, not where physically undemanding work is.
 
-*R4: close manual work at a fixed clinical site, against work on the move.* The
-positive pole of the remainder correlates with medicine and dentistry (0.46),
-exposure to disease (0.38) and to radiation (0.33), assisting and caring for
-others (0.32), finger dexterity (0.31), physical proximity to others (0.30) and
-using the hands to handle and control objects (0.29). Its occupations are
-clinical work done with the hands at close quarters: medical laboratory
-technologists, surgical assistants and technologists, general dentists, nurse
-anaesthetists, medical appliance technicians, oral and maxillofacial surgeons
-and prosthodontists. The negative pole correlates with working in an enclosed
-vehicle (−0.64), outdoors in all weather (−0.56), transportation (−0.50),
-geography (−0.49), spatial orientation (−0.44) and night vision (−0.41). Its occupations
-move about for a living: cargo and freight agents, heavy truck drivers, fish and
-game wardens, postal mail carriers, refuse collectors, transportation inspectors
-and real estate appraisers. What the bend removed is mainly the physical extreme
-of R1, the high places, ladders and vibration of construction work. For
-substitution the two poles point at two different technologies: the positive
-pole at fine manipulation in contact with a patient's body or a specimen, which
-surgical and laboratory automation would have to supply, and the negative pole
-at navigation and driving in open environments, which is what autonomous
-vehicles and routing systems address. The two are not equally sharp. A composite
-of the navigation and vehicle items correlates −0.40 with the remainder, a
-composite of the manipulation items 0.23; the contrast between the two
-correlates 0.72. The negative pole is defined by navigation, the positive pole
-by manipulation together with the clinical setting and its knowledge.
+Judgement here is not knowledge, and the two should not be run together. Among O*NET's own expert categories, reported below, the essential skills load at 0.73 (ways of working) and 0.68 (foundational areas), while the ten knowledge categories range from −0.05 to 0.42. Structured knowledge is not what the positive pole is made of; a good deal of the work that draws on the most structured knowledge — credentialed clinical and technical roles, several of which sit below zero here — is among the most procedural.
 
-```{=html}
-<figure class="plot-figure">
-  <div class="plot plot-axis" id="plot-axis-R5" data-axis="R5" role="img"
-       aria-label="Two panels for the fixed standard against open-ended work axis: above, the loadings of all 220 variables, by block of the Content Model; below, the scores of all 910 occupations, by SOC major group."></div>
-  <figcaption><b>Figure 5.6</b> — fixed standard against open-ended work (R5). Above: the loading of each of the
-  220 variables on the axis, by block of O\*NET's Content Model. Below: each
-  occupation's score on the axis, by SOC major group, the groups ordered by
-  their median, which the bar marks. Hover for the name of any variable or
-  occupation.</figcaption>
-</figure>
-```
-
-*R5: work with a fixed correct standard, against open-ended work.* The positive
-pole correlates with the importance of repeating the same tasks (0.59) and of
-being exact or accurate (0.52), the degree of automation (0.49), the frequency
-(0.45) and the impact (0.43) of decisions, evaluating information for compliance
-with standards (0.42), the consequence of error (0.37) and time pressure (0.36).
-The negative pole correlates with history and archaeology (−0.48), fine arts
-(−0.47), thinking creatively (−0.42) and originality (−0.33). Read directly,
-before the bend is removed, the positive pole is dominated by clerical work —
-court reporters, loan and credit clerks — and what the bend removes is exactly
-that: administrative knowledge, telephone and computer work, the physically
-light and procedural corner of the first tier. What remains at the positive
-pole is work whose output is judged against a fixed standard, a rule, a protocol
-or a correct value, with frequent decisions that matter: public safety
-telecommunicators, judges and administrative law judges, claims adjusters,
-dispatchers, air traffic controllers and customs brokers. At the negative pole
-is work whose output has no single correct form: choreographers, poets and
-writers, teaching assistants in universities, self-enrichment teachers,
-professors of foreign languages, and actors. This is where routineness as
-repetition, which was found above to be orthogonal to the first tier, belongs: the
-O\*NET item that measures it directly defines R5. The degree of automation also
-loads on this axis and on none of the first three, so the automation already in
-place sits at the fixed-standard pole. For AI the pole cuts two ways, and we
-record it as a conjecture: a fixed correct standard is what makes it possible to
-check whether a system's output is right, while a high consequence of error
-raises the cost of the outputs that are wrong.
-
-```{=html}
-<figure class="plot-figure">
-  <div class="plot plot-axis" id="plot-axis-R6" data-axis="R6" role="img"
-       aria-label="Two panels for the commercial against specialist work axis: above, the loadings of all 220 variables, by block of the Content Model; below, the scores of all 910 occupations, by SOC major group."></div>
-  <figcaption><b>Figure 5.7</b> — commercial against specialist work (R6). Above: the loading of each of the
-  220 variables on the axis, by block of O\*NET's Content Model. Below: each
-  occupation's score on the axis, by SOC major group, the groups ordered by
-  their median, which the bar marks. Hover for the name of any variable or
-  occupation.</figcaption>
-</figure>
-```
-
-*R6: running a business, against specialist work.* R6 is the axis least affected
-by the bend, and its poles hardly change. The positive pole correlates with
-sales and marketing (0.55), selling or influencing others (0.54), monitoring and
-controlling resources (0.51), administration and management (0.51), managing
-financial (0.47) and material resources (0.46), and economics and accounting
-(0.47). Its occupations manage people, money, stock and customers: spa, food
-service, sales and lodging managers, first-line supervisors of housekeeping and
-of retail sales, and chief executives. The negative pole correlates with
-exposure to disease (−0.33), medicine (−0.33), science (−0.32), biology (−0.32),
-the perceptual abilities of flexibility of closure (−0.31), selective attention
-(−0.30) and perceptual speed (−0.27), and the consequence of error (−0.27). Its
-occupations apply specialist knowledge or sustained attention to a standard set
-outside the firm: airline pilots, subway operators, air traffic controllers,
-anaesthesiologist assistants, clinical neuropsychologists, judicial law clerks,
-commercial pilots and forensic science technicians. Both poles are
-person-facing, as noted above; what separates them is whether the work serves a
-business or a professional standard.
+R2 correlates 0.95 with a composite of the cognitive abilities, problem-solving,
+systems and process skills and mental processes in O\*NET. It also correlates
+with the preparation each occupation requires, which took no part in forming
+the axes: 0.61 with required education, 0.61 with related work experience and
+0.48 with on-the-job training.
 
 ### 5.5 What lies beyond the six dimensions
 
