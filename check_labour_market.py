@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-check_orthogonality.py -- how much of each labour-market variable can the
+check_labour_market.py -- how much of each labour-market variable can the
 description of the work predict? (Section 5.6)
 
 Each target is regressed on the 220 feature columns by ridge regression, and
@@ -20,9 +20,15 @@ Sections:
   C  descriptive figures quoted in Section 5.6: employment, self-employment
      and union coverage, and union coverage's loading on the leading direction
      of the eight labour-market variables
+  D  the correlation of each of the six axes R1-R6 with the eight
+     labour-market variables, the mean required education (ETE categories
+     1-11), seven Work Context items on decisions and error, and the Eloundou
+     et al. (2024) exposure measures if data_raw/eloundou_occ_level.csv is
+     present; on published values only, like A to C
 
-Reads output/master.csv (to tell published values from filled ones) and
-output/master_clean.csv. Writes output/orthogonality.xlsx and prints every sheet.
+Run after pca_rotated.py. Reads output/master.csv (to tell published values
+from filled ones), output/master_clean.csv and output/rotated_axes.csv. Writes
+output/orthogonality.xlsx and prints every sheet.
 """
 
 import numpy as np
@@ -36,6 +42,14 @@ from sklearn.preprocessing import StandardScaler
 RAW = Path("output/master.csv")
 MASTER = Path("output/master_clean.csv")
 OUT = Path("output/orthogonality.xlsx")
+AXES = Path("output/rotated_axes.csv")
+ELOUNDOU = Path("data_raw/eloundou_occ_level.csv")
+ELOUNDOU_COLUMNS = ["human_rating_alpha", "human_rating_beta",
+                    "dv_rating_alpha", "dv_rating_beta"]
+WORK_CONTEXT_ITEMS = ["Consequence of Error", "Degree of Automation",
+                      "Importance of Being Exact or Accurate",
+                      "Importance of Repeating Same Tasks", "Freedom to Make Decisions",
+                      "Frequency of Decision Making", "Time Pressure"]
 SEED = 0
 ALPHAS = np.logspace(-2, 5, 30)
 
@@ -167,6 +181,41 @@ def descriptives(clean, raw):
     return pd.DataFrame(out, columns=["quantity", "value"])
 
 
+def education_level(clean, raw):
+    """Mean required-education category, 1-11, from the ETE shares; NaN where
+    the education block was filled in."""
+    cols = {int(c.rsplit("__c", 1)[1]): c for c in clean.columns if c.startswith("ete_rl__")}
+    w = clean[[cols[k] for k in sorted(cols)]].to_numpy(float)
+    level = (w * np.array(sorted(cols))).sum(axis=1) / w.sum(axis=1)
+    return np.where(observed(clean, raw, cols[min(cols)]), level, np.nan)
+
+
+def axes_correlations(clean, raw):
+    """D: each of R1-R6 against the labour-market variables and a few other
+    variables, on published values only."""
+    axes = pd.read_csv(AXES, index_col=0).reindex(clean.index)
+    names = [c for c in axes.columns if c.startswith("R")]
+    variables = {label: published(clean, raw, col) for col, label in TARGETS.items()}
+    variables["mean required education (ETE categories 1-11)"] = education_level(clean, raw)
+    for item in WORK_CONTEXT_ITEMS:
+        col = "workctx_cx__" + item
+        if col in clean.columns:
+            variables["Work Context: " + item] = published(clean, raw, col)
+    if ELOUNDOU.exists():
+        el = pd.read_csv(ELOUNDOU).set_index("O*NET-SOC Code").reindex(clean.index)
+        for c in ELOUNDOU_COLUMNS:
+            if c in el.columns:
+                variables["Eloundou " + c] = el[c].to_numpy(float)
+    else:
+        print(f"  ({ELOUNDOU} not found: exposure measures skipped)")
+    rows = []
+    for label, v in variables.items():
+        ok = ~np.isnan(v)
+        rows.append({"variable": label, "occupations": int(ok.sum()),
+                     **{a: np.corrcoef(axes.loc[ok, a], v[ok])[0, 1] for a in names}})
+    return pd.DataFrame(rows)
+
+
 def main():
     clean = pd.read_csv(MASTER, index_col="onet_soc")
     raw = pd.read_csv(RAW, index_col="onet_soc", low_memory=False)
@@ -205,7 +254,8 @@ def main():
 
     sheets = {"table_5_5": table, "ete_summary": ete_summary,
               "ete_by_column": ete.sort_values("R2"),
-              "descriptives": descriptives(clean, raw)}
+              "descriptives": descriptives(clean, raw),
+              "axes_correlations": axes_correlations(clean, raw)}
     with pd.ExcelWriter(OUT) as writer:
         for name, frame in sheets.items():
             frame.to_excel(writer, sheet_name=name, index=False)

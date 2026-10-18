@@ -93,7 +93,7 @@ PART 1 -- THE BOUNDARY AT 3: is the second tier curvature of the first?
       pca_rotated.py; the original 4-6 block is scored on the same splits.
         A  the PC4-6 scores with the curvature removed; the covariances of
            the residual scores with the 220 columns are the residual's
-           directions, which validate_tier2.py interprets. Compared as a
+           directions. Compared as a
            subspace, and axis by axis: each half is varimax-rotated on its
            own, its residual axes are paired one to one with the full-sample
            R4-R6 (labelling only), and the halves' versions are compared.
@@ -106,6 +106,12 @@ PART 1 -- THE BOUNDARY AT 3: is the second tier curvature of the first?
       removes, with the chance share; the eigenvalues of the residual matrix
       with North's gap ratio; and principal cosines between the residual
       spaces and the original 4-6.
+  1d  What the removal does to each of R4-R6, on the full sample: the
+      square or product of R1-R3 most correlated with the axis; and, for
+      each removal method, the PC4-6 scores with the curvature removed,
+      varimax-rotated again and paired one to one with R4-R6, giving the
+      congruence of each new axis with the original and its share of the
+      total variance before and after.
 
 PART 2 -- THE BOUNDARY AT 6: are components 7-15 curvature of 1-6?
   2a  Each of PC7 ... PC15 (the components above the parallel-analysis null, K_MAX in pca_rotated.py) predicted from PC1 ... PC6 by the three models
@@ -147,6 +153,7 @@ Writes output/curvature_check.xlsx and prints every sheet.
 import numpy as np
 import pandas as pd
 from pathlib import Path
+from scipy.optimize import linear_sum_assignment
 from scipy.stats import norm, rankdata
 from sklearn.linear_model import RidgeCV
 from sklearn.model_selection import KFold
@@ -803,6 +810,39 @@ def part_1c_full_sample(X, feats):
 
 
 # --------------------------------------------------------------------------- #
+# Part 1d, full sample: R4-R6 after the removal
+# --------------------------------------------------------------------------- #
+def part_1d_axes_after_removal(X, cols):
+    """The squares and products of R1-R3 against R4-R6, and R4-R6 rotated
+    again after the curvature of tier 1 is removed (see the docstring)."""
+    Z, ev, V, T, raw = decompose(X)
+    S, Ld = tiered_scores(ev, V, T, cols, return_loadings=True)
+    L2 = Ld[:, K1:K2]
+    tier2 = [f"R{K1 + j + 1}" for j in range(K2 - K1)]
+    terms = {(f"R{i + 1}^2" if i == j else f"R{i + 1} x R{j + 1}"): S[:, i] * S[:, j]
+             for i in range(K1) for j in range(i, K1)}
+    tc = pd.DataFrame({a: [np.corrcoef(v, S[:, K1 + k])[0, 1] for v in terms.values()]
+                       for k, a in enumerate(tier2)}, index=list(terms))
+
+    total = ev.sum()
+    rows = []
+    for k, a in enumerate(tier2):
+        best = tc[a].abs().idxmax()
+        rows.append({"axis": a, "strongest term": best, "r": tc.at[best, a],
+                     "% of variance, original": (L2[:, k] ** 2).sum() / total * 100})
+    for m in REMOVAL_METHODS:
+        Yr = remove_curvature(T[:, K1:K2], T[:, :K1], raw[:, :K1], m)
+        Lc, _ = varimax(Z.T @ Yr / len(Z))      # covariances with the columns, rotated again
+        C = np.abs([[congruence(L2[:, j], Lc[:, i]) for i in range(K2 - K1)]
+                    for j in range(K2 - K1)])
+        Lc = Lc[:, linear_sum_assignment(-C)[1]]   # paired one to one with R4-R6, sign aside
+        for k in range(K2 - K1):
+            rows[k][f"congruence after {m} removal"] = abs(congruence(L2[:, k], Lc[:, k]))
+            rows[k][f"% of variance after {m} removal"] = (Lc[:, k] ** 2).sum() / total * 100
+    return pd.DataFrame(rows), tc.rename_axis("term").reset_index()
+
+
+# --------------------------------------------------------------------------- #
 # Part 1c, split-halves
 # --------------------------------------------------------------------------- #
 def part_1c_split_halves(X, full_axes):
@@ -882,6 +922,8 @@ def main():
     print("[1c] tier 2 with the curvature of tier 1 removed, split-halves")
     full_axes, removed, spectrum, same = part_1c_full_sample(Xraw, cols)
     subspaces, axes = part_1c_split_halves(Xraw, full_axes)
+    print("[1d] R4-R6 after the removal, full sample")
+    after, term_corr = part_1d_axes_after_removal(Xraw, cols)
 
     print(f"[2a] harmonics of PC1-6 in PC{BAND}")
     a_table, a_block, a_refit = section_a(ev, V, T, Xraw, rng)
@@ -912,6 +954,7 @@ def main():
               "1c_variance_removed": removed, "1c_residual_spectrum": spectrum,
               "1c_same_space": same, "1c_split_half_subspaces": subspaces,
               "1c_split_half_axes": axes,
+              "1d_axes_after_removal": after, "1d_term_correlations": term_corr,
               "2a_harmonics": a_table, "2a_block": a_summary, "2a_positive_control": e_table,
               "2b_residual_spectrum": c_table, "2c_all_terms": g_table,
               "2c_axes_and_chance": g_key,

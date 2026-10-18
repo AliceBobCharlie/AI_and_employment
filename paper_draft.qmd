@@ -1222,44 +1222,58 @@ they describe how and where the work is done, which the worker half does not
 record. R6 is reproduced by neither half on its own; it appears only when the
 two are decomposed together.
 
-<!-- To be extended to all six axes from the output of validate_names.py. -->
+**Checking the names.** We checked the names against descriptions of the same
+occupations that O\*NET publishes outside the 220 feature columns, and that
+therefore took no part in forming the axes: the six interest types of Holland
+(1997), 41 basic interest areas, the job zones, the software each occupation
+uses and 21 work styles. @tbl-names lists the strongest associations at each
+end of each axis.
 
-**Checking the names.** The names were then checked three times over, each check
-using evidence that took no part in the estimation. The first is O\*NET's own
-taxonomy. The Content Model arranges descriptors in a
-hierarchy whose element identifiers encode position: O\*NET's authors group
-abilities into cognitive, psychomotor, physical and sensory, and work activities
-into information input, mental processes, work output and interaction. Truncating
-the identifiers to the third level assigns every element to an expert category,
-and the mean loading of each category on each axis can be computed
-(@tbl-expert-categories). That
-grouping was made for unrelated purposes, so agreement is not circular.
+| axis | end | interest type | basic interest areas | software | work styles |
+|:---|:--------|:-----------|:----------------------|:------------------|:-----------------|
+| R1 | physical | Realistic 0.81 | physical and manual labour 0.76, mechanics and electronics 0.62 | facilities management 0.29, industrial control 0.24 | cautiousness 0.40 |
+| | symbolic | Social −0.48 | office work −0.54, public speaking −0.52 | presentation −0.38, web browser −0.37 | social orientation −0.54, tolerance for ambiguity −0.47 |
+| R2 | complex | Investigative 0.67 | mathematics and statistics 0.64, information technology 0.51 | analytical or scientific 0.43, presentation 0.43 | achievement orientation 0.78, intellectual curiosity 0.76 |
+| | simple | Realistic −0.21 | physical and manual labour −0.45 | point of sale −0.22 | — |
+| R3 | people | Social 0.69 | social service 0.63, personal service 0.59 | medical 0.30, calendar and scheduling 0.28 | empathy 0.74, self-control 0.72 |
+| | artefacts | Realistic −0.32 | engineering −0.55, mechanics and electronics −0.44, mathematics and statistics −0.41 | computer-aided design −0.39, object-oriented development −0.39 | attention to detail −0.30 |
+| R4 | hands-on | Investigative 0.19 | health care 0.57, medical science 0.53 | medical 0.45 | attention to detail 0.33 |
+| | field | Enterprising −0.33 | transportation and machine operation −0.43, law −0.35, nature and outdoors −0.32 | map creation −0.30, geographic information systems −0.24 | self-confidence −0.18 |
+| R5 | standardised | Conventional 0.69 | office work 0.55, accounting 0.44 | financial analysis 0.23, enterprise resource planning 0.22 | attention to detail 0.43, cautiousness 0.38 |
+| | open-ended | Artistic −0.52 | teaching −0.48, humanities −0.45 | computer-based training −0.32 | innovation −0.42 |
+| R6 | commercial | Enterprising 0.39 | business initiatives 0.49, sales 0.43 | accounting 0.34, project management 0.27 | leadership orientation 0.15 |
+| | individual | Investigative −0.40 | medical science −0.37, health care −0.34 | medical −0.19 | cautiousness −0.32, stress tolerance −0.30, integrity −0.27 |
 
-| expert category | n | R1 | R2 | R3 |
-|---|---|---|---|---|
-| Psychomotor abilities | 10 | **0.79** | −0.28 | −0.09 |
-| Physical abilities | 9 | **0.71** | −0.41 | 0.15 |
-| Physical work conditions | 30 | **0.57** | −0.11 | 0.04 |
-| Work output | 9 | **0.53** | 0.07 | −0.06 |
-| Sensory abilities | 12 | **0.48** | 0.10 | 0.06 |
-| Complex problem solving skills | 1 | −0.23 | **0.87** | 0.07 |
-| Systems skills | 3 | −0.22 | **0.84** | 0.07 |
-| Essential skills: ways of working | 4 | −0.24 | **0.73** | 0.28 |
-| Essential skills: foundational areas | 6 | −0.37 | **0.68** | 0.12 |
-| Mental processes | 10 | −0.09 | **0.63** | 0.16 |
-| Cognitive abilities | 21 | −0.06 | **0.60** | 0.07 |
-| Health services | 2 | −0.06 | 0.18 | **0.61** |
-| Social skills | 6 | −0.31 | 0.49 | **0.55** |
-| Interpersonal relationships | 14 | 0.02 | 0.29 | **0.45** |
-| Interacting with others | 17 | −0.07 | 0.43 | **0.45** |
+: Strongest associations of each axis with O\*NET descriptions outside the feature matrix {#tbl-names}
 
-: Mean loading of O\*NET's expert categories on R1 to R3 {#tbl-expert-categories}
+::: {.table-note}
+Correlations across the occupations, at the positive end of each axis (first
+row) and its negative end (second row); — means no correlation beyond ±0.15.
+Interest types from Career Interest Types, basic interest areas from Specific
+Interest Areas, software categories from Software Skills (categories used by at
+least 40 occupations), work styles on the Impact scale.
+:::
 
-The categories sort as the names predict. The decisive row is cognitive
-abilities: **0.60 on R2 and −0.06 on R1.** Cognition is essentially absent from
-the physical axis, so R1 separates work by physical demand and R2 by something
-else entirely, and the two are empirically independent — established here by a
-classification that was not used to build them.
+Every axis lines up with what its name predicts. R1 is the Realistic type and
+runs from manual, mechanical and transport interests to office work. R2
+correlates 0.65 with the job zone and 0.67 with the Investigative type. R3 runs
+from social and personal service to engineering, mathematics and information
+technology, physical and formal artefacts together. R4, whose loadings are the
+least distinct, has the clearest outside evidence: health care and medical
+science at one end, transport, the outdoors and map and location software at
+the other. R5 is the Conventional against the Artistic type, and attention to
+detail and caution against innovation. R6 is the Enterprising type at its
+commercial end. Its individual end, which has no common content in the
+loadings, does share interests and work styles: investigative, medical and
+scientific interests, and caution, stress tolerance and integrity. O\*NET's own
+grouping of the items agrees: the category with the highest mean loading is
+psychomotor abilities on R1 (0.79), complex problem solving on R2 (0.86),
+health services on R3 (0.61) and R4 (0.40), structural job characteristics on
+R5 (0.30) and business and management on R6 (0.40).
+
+The two dimensions that Prediger (1982) found beneath the six interest types
+each split across two of our axes: people against things across R1 (−0.68) and
+R3 (0.58), and data against ideas across R5 (0.57) and R6 (0.41).
 
 ### 5.5 What lies beyond the six dimensions
 
@@ -2040,6 +2054,8 @@ Handa, K., et al. (2025). *Which economic tasks are performed with AI? Evidence 
 
 Handel, M. J. (2016). The O\*NET content model: Strengths and limitations. *Journal for Labour Market Research*, 49(2), 157–176.
 
+Holland, J. L. (1997). *Making vocational choices: A theory of vocational personalities and work environments* (3rd ed.). Psychological Assessment Resources.
+
 Humlum, A., & Vestergaard, E. (2025). *Large language models, small labor market effects*. Becker Friedman Institute Working Paper; NBER Working Paper 33777. [WP]
 
 Jones, C. I., & Tonetti, C. (2026). *Past automation and future A.I.: How weak links tame the growth explosion* (Version 0.3, 15 January 2026). Unpublished manuscript, Stanford GSB and NBER. [WP] [the authors describe the draft as very preliminary; cite the version and date with any figure]
@@ -2077,6 +2093,8 @@ OECD. (2026). *The OECD AI exposure measure: Mapping the OECD AI Capability Indi
 Patwardhan, T., et al. (2025). *GDPval: Evaluating AI model performance on real-world economically valuable tasks*. OpenAI. [WP]
 
 Poletaev, M., & Robinson, C. (2008). Human capital specificity: Evidence from the Dictionary of Occupational Titles and Displaced Worker Surveys, 1984–2000. *Journal of Labor Economics*, 26(3), 387–420. https://doi.org/10.1086/588180
+
+Prediger, D. J. (1982). Dimensions underlying Holland's hexagon: Missing link between interests and occupations? *Journal of Vocational Behavior*, 21(3), 259–287. https://doi.org/10.1016/0001-8791(82)90036-7
 
 Sanders, C., & Taber, C. (2012). Life-cycle wage growth and heterogeneous human capital. *Annual Review of Economics*, 4, 399–425.
 
@@ -2118,7 +2136,7 @@ National Center for O\*NET Development. (n.d.-b). *O\*NET OnLine*. Retrieved Oct
 
 National Center for O\*NET Development. (2026). *O\*NET® 31.0 database* [Data set]. U.S. Department of Labor, Employment and Training Administration. https://www.onetcenter.org/database.html
 
-O\*NET files used: Abilities, Essential Skills, Transferable Skills, Knowledge, Work Activities, Work Context, Education, Training and Experience. Files inspected and excluded: Work Styles, Career Interest Types, Specific Interest Areas, Job Zones, Occupation Level Metadata.
+O\*NET files used: Abilities, Essential Skills, Transferable Skills, Knowledge, Work Activities, Work Context, Education, Training and Experience; and, to check the names of the axes only (Section 5.4), Career Interest Types, Specific Interest Areas, Job Zones, Software Skills and Work Styles. Files inspected and excluded: Occupation Level Metadata.
 
 This paper includes information from the O\*NET 31.0 Database, O\*NET OnLine and the O\*NET Resource Center by the U.S. Department of Labor, Employment and Training Administration (USDOL/ETA). Used under the CC BY 4.0 license. O\*NET® is a trademark of USDOL/ETA. The authors have modified all or some of this information. USDOL/ETA has not approved, endorsed, or tested these modifications.
 
