@@ -215,6 +215,31 @@ main .table-striped > tbody > tr:nth-of-type(odd) > * {
   th:nth-child(5), td:nth-child(5) { width: 28%; }
 }
 
+// Table captions (Quarto's own, placed above the table by tbl-cap-location) and
+// the notes set below a table in a .table-note block. Both use the sans face of
+// the figure captions so that they read as apparatus, not as body text.
+.quarto-float-caption.quarto-float-tbl {
+  font-family: $sans;
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.4;
+  color: $ink;
+  margin-bottom: 0.5rem;
+}
+
+.table-note {
+  font-family: $sans;
+  font-size: 0.85rem;
+  line-height: 1.45;
+  color: $ink-secondary;
+  margin-top: -0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.table-note p {
+  margin-bottom: 0.4rem;
+}
+
 // Below this width the wide tables no longer fit their column, so they scroll
 // sideways inside it instead of pushing the whole page out.
 @media (max-width: 991.98px) {

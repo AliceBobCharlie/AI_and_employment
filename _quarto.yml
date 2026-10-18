@@ -24,6 +24,9 @@ format:
     toc-title: Contents
     anchor-sections: true
     link-external-icon: false
+    # Tables: the numbered caption above the table, any note below it in a
+    # .table-note block.
+    tbl-cap-location: top
     grid:
       sidebar-width: 240px
       body-width: 800px
@@ -40,3 +43,7 @@ format:
                 integrity="sha384-AFNp2MtSm5/oZbEs/J19F/Ah57MEiVsoed8nE3fq2Wnccdl1u/EkyJ9XKKU8rt7+"
                 crossorigin="anonymous"></script>
         <script src="figures.js"></script>
+
+# "Table 5 — Title" rather than Quarto's default "Table 5: Title".
+crossref:
+  title-delim: " —"
