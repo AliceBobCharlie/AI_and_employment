@@ -882,16 +882,19 @@ starts at the fourth component: the three reproduce together or not at all.
 Nor does any of the 15 blocks of two or three components between the seventh
 and the fifteenth; the closest, components 7 to 9, reaches 0.806.
 
-**Components 4 to 6 span a stable subspace.** The stable structure of the
+But we are still suspicious of the subspace spanned by components 4 to 6 may be
+the curvature of the first three. After all, the variance it explains is much smaller compared to
+the first three, and such curvature effect is common with floor effects like the minimium score of the O\*Net score.
+We therefore tested this: with the quadratic terms of components 1 to 3 removed,(by
+non-linear models — their squares and products,)
+ does the subspace spanned by component 4~6 sp?the result is th
+Table 5.4
+
+With these results, we can say **Components 4 to 6 span a stable subspace.** The stable structure of the
 occupational space is therefore not only the first three components: the
 subspace spanned by components 4 to 6 is stable as well. It carries a further
 10.2 percent of the variance, so the six components together hold 63.3
 percent.
-
-A reader may wonder whether the subspace spanned by components 4 to 6 is merely
-the curvature of the first three. We tested this: with the curvature of
-components 1 to 3 removed, the subspace is still stable. The test is reported in
-Section 5.5.
 
 Why, then, are the components inside it unstable? Their eigenvalues are close,
 so each sample orients them differently within the same subspace. Axes chosen
@@ -1023,14 +1026,20 @@ bottom tenth a third of workers work fewer than 40 hours a week. Complexity is
 independent of the medium; airline pilots and construction managers rank among
 the most complex occupations.
 
-The best split of the occupations into two groups — which Section 5.2 found to
-be a cut through a continuum, not a boundary between kinds of work — runs
-across the diagonal between R1 and R2, not across either axis. The two-group
-partition correlates 0.85 with R1 − R2, against 0.64 with R1, 0.56 with R2 and
-0.23 with R3. Physical, simple work falls on one side (363 occupations, mostly
-production, construction, installation and transport), and symbolic, complex
-work on the other (547, mostly healthcare, education, management, the sciences
-and engineering).
+It is worth noting that the amount of variance explained (R1 24% R2 19%) is not nessesarily
+mean R1 > R2. If level is used as scale R2 will hold more variance than R1. That may be
+because importance records what matters in an occupation, thus physical and symbolic is the
+biggest difference, but level records how much of each the work demands, and there what differs most is complexity.
+If all scales are used together R2 will also have greater variance than R1, may reflect that O\*Net mainly
+describes the requirement of occupations. Thus, one should not conclude from our result that th physical-symbolic difference is more important
+than the complexity of tasks. We do not use level because of precision issues as statd in Section 4.2,
+but the experiment setting variants are reported in Appendix A.
+
+Another interesting fact is, the best split of the occupations into two groups — according to Section 5.2 found the best silhouette is reached at 2
+— is the diagonal between R1 and R2. The two-group partition correlates 0.85 with R1 − R2, against 0.64 with R1, 0.56 with R2 and
+0.23 with R3. The two sides are physical, simple work and symbolic, complex work. The division resembles the two skill clusters that Alabdulkareem
+et al. (2018) report, however the occupational space is far more complex than the two-split ( at least 6dimensions),
+and it's a continum.
 
 ```{=html}
 <figure class="plot-figure">
@@ -1053,7 +1062,7 @@ toolmakers; it also holds mathematical and theoretical research, whose
 artefacts are formal systems. The two ends are unrelated rather than opposed (r = −0.02), so an
 occupation can involve both, and those that do lie in the middle.
 
-**The first three axes are very stable.** An independent half of the
+**The first three axes are exceptionally stable.** An independent half of the
 occupations recovers each of them at a congruence of 0.96 or more in 95 percent
 of splits. They reappear whatever is done to the input — on the Level scale
 instead of Importance, with the blocks reweighted or some of them removed, and
@@ -1138,11 +1147,14 @@ occupation, whose common feature is that their work is not commercial. The axis 
 field: medical and health services managers lie at the commercial end, family
 physicians at the individual end.
 
-**Is the second tier a bend in the first?** R4 to R6 are uncorrelated with R1
-to R3 by construction, but uncorrelated is not independent. If occupations lie
-on a curved surface, the decomposition needs further linear directions to
-describe the bend. Each tier-2 axis was therefore predicted from R1 to R3 by
-non-linear models — their squares and products, all terms up to the third
+we also note that the % of variance explained by R4 to R6 are close to each other. The order is therfore
+not stable, one cannot say R4 is more important than R6 for the similar reason. Three is another thing to
+note.
+
+**What loadings are the curvature of the first three** We previous showed the second subspace contains % of the bend of the first three axes.
+What loadings are the curvature of the first three exactly? Will this change the meaning of R4 to R6? R4 to R6 are uncorrelated with R1
+to R3 by construction, but  is not independent. To test this we further roatate R4 to R6 after the curvature is removd.
+Each tier-2 axis was therefore predicted from R1 to R3 all terms up to the third
 degree, and a nearest-neighbour regression — each scored by out-of-fold R²
 over five folds repeated four times.
 
@@ -1152,18 +1164,16 @@ over five folds repeated four times.
 | R5 | 0.17 | 0.19 | 0.21 |
 | R6 | 0.07 | 0.08 | 0.08 |
 
-The permutation null is at most 0.001 in every case, so there is some bend:
-about a fifth of R4 and R5, and less than a tenth of R6, is a function of the
+The result shows the rotated axes R4 to R6 are not greatly changed after the curvature is removed. These
+axes have consurgence by .
+However their change differs. about a fifth of R4 and R5, and less than a tenth of R6, is a function of the
 first tier. The strongest single term is the square of R1, which correlates
 −0.37 with R4; the product of R1 and R2 correlates 0.21 with R5, and the square
-of R3 −0.20 with R6. With the curvature removed separately in each half of
-every split, the second tier still reproduces, as a subspace at 0.930 (cubic
-removal) or 0.923 (nearest-neighbour removal) against 0.934 before, and as
-rotated axes at 0.90 to 0.91. The second tier is therefore not a bend in the
-first. Removing the curvature would take 17 to 20 percent of the second tier's
-variance out of the six-dimensional space, so we keep the axes as estimated.
+of R3 −0.20 with R6. After the removel R4's share of variance is the lowest, it frther proves that R4
+may not be the most important factor in the second subspace.
 
-**The second tier and the two halves of the Content Model.** Each half of the
+The meanings of the six axes are actually clearer if we sort out the pricipal
+fators of two halves of the Content Model respectively, as it shows how each axes is composed. Each half of the
 Content Model was decomposed on its own: the job half has five reproducing
 components, the worker half three. The table gives the R² with which each
 half's reproducing components reproduce each axis of the full matrix.
@@ -1177,7 +1187,8 @@ half's reproducing components reproduce each axis of the full matrix.
 | R5 | 0.74 | 0.02 |
 | R6 | 0.20 | 0.04 |
 
-R1 to R3 are shared by both halves. R4 and R5 come from the job half alone:
+R1 to R3 are shared by both halves, another evidence that they are exceptionally stable
+and can be recovered by any similar experiments. R4 and R5 come from the job half alone:
 they describe how and where the work is done, which the worker half does not
 record. R6 is reproduced by neither half on its own; it appears only when the
 two are decomposed together.
