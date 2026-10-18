@@ -1093,8 +1093,8 @@ Abilities, Knowledge), which share no column, both reproduce R1 to R3 with an
 R² of 0.87 or more. Physical against symbolic, complex against simple and
 people against artefacts are therefore basic features of the occupational
 space. R4 to R6 are less robust: some of these variants do not reproduce them,
-and the two halves of the Content Model do not share them, as the end of this
-section shows.
+and the two halves of the Content Model do not share them, thus their loading have to be
+read more carefully. The following part of this sections discuss them.
 
 ```{=html}
 <figure class="plot-figure">

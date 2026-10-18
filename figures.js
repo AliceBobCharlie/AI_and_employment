@@ -27,7 +27,7 @@
   const DIMS = {
     R1: { name: "Physical against symbolic work", low: "symbolic", high: "physical" },
     R2: { name: "Complex against simple work", low: "simple", high: "complex" },
-    R3: { name: "People against technical work", low: "technical", high: "people" },
+    R3: { name: "People against artefact work", low: "artefacts", high: "people" },
     R4: { name: "Hands-on against field work" },
     R5: { name: "Standardised against open-ended work" },
     R6: { name: "Commercial against individual work" },
