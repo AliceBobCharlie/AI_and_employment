@@ -364,7 +364,7 @@ The final matrix, of 910 occupations, is as follows.
 | Knowledge | Importance | 33 | 0 | none |
 | **Total** | | **220** | **36** | |
 
-**Table 4.1 — The final matrix**
+: The final matrix {#tbl-final-matrix}
 
 ### 4.3 The labour-market variables
 
@@ -599,9 +599,9 @@ and takes the block from 41 columns to 37.
 | labour-force exit rate; occupational transfer rate | how readily an occupation sheds labour without dismissals, and whether leavers exit or move | BLS Employment Projections, table 1.10 | exact on the six-digit SOC | 96.7%; column median |
 | self-employment share | no employer to make the substitution decision, so the mechanism differs | BLS Employment Projections, table 1.2 | exact on the six-digit SOC | 96.7%; blanks mean negligible and the 30 absent occupations are assumed so, both set to zero |
 
-:::
+: The labour-market variables {#tbl-labour-market}
 
-**Table 4.2 — The labour-market variables**
+:::
 
 None of these variables enters the decomposition. They are the subject of
 Section 5.6, which asks how much of each the feature data can predict, and which
@@ -740,7 +740,7 @@ columns, so its eigenvalues show what data of this shape produce by chance.
 **Fifteen components exceed the 95th percentile of the null**, and together
 they account for 75.7 percent of the variance; the fifteenth only narrowly
 (1.90, against a null of 1.87), and the sixteenth (1.77, against 1.85) not at
-all. Table 5.1 lists the components up to 80 percent of the
+all. @tbl-eigenvalues lists the components up to 80 percent of the
 variance.
 
 | component | eigenvalue | % of variance | cumulative % | null eigenvalue, 95th percentile | above the null |
@@ -768,7 +768,7 @@ variance.
 | 21 | 1.20 | 0.5 | 79.7 | 1.77 | no |
 | 22 | 1.12 | 0.5 | 80.2 | 1.76 | no |
 
-**Table 5.1 — Eigenvalues and parallel analysis, to 80 percent of the variance**
+: Eigenvalues and parallel analysis, to 80 percent of the variance {#tbl-eigenvalues}
 
 Parallel analysis says which components are more than noise, not how many to
 keep. A coordinate system also needs its axes to mean the same thing when
@@ -804,7 +804,7 @@ the variance.**
 | 14 | 1.0 | 74.8 | 0.675 | 0.412 | not stable |
 | 15 | 0.9 | 75.7 | 0.227 | 0.252 | not stable |
 
-**Table 5.2 — Stability of each component (5th percentile of congruence)**
+: Stability of each component (5th percentile of congruence) {#tbl-component-stability}
 
 The three stable components leave 46.9 percent of the variance undescribed,
 while the fifteen components above chance hold 75.7 percent. That is too much
@@ -841,7 +841,7 @@ the angles, the worst-aligned direction.
 Up to k = 3 the subspace reproduces at 0.97 or better. At k = 5 it collapses to
 0.23, because five components cut the group of components 4 to 6 in two; at
 k = 6 it recovers to 0.88, while the fifth and sixth components on their own
-stay below 0.70 (Table 5.2). Nothing after the sixth recovers in this way: the
+stay below 0.70 (@tbl-component-stability). Nothing after the sixth recovers in this way: the
 best later value, at k = 9, is 0.66. The deep dips at k = 8, 10 and 11, to the
 level of column-permuted data, are the same effect as at k = 5: each cuts
 between two eigenvalues less than one sampling error apart. We therefore
@@ -871,10 +871,10 @@ component it is the congruence. A block reproduces when this is at least 0.90 in
 | 8–9 | 0.647 | 0.381 |
 | 10–11 | 0.522 | 0.038 |
 
-**Table 5.3 — Split-half agreement of blocks of components (5th percentile over 200 splits)**
+: Split-half agreement of blocks of components (5th percentile over 200 splits) {#tbl-block-agreement}
 
 A single component in this table is compared position for position rather than
-by best match, so component 4 differs slightly from Table 5.2.
+by best match, so component 4 differs slightly from @tbl-component-stability.
 
 Taken as a block, components 4 to 6 reproduce, at 0.934. Neither component 4
 alone nor the pair 5–6 does, and neither does any larger or smaller block that
@@ -890,7 +890,7 @@ further linear directions to describe the bend. We therefore removed from
 components 4 to 6 everything that components 1 to 3 predict non-linearly — by
 all their terms up to the third degree, or by a nearest-neighbour regression —
 separately in each half of every split, and compared the halves again
-(Table 5.4).
+(@tbl-curvature-subspace).
 
 | components 4 to 6 | share of their variance removed | RMS cosine | smallest cosine |
 |---|---|---|---|
@@ -898,7 +898,7 @@ separately in each half of every split, and compared the halves again
 | cubic terms removed | 19.8% | 0.930 | 0.871 |
 | nearest-neighbour fit removed | 16.8% | 0.923 | 0.861 |
 
-**Table 5.4 — Split-half agreement of components 4 to 6 with the curvature of components 1 to 3 removed (5th percentile over 200 splits)**
+: Split-half agreement of components 4 to 6 with the curvature of components 1 to 3 removed (5th percentile over 200 splits) {#tbl-curvature-subspace}
 
 Removing the curvature takes out about a fifth of the subspace's variance,
 against 2 percent removed by the same fit on scrambled predictors, and what
@@ -917,7 +917,7 @@ test this by rotating within the subspace, here not to make the axes readable
 but to find out whether stable axes exist. In each half of the occupations,
 components 4 to 6 are recomputed and rotated by varimax, which picks the axes on
 which each variable loads either heavily or near zero; the two halves' axes are
-paired one to one and compared (Table 5.5).
+paired one to one and compared (@tbl-tier2-rotation).
 
 |                | p05 | median |
 |----------------|---|---|
@@ -928,7 +928,7 @@ paired one to one and compared (Table 5.5).
 | rotated axis 5 | 0.924 | 0.953 |
 | rotated axis 6 | 0.913 | 0.946 |
 
-**Table 5.5 — Split-half congruence of components 4 to 6, as estimated and rotated within their subspace (200 splits)**
+: Split-half congruence of components 4 to 6, as estimated and rotated within their subspace (200 splits) {#tbl-tier2-rotation}
 
 **Rotated within their subspace, components 4 to 6 give stable axes.** Each of
 the three rotated axes reproduces at 0.91 or more in 95 percent of splits.
@@ -978,7 +978,7 @@ is fixed by a marker variable that is set to load positively, so that each axis
 points the same way whatever sample it is estimated from.
 
 Rotation changes the direction of each axis and the variance it
-carries, but not the subspace or the total variance in it. Table 5.6 shows
+carries, but not the subspace or the total variance in it. @tbl-rotated-axes shows
 the variance of the rotated axes R1–R6.
 
 | axis | subspace | % of variance | cumulative % |
@@ -990,7 +990,7 @@ the variance of the rotated axes R1–R6.
 | R5 | second (components 4–6) | 3.3 | 60.0 |
 | R6 | second (components 4–6) | 3.3 | 63.3 |
 
-**Table 5.6 — The six rotated axes**
+: The six rotated axes {#tbl-rotated-axes}
 
 For each rotated axis, a figure shows the loadings of the 220 variables,
 grouped by block of the Content Model, and the positions of all 910 occupations
@@ -1178,7 +1178,7 @@ independent of them. To see how much of each axis the curvature accounts for,
 and whether removing it changes what the axes mean, each axis was predicted
 from R1 to R3 by models with all terms up to the third degree and by a
 nearest-neighbour regression, each scored by out-of-fold R² over five folds
-repeated four times (Table 5.7).
+repeated four times (@tbl-tier2-curvature).
 
 | axis | R², quadratic | R², cubic | R², nearest neighbours | strongest single term (r) | congruence after removal | % of variance, before → after |
 |---|---|---|---|---|---|---|
@@ -1186,12 +1186,11 @@ repeated four times (Table 5.7).
 | R5 | 0.17 | 0.19 | 0.21 | R1 × R2 (0.21) | 0.98 | 3.3 → 2.0 |
 | R6 | 0.07 | 0.08 | 0.08 | R3² (−0.20) | 0.99 | 3.3 → 2.7 |
 
-**Table 5.7 — Curvature of the first tier in R4 to R6.** Out-of-fold R² of each
-axis predicted from R1 to R3 (the permutation null is at most 0.001 in every
-case); the square or product of R1 to R3 most correlated with the axis; and the
-axis after the cubic curvature is removed and the subspace rotated again: the
-congruence of its loadings with the original and its share of the total
-variance.
+: Curvature of the first tier in R4 to R6 {#tbl-tier2-curvature}
+
+::: {.table-note}
+Out-of-fold R² of each axis predicted from R1 to R3 (the permutation null is at most 0.001 in every case); the square or product of R1 to R3 most correlated with the axis; and the axis after the cubic curvature is removed and the subspace rotated again: the congruence of its loadings with the original and its share of the total variance.
+:::
 
 About a fifth of R4 and R5, and less than a tenth of R6, is a function of the
 first tier, in R4 mostly through the square of R1. Removing the curvature
@@ -1201,7 +1200,7 @@ subspace.
 
 Decomposing the two halves of the Content Model separately shows where each
 axis comes from. Each half was decomposed on its own: the job half has five
-reproducing components, the worker half three. Table 5.8 gives the R² with
+reproducing components, the worker half three. @tbl-content-halves gives the R² with
 which each half's reproducing components reproduce each axis of the full
 matrix.
 
@@ -1214,8 +1213,7 @@ matrix.
 | R5 | 0.74 | 0.02 |
 | R6 | 0.20 | 0.04 |
 
-**Table 5.8 — How well each half of the Content Model reproduces each axis (R²
-of the half's reproducing components)**
+: How well each half of the Content Model reproduces each axis (R² of the half's reproducing components) {#tbl-content-halves}
 
 R1 to R3 are shared by both halves, further evidence that they are
 exceptionally stable and would be recovered by any similar analysis. R4 and R5
@@ -1234,7 +1232,7 @@ abilities into cognitive, psychomotor, physical and sensory, and work activities
 into information input, mental processes, work output and interaction. Truncating
 the identifiers to the third level assigns every element to an expert category,
 and the mean loading of each category on each axis can be computed
-(Table 5.9). That
+(@tbl-expert-categories). That
 grouping was made for unrelated purposes, so agreement is not circular.
 
 | expert category | n | R1 | R2 | R3 |
@@ -1255,7 +1253,7 @@ grouping was made for unrelated purposes, so agreement is not circular.
 | Interpersonal relationships | 14 | 0.02 | 0.29 | **0.45** |
 | Interacting with others | 17 | −0.07 | 0.43 | **0.45** |
 
-**Table 5.9 — Mean loading of O\*NET's expert categories on R1 to R3**
+: Mean loading of O\*NET's expert categories on R1 to R3 {#tbl-expert-categories}
 
 The categories sort as the names predict. The decisive row is cognitive
 abilities: **0.60 on R2 and −0.06 on R1.** Cognition is essentially absent from
@@ -1750,11 +1748,11 @@ three.
 | Manicurists and Pedicurists | −1.31 | −2.43 | −0.74 |
 | Bookkeeping, Accounting, and Auditing Clerks | −1.44 | −0.81 | −0.73 |
 
-**Table 6.1 — The ten occupations furthest into each of the two corners**
+: The ten occupations furthest into each of the two corners {#tbl-corners}
 
-An occupation's depth into a corner is the smallest of its three coordinates,
-taken with the corner's sign, so an occupation ranks high only if it is far from
-zero on every axis at once. Coordinates are in standard deviations.
+::: {.table-note}
+An occupation's depth into a corner is the smallest of its three coordinates, taken with the corner's sign, so an occupation ranks high only if it is far from zero on every axis at once. Coordinates are in standard deviations.
+:::
 
 #### The occupations the corners do not describe
 
@@ -1877,7 +1875,7 @@ for comparability.
 | Eloundou, GPT-4 annotations | −0.395 / −0.351 | 0.037 / 0.061 | −0.208 / −0.367 |
 | OECD total, sign reversed | 0.123 / −0.176 | **−0.601** / −0.722 | −0.406 / −0.434 |
 
-**Table 6.2 — Correlations with the axes (unweighted / employment-weighted)**
+: Correlations with the axes (unweighted / employment-weighted) {#tbl-substitution-measures}
 
 The two agree that substitutability rises towards the symbolic pole of physical
 intensity. On judgement they point in opposite directions: Eloundou's measure
