@@ -21,7 +21,7 @@ The analysis is descriptive.
 
 A supplementary analysis: run from the project root, after pca_rotated.py, as
     python supplementary/pca_ete.py
-Reads output/master_clean.csv and output/occupation_coordinates.csv. Terminal +
+Reads output/labour_clean.csv and output/occupation_coordinates.csv. Terminal +
 output/ete_axes.csv.
 """
 
@@ -31,7 +31,7 @@ from pathlib import Path
 from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import PCA
 
-MASTER = Path("output/master_clean.csv")
+LABOUR = Path("output/labour_clean.csv")
 AXES = Path("output/occupation_coordinates.csv")
 OUTDIR = Path("output"); OUTDIR.mkdir(exist_ok=True)
 SEED = 0
@@ -56,10 +56,10 @@ def ete_scale(col):
 
 
 def main():
-    df = pd.read_csv(MASTER, index_col="onet_soc")
+    df = pd.read_csv(LABOUR, index_col="onet_soc")
     title = df["title"]
     ete_cols = [c for c in df.columns if c.startswith("ete_")]
-    E = df[ete_cols]            # already imputed in clean_master.py
+    E = df[ete_cols]            # already imputed in clean_labour.py
     Ez = StandardScaler().fit_transform(E.values)
     print(f"ETE matrix: {Ez.shape[0]} occ x {Ez.shape[1]} cols")
     by_scale = {}

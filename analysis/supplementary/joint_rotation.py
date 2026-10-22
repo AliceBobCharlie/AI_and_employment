@@ -84,7 +84,7 @@ def poles(L, feats, k):
 
 
 def main():
-    Xz, feats, title, _ = load_and_prep()
+    Xz, feats, title = load_and_prep()
 
     pca = PCA(random_state=SEED).fit(Xz)
     V, lam = pca.components_.T, pca.explained_variance_

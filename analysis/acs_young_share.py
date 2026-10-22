@@ -38,7 +38,7 @@ rows share one value across several occupations, which manufactures correlation
 structure, so results are reported on exact matches and on all matches.
 
 Inputs:  usa_00001.csv (IPUMS extract, optional if the aggregate exists),
-         output/occupation_coordinates.csv, output/master_clean.csv
+         output/occupation_coordinates.csv, output/labour_clean.csv
 Outputs: young_share.csv, output/acs_young_share.csv
 """
 
@@ -50,7 +50,7 @@ from pathlib import Path
 IPUMS_CSV = Path("data_raw/usa_00001.csv")       # IPUMS ACS extract, not redistributable
 ACS = Path("data_raw/young_share.csv")           # the aggregate this script builds
 AXES = Path("output/occupation_coordinates.csv")
-MASTER = Path("output/master_clean.csv")
+LABOUR = Path("output/labour_clean.csv")
 OUT = Path("output/acs_young_share.csv")
 
 Y0, Y1 = 2022, 2024
@@ -196,8 +196,8 @@ def main():
           f"from {M[~M.exact_match].acs_code.nunique()} ACS aggregates")
 
     # employment weights, if available
-    if MASTER.exists():
-        m = pd.read_csv(MASTER, index_col="onet_soc")
+    if LABOUR.exists():
+        m = pd.read_csv(LABOUR, index_col="onet_soc")
         M["employment"] = m["ext_employment"].reindex(M.onet_soc).values
 
     # ---------------- projection ----------------

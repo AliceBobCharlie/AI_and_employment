@@ -14,9 +14,12 @@ folder containing `data_raw/`.
 ## Run order
 
 ```
-python analysis/build_master.py            #  1. assemble the raw table          -> master.csv
-python analysis/clean_master.py            #  2. drop, fill and derive           -> master_clean.csv
-python analysis/check_data.py              #  3. data quality                    (Sections 4.2-4.3)
+python analysis/build_master.py            #  1. raw O*NET features             -> master.csv
+python analysis/clean_master.py            #  2. rows, columns and gaps         -> master_clean.csv
+python analysis/check_data.py              #  3. data quality of the features   (Section 4.2)
+python analysis/build_labour.py            #     raw labour-market table        -> labour.csv
+python analysis/clean_labour.py            #     fill and derive (needs 2)      -> labour_clean.csv
+python analysis/check_labour_data.py       #     data quality of the labour-market variables (needs 2)
 
 python analysis/cluster_onet.py            #  4. are there clusters at all?       (Section 5.2)
 python analysis/pca_rotated.py             #  5. two tiers, six rotated axes     (Section 5.3, Figure 5.1)
@@ -31,9 +34,13 @@ python analysis/corner_table.py            # 13. Table 6.1                      
 python analysis/acs_young_share.py         # 14. data for Figure 6.2              (needs 5 and the ACS extract)
 ```
 
-Steps 1 and 2 run in that order; every analysis afterwards reads
+Steps 1 and 2 run in that order; every analysis of the features reads
 `output/master_clean.csv`, and `check_data.py`, `check_labour_market.py` and
 `analysis/supplementary/input_variants.py` also read `output/master.csv`.
+The labour-market scripts are needed only by `check_labour_market.py`,
+`acs_young_share.py` and `analysis/supplementary/pca_ete.py`, which read
+`output/labour_clean.csv` (and `check_labour_market.py` also `output/labour.csv`).
+`clean_labour.py` takes its rows from `output/master_clean.csv`, so it runs after step 2.
 `check_data.py`, `validate_axes.py` and `rating_error.py` also read the O*NET
 text files in `data_raw/onet/db_31_0_text` (`validate_axes.py` skips the checks
 whose files are missing). `validate_axes.py` needs the outputs of both
@@ -42,24 +49,23 @@ whose files are missing). `validate_axes.py` needs the outputs of both
 The scripts in `analysis/supplementary/` are run as needed rather than as part of the
 sequence; see below.
 
-## Two tables
+## Four tables
 
 | table | what it is |
 |---|---|
-| `output/master.csv` | The raw table: every O*NET-SOC code in O*NET 31.0, rated or not; every scale of the five feature blocks and of education, training and experience, as published; the labour-market variables joined on the six-digit SOC code. Nothing dropped, filled or derived. |
-| `output/master_clean.csv` | Analysis-ready: the 910 occupations rated in all five feature blocks, the 220 feature columns, the 37 education, training and experience columns, and the labour-market variables, every gap filled and the derived columns added. All of this lives in `clean_master.py` and nowhere else. |
-| | Neither is committed: `build_master.py` and `clean_master.py` rebuild them from the raw data in `data_raw/`. |
+| `output/master.csv` | Raw features: every O*NET-SOC code in O*NET 31.0, rated or not; every scale of the five feature blocks, as published. Nothing dropped, filled or derived. |
+| `output/master_clean.csv` | Analysis-ready features: the 910 occupations rated in all five feature blocks and the 220 feature columns, gaps filled. |
+| `output/labour.csv` | Raw labour market, same rows as `master.csv`: the education, training and experience distributions and the external variables joined on the six-digit SOC code. Nothing dropped, filled or derived. |
+| `output/labour_clean.csv` | Analysis-ready labour market, on the rows of `master_clean.csv`: the 37 education, training and experience columns and the external variables, gaps filled and derived columns added. |
+| | None is committed: the build and clean scripts rebuild them from the raw data in `data_raw/`. |
 | standardisation | Deliberately **not** stored. Each analysis z-scores its own matrix, because `check_labour_market.py` must fit its scaler on training folds only; pre-standardising would leak test-fold information into the cross-validated R². |
 
 ## Building the data
 
 **`build_master.py`** → `master.csv`
 
-Reads O*NET 31.0 from `data_raw/onet/db_31_0_text` and the external sources
-from `data_raw/`, and joins them. It only reads and joins. Two source codes are
-read rather than left blank: an OEWS wage marked `#` (at or above $239,200 a
-year) is read as 239200, and a blank or dash in BLS table 1.2 (negligible
-self-employment) is read as 0.
+Reads the five feature blocks of O*NET 31.0 from `data_raw/onet/db_31_0_text`
+and joins them. It only reads and joins.
 
 **`clean_master.py`** → `master_clean.csv`
 
@@ -67,14 +73,26 @@ Keeps the occupations rated in all five feature blocks, keeps the Importance
 scale for four blocks and, for Work Context, the Context scale (CX) and the
 category percentages (CTP) of the two working-time items, Duration of Typical
 Work Week and Work Schedules, with the standard category of each (40 hours,
-regular) dropped. Merges the two
+regular) dropped. The CTP cells of the nine occupations without them take the
+column median. The Level scale and the Work Context category percentages of
+the CX items (CXP) stay in the raw table only.
+
+**`build_labour.py`** → `labour.csv`
+
+Reads O*NET's education, training and experience files and the external
+sources in `data_raw/`, and joins them on the six-digit SOC code. It only reads
+and joins. Two source codes are read rather than left blank: an OEWS wage
+marked `#` (at or above $239,200 a year) is read as 239200, and a blank or dash
+in BLS table 1.2 (negligible self-employment) is read as 0.
+
+**`clean_labour.py`** → `labour_clean.csv`
+
+Keeps the occupations of `master_clean.csv`, in its order. Merges the two
 education scales (RL and RQ), drops the highest category of each education,
 training and experience scale, and fills the remaining gaps: self-employment at
 0 for occupations absent from the BLS table, wages and everything else at the
-column median, as are the CTP cells of the nine occupations without them.
-Adds the three wage ratios, `ext_employment_log`, `ext_wage_level_log` and
-`ext_wage_disp_p90p10`. The Level scale and the Work Context category
-percentages of the CX items (CXP) stay in the raw table only.
+column median over those occupations. Adds the three wage ratios,
+`ext_employment_log`, `ext_wage_level_log` and `ext_wage_disp_p90p10`.
 
 ## Results
 
@@ -119,8 +137,7 @@ by their medians to show that the boundary after tier 2 does not depend on
 how strictly stability is defined. The congruence of each rotated tier-2 axis
 with the unrotated components shows how far rotation moves them. Each tier is varimax-rotated on its own, so R1-R3 are the same axes
 whatever tier 2 turns out to be, and each axis is signed by a marker variable.
-The labour-market variables, which took no part in forming the axes, are
-correlated against all six, and a promax rotation of tier 1 checks whether its
+A promax rotation of tier 1 checks whether its
 axes are orthogonal by preference of the data or only by construction.
 
 **`validate_axes.py`** → `validate_axes.xlsx`
@@ -263,17 +280,20 @@ resampling test to mean much. Run after `pca_rotated.py`.
 
 **`check_data.py`** → `data_quality.xlsx`
 
-Every fact Sections 4.2 and 4.3 state about the quality of the data. Which
+The quality of the feature data. Which
 O*NET-SOC codes are rated, and what the unrated ones are; Recommend Suppress
 and Not Relevant flags per block and scale; the share of ratings with a
 standard error; how closely Importance and Level agree, element by element and
 as whole matrices; what the Work Context category percentages (CXP) hold
-beyond their mean (CX); the missing cells of the final matrix as published
-(Table 4.1); and the missingness and
-distributions of the labour-market variables, which established that their
-gaps are structural rather than scattered and which variables need a log. The
-flags and standard errors are not in the master table, so this script reads
+beyond their mean (CX); and the missing cells of the final matrix as published
+(Table 4.1). The flags and standard errors are not in the master table, so this script reads
 them from the O*NET text files.
+
+**`check_labour_data.py`** → `labour_data_quality.xlsx`
+
+The quality of the labour-market data, for the occupations of
+`master_clean.csv` and on raw values: which occupations miss which external
+variable, and each variable's distribution and skew.
 
 A further one-off check established that BLS occupational openings is a size
 proxy (r = 0.89 with employment), that the "typical education needed" threshold

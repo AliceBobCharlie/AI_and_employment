@@ -9,11 +9,6 @@ Key design choices:
     Knowledge and Work Activities on the Importance scale, plus Work Context on
     the Context scale and, for its two working-time items, as category
     percentages. 220 columns, z-scored.
-  - The labour-market variables and the education, training and experience
-    distributions are HELD OUT and correlated against the finished axes. An
-    axis cannot be said to predict wages if wages helped to build it. Wages
-    appear as a level (log median) and a dispersion (p90/p10) rather than as
-    nine collinear percentiles.
 
 Tier 1 (Section 5.3):
   1. Eigenvalues, scree and Horn's parallel analysis (reported, not used to
@@ -24,8 +19,7 @@ Tier 1 (Section 5.3):
   3. Tier 1 is varimax-rotated on its own and signed by marker variables
      (TIER1_ANCHORS). No later component enters this rotation, so R1-R3 do not
      depend on what tier 2 turns out to be. Loadings, block composition,
-     supplementary variables, split-half congruence of the rotated axes and a
-     promax refit (are the axes orthogonal by preference of the data?).
+     split-half congruence of the rotated axes and a promax refit (are the axes orthogonal by preference of the data?).
 
 Tier 2 (Section 5.3):
   4. The eigenvalue gaps over the eigenvalue's sampling error at half the
@@ -57,8 +51,8 @@ Tier 2 (Section 5.3):
      cosine), against tier 2. Does the boundary after tier 2 depend on how
      strictly stability is defined?
   9. Tier 2 is varimax-rotated on its own, signed and ordered by marker
-     variables (TIER2_ANCHORS). Loadings, block composition, supplementary
-     variables, split-half congruence of the rotated axes (each half
+     variables (TIER2_ANCHORS). Loadings, block composition, split-half
+     congruence of the rotated axes (each half
      decomposed and rotated from scratch), and the congruence of each rotated
      axis with the unrotated components of the tier.
 
@@ -113,12 +107,6 @@ FEATURE_PREFIXES = ("skills_im__", "abilities_im__", "knowledge_im__",
 # Job-oriented blocks (what the work involves); the rest describe the worker.
 JOB_PREFIXES = ("workact_im__", "workctx_cx__", "workctx_ctp__")
 
-# Labour-market columns correlated against the axes. Wages appear as a level
-# and a dispersion: the nine raw wage columns are collinear.
-ECON = ["ext_wage_level_log", "ext_wage_disp_p90p10", "ext_prestige",
-        "ext_sep_exit_rate", "ext_sep_transfer_rate", "ext_union_cov_pct",
-        "ext_self_employed_pct", "ext_employment_log"]
-
 # Sign anchors. Tier 1: '+' is the pole conjectured harder to substitute.
 #   R1 + = physically intensive, R2 + = judgement, R3 + = person-facing.
 TIER1_ANCHORS = ["abilities_im__Manual Dexterity",
@@ -137,20 +125,13 @@ TIER2_ANCHORS = ["knowledge_im__Medicine and Dentistry",
 # Data
 # --------------------------------------------------------------------------- #
 def load_and_prep():
-    """Select the feature columns and z-score them. The clean table is already
-    imputed and carries the derived wage columns (see clean_master.py).
-    Returns the z-scored matrix, the feature names, the titles and the held-out
-    supplementary columns (labour market and ETE)."""
+    """Select the feature columns and z-score them. Returns the z-scored
+    matrix, the feature names and the titles."""
     df = pd.read_csv(MASTER, index_col="onet_soc")
     feats = [c for c in df.columns if c.startswith(FEATURE_PREFIXES)]
-    ete = [c for c in df.columns if c.startswith("ete_")]
-    econ = [c for c in ECON if c in df.columns]
-    supp = df[econ + ete]
     Xz = StandardScaler().fit_transform(df[feats].values)
     print(f"feature matrix {Xz.shape[0]} occupations x {len(feats)} columns (from {MASTER})")
-    print(f"held out as supplementary: {len(econ)} labour-market columns, "
-          f"{len(ete)} ETE columns")
-    return Xz, feats, df["title"], supp
+    return Xz, feats, df["title"]
 
 
 def block_of(col):
@@ -399,16 +380,6 @@ def block_composition(Ld, feats):
     comp = pd.DataFrame(rows, index=list(Ld.columns) + ["share of columns"])
     print("\n" + (comp * 100).round(1).to_string())
     return comp
-
-
-def supplementary_correlations(Sdf, supp):
-    banner("SUPPLEMENTARY VARIABLES against the rotated axes\n"
-           "(none of these helped form the axes; low everywhere = independent\n"
-           " of the content of the work, not necessarily unimportant)")
-    corr = pd.DataFrame({n: supp.apply(lambda v: v.corr(Sdf[n])) for n in Sdf.columns})
-    with pd.option_context("display.width", 200, "display.max_rows", 200):
-        print(corr.round(2).to_string())
-    return corr
 
 
 # --------------------------------------------------------------------------- #
@@ -748,7 +719,7 @@ def plot_subspaces(t, k1, k2):
 # --------------------------------------------------------------------------- #
 def main():
     OUTDIR.mkdir(exist_ok=True)
-    Xz, feats, title, supp = load_and_prep()
+    Xz, feats, title = load_and_prep()
     pca = PCA(random_state=SEED).fit(Xz)
     V, lam = pca.components_.T, pca.explained_variance_
     share = pca.explained_variance_ratio_
@@ -826,7 +797,6 @@ def main():
     S = pd.DataFrame(np.hstack(Ss), columns=names, index=title.index)
     off = np.abs(np.corrcoef(S.to_numpy().T) - np.eye(len(names))).max()
     print(f"\n  max |corr| between rotated axes: {off:.3f} (should be ~0)")
-    supp_corr = supplementary_correlations(S, supp)
     rot = pd.DataFrame({"axis": names, "tier": [1] * k1 + [2] * (len(names) - k1),
                         "variance share": var_share,
                         "split-half congruence p05": p05, "median": med})
@@ -850,7 +820,6 @@ def main():
         rot.to_excel(writer, sheet_name="rotated_axes", index=False)
         Ld.to_excel(writer, sheet_name="loadings")
         comp_blocks.to_excel(writer, sheet_name="block_composition")
-        supp_corr.to_excel(writer, sheet_name="supplementary")
         phi.to_excel(writer, sheet_name="promax_tier1")
     print(f"\n[ok] wrote {AXES}, {LOADINGS}, oblique_pattern.csv, scree.png, {OUT} and {FIGURE}")
 

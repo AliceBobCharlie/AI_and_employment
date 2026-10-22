@@ -10,7 +10,7 @@ fitted inside each training fold. A high R2 means the variable restates
 occupational content; a low one means it carries information the features do
 not contain.
 
-Values that clean_master.py filled in are left out of each regression rather
+Values that clean_master.py or clean_labour.py filled in are left out of each regression rather
 than predicted, so every R2 is computed on published values only.
 
 Sections:
@@ -26,8 +26,10 @@ Sections:
      et al. (2024) exposure measures if data_raw/eloundou_occ_level.csv is
      present; on published values only, like A to C
 
-Run after pca_rotated.py. Reads output/master.csv (to tell published values
-from filled ones), output/master_clean.csv and output/occupation_coordinates.csv. Writes
+Run after pca_rotated.py and clean_labour.py. Reads output/master.csv and
+output/labour.csv (to tell published values from filled ones),
+output/master_clean.csv, output/labour_clean.csv and
+output/occupation_coordinates.csv. Writes
 output/orthogonality.xlsx and prints every sheet.
 """
 
@@ -40,7 +42,9 @@ from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 
 RAW = Path("output/master.csv")
+RAW_LABOUR = Path("output/labour.csv")
 MASTER = Path("output/master_clean.csv")
+LABOUR_CLEAN = Path("output/labour_clean.csv")
 OUT = Path("output/orthogonality.xlsx")
 AXES = Path("output/occupation_coordinates.csv")
 ELOUNDOU = Path("data_raw/eloundou_occ_level.csv")
@@ -99,7 +103,7 @@ def cv_r2(X, y):
 
 def observed(clean, raw, col):
     """True for occupations whose value of `col` in the clean table rests on a
-    published value, False where clean_master.py filled it in.
+    published value, False where clean_master.py or clean_labour.py filled it in.
 
     A wage summary counts as published if any of its percentiles is (a wage at
     the OEWS cap is read from the source). Required education counts as
@@ -217,8 +221,11 @@ def axes_correlations(clean, raw):
 
 
 def main():
-    clean = pd.read_csv(MASTER, index_col="onet_soc")
-    raw = pd.read_csv(RAW, index_col="onet_soc", low_memory=False)
+    # features and labour market side by side, on the rows of the feature matrix
+    clean = pd.read_csv(MASTER, index_col="onet_soc").join(
+        pd.read_csv(LABOUR_CLEAN, index_col="onet_soc").drop(columns="title"))
+    raw = pd.read_csv(RAW, index_col="onet_soc", low_memory=False).join(
+        pd.read_csv(RAW_LABOUR, index_col="onet_soc", low_memory=False).drop(columns="title"))
     feats = [c for c in clean.columns if c.startswith(FEATURE_PREFIXES)]
     X = clean[feats].to_numpy(float)
     # each feature block alone, e.g. the 59 Work Context columns (CX and CTP)

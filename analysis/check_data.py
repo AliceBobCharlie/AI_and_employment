@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-check_data.py -- the data-quality facts Sections 4.2 and 4.3 rely on.
+check_data.py -- data quality of the occupational features.
 
-build_master.py only reads and joins, and does not carry O*NET's quality
-flags into the master table; clean_master.py only reports what it drops and
-fills. Everything the paper says about the quality of the data is computed
-here, from the master tables and, for the flags and standard errors, from the
-O*NET text files themselves.
+Computed from the master tables and, for the flags and standard errors, from
+the O*NET text files themselves (build_master.py does not carry the flags into
+the master table). The labour-market variables are checked by
+check_labour_data.py.
 
   A  codes        O*NET-SOC codes in Occupation Data; which feature blocks
                   each is rated in; the unrated codes by kind (military,
@@ -38,9 +37,6 @@ O*NET text files themselves.
   F  the final matrix
                   Columns and missing cells, as published, per block of the
                   910 x 220 matrix (Table 4.1).
-  G  labour-market variables
-                  For the 910 occupations, raw values: which occupations miss
-                  which variable, and each variable's distribution and skew.
 
 Run after build_master.py and clean_master.py, from the project root.
 Reads output/master.csv, output/master_clean.csv and data_raw/onet/db_31_0_text,
@@ -321,34 +317,6 @@ def section_matrix(M, C):
     return {"final_matrix": T.reset_index(names="block")}
 
 
-def section_external(M, kept):
-    banner("G. LABOUR-MARKET VARIABLES -- raw values for the 910 occupations")
-    ext = [c for c in M.columns if c.startswith("ext_")]
-    X = M.loc[kept, ext].apply(pd.to_numeric, errors="coerce")
-    na = X.isna()
-    per_var = na.sum().rename("missing").to_frame()
-    missing = na[na.any(axis=1)].astype(int)
-    missing.columns = [c.replace("ext_", "") for c in ext]
-    missing.insert(0, "title", M.loc[missing.index, "title"])
-    missing["n missing"] = missing.iloc[:, 1:].sum(axis=1)
-    missing = missing.sort_values("n missing", ascending=False)
-    desc = pd.DataFrame({"n": X.count(), "mean": X.mean(), "sd": X.std(), "min": X.min(),
-                         "q25": X.quantile(.25), "median": X.median(), "q75": X.quantile(.75),
-                         "max": X.max(), "skew": X.skew(),
-                         "max/median": X.max() / X.median().replace(0, np.nan)})
-    print(f"occupations missing at least one variable: {len(missing)} of {len(X)}; "
-          f"missing all but at most one: {int((missing['n missing'] >= len(ext) - 1).sum())}; "
-          f"missing one or two: {int((missing['n missing'] <= 2).sum())}")
-    show(per_var)
-    print("\noccupations with a missing value (1 = missing):")
-    show(missing.replace({0: ""}), "{:.0f}")
-    print()
-    show(desc, "{:,.2f}")
-    skewed = desc.index[(desc["skew"].abs() > 1) | (desc["max/median"] > 5)]
-    print(f"\nright-skewed (|skew| > 1 or max/median > 5): {list(skewed) or 'none'}")
-    return {"external_missing": missing.reset_index(), "external_describe": desc.reset_index(names="variable")}
-
-
 # --------------------------------------------------------------------------- #
 def main():
     M = pd.read_csv(RAW, index_col="onet_soc", low_memory=False)
@@ -364,7 +332,6 @@ def main():
     sheets.update(section_im_lv(M, kept))
     sheets.update(section_cxp(M, C))
     sheets.update(section_matrix(M, C))
-    sheets.update(section_external(M, kept))
 
     OUT.parent.mkdir(exist_ok=True)
     with pd.ExcelWriter(OUT) as writer:
