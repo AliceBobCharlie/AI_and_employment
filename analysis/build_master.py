@@ -1,21 +1,18 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-build_master.py -- assemble the raw table of occupational features:
+build_master.py -- Reads five O*NET blocks (Abilities, Skills, Knowledge, Work Activities and
+Work Context) and joins them into one table: one row per occupation, one column per occupational feature.
 
-    data_raw/onet/db_31_0_text  ->  output/master.csv
+Input: O*Net 31.0 text (must be downloaded at data_raw/onet/db_31_0_text)
+Output:  output/master.csv
 
-One row per O*NET-SOC code listed in O*NET's Occupation Data.
-One column per block, scale, element and (where the scale has them) category,
-holding the Data Value as O*NET publishes it. The blocks are Abilities,
-Skills, Knowledge, Work Activities and Work Context.
+Reads blocks one by one: each block is joined and released before the next block is read.
 
-This script only reads and joins. It one in clean_master.py. The labour-market data are assembled separately, by build_lmv.py.
-
-Column names: <block>_<scale>__<Element Name>, with __c<category> added for
-scales that have categories, e.g. abilities_lv__Oral Comprehension,
+Columns Named
+<block>_<scale>__<Element Name>, with __c<category> added for scales that
+have categories, e.g. abilities_lv__Oral Comprehension,
 workctx_cxp__Public Speaking__c3.
-
 """
 
 import numpy as np
@@ -92,7 +89,6 @@ def main():
     M = join_blocks(occupations(), BLOCKS)
     M.to_csv(OUT, index=False, encoding="utf-8")
     print(f"\n[ok] wrote {OUT}: {M.shape[0]} rows x {M.shape[1]} columns")
-    print("coverage, flags and missingness: run check_data.py")
 
 
 if __name__ == "__main__":
