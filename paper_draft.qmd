@@ -26,13 +26,19 @@ abstract: |
   measures of Eloundou et al., AIOE and the OECD, and published measures point
   in opposite directions along some of them, which explains why they disagree
   without settling which is right.
-output-file: index.html
+format:
+  html:
+    output-file: index.html
 other-links:
   - text: Interactive figures
     href: figures.html
+  # The PDF of the latest release; see .github/workflows/release.yml.
+  - text: PDF
+    href: https://github.com/AliceBobCharlie/AI_and_employment/releases/latest/download/paper.pdf
+    icon: file-pdf
 ---
 
-## 1. Introduction
+## 1 Introduction
 
 Research on which occupations artificial intelligence might replace has rarely treated the question as multidimensional. Most studies draw on a range of underlying data and then collapse it into a single index of how substitutable each occupation is by AI relative to others. (A note on terminology: this paper avoids the term "exposure", which leaves open whether what is measured is substitution or human–AI collaboration. "Substitution" is used throughout, except where another author's measure is named.)
 
@@ -44,7 +50,7 @@ This paper further seeks to identify labour-market variables, beyond the charact
 
 The result is a six-dimensional description of occupational structure, with four labour-market variables that lie outside it. Three major dimensions — physical intensity, judgement and person-facing work — account for more than half of the variation among occupations, and three minor ones — manipulation against navigation, work with a fixed correct standard against open-ended work, and commercial against specialist work — add a further 10 percent. The four labour-market variables are union coverage, education and training requirements, self-employment and employment size. The dimensions are stable across a range of analytical settings, and their meanings are checked against O\*NET's own taxonomy. We treat each dimension as a factor in AI substitution and combine the six into a coordinate system in which occupations, and the substitution measures built on them, can be located and viewed in two- and three-dimensional slices.
 
-## 2. Method
+## 2 Method
 
 The most direct way to identify the factors governing whether AI can substitute for human labour in an occupation would be to measure AI performance on tasks representative of that occupation, and to combine those measurements with data on the occupation itself. The most advanced work of this kind is GDPval (Patwardhan et al., 2025), in which practitioners drawn from the occupations concerned both set the tasks and graded the results.
 
@@ -86,7 +92,7 @@ A further limitation runs deeper than the absence of capability measurement. The
 
 We note that this difficulty is not specific to the present paper. No study to date has recovered the structure of AI capability empirically in the way that occupational features have been recovered here; capability is generally represented either by a single index or by a set of domains specified in advance. Until the capability side has a measured structure of its own, the correspondence between the two spaces cannot be assessed in either direction. We record this as a limitation of the approach and as an open question for the field, rather than as one this paper resolves.
 
-## 3. Literature
+## 3 Literature
 
 **Measures of substitution.** A first generation established that the question could be quantified and fixed O\*NET as the substrate for almost everything since (Frey and Osborne, 2017; Brynjolfsson et al., 2018; Felten et al., 2018, 2021; Webb, 2020 [WP]). Capability was inferred indirectly — from patent text, from benchmark results, from crowd-sourced matching to ability scales — and aggregated to occupations by weights the authors judged reasonable. Each produced a single score. Their disagreement is the relevant fact here: correlations of these measures with wages run from −0.56 to +0.54, so they are not noisy estimates of one quantity but estimates of different ones. The approach has not been superseded so much as left available: independent work continues to appear in which both the task scores and the aggregation weights are assigned by the author, validated against external data but leaving no structure a reader can test (for instance, 2026 [WP]).
 
@@ -106,7 +112,7 @@ The closest methodological precedent is Lise and Postel-Vinay (2020), who run pr
 
 **Observed outcomes.** The clearest employment evidence to date is not of displacement. Brynjolfsson et al. (2025 [WP]), using a monthly payroll panel of several million US workers, find no widespread economy-wide job losses, but report that employment of workers aged 22 to 25 in the most exposed occupations stands well below where it would be had it kept pace with their less exposed peers, with no comparable gap for experienced workers. The adjustment runs through reduced hiring rather than increased separations — separation rates in exposed occupations fell at least as fast as elsewhere — and the declines concentrate in occupations where AI usage substitutes for labour rather than complementing it. The authors present these as descriptive facts rather than causal estimates, and note that the estimates attenuate when occupational education is controlled for, that some divergence predates the technology, and that their sample over-represents large firms and exposed occupations. Others reach different conclusions on different data: Humlum and Vestergaard (2025 [WP]) find no significant effect on earnings or hours in Danish administrative data, and Lambert and Schindler (2026 [WP]) attribute much of the entry-level pattern to remote work. Two features of this evidence bear on what follows. The signal is a within-occupation one, at the entry level, which is the level our data cannot represent; and it is about hiring rather than employment stocks, which is the margin on which institutional protection of incumbents would be expected to leave occupational totals unchanged.
 
-## 4. Data
+## 4 Data
 
 ### 4.1 O\*NET and the data we use from it
 
@@ -130,7 +136,7 @@ that O\*NET publishes (Figure 1).
 <figure class="content-model">
   <img src="assets/CM_high_res.png" style="width: 100%; height: auto;"
        alt="The O*NET Content Model: three parts, Worker, Job and Market. Worker comprises Worker Characteristics (Career Interests, with Career Types and Specific Areas; Abilities; Work Styles), Worker Requirements (Skills, with Software, Essential and Transferable; Knowledge; Education) and Experience Requirements (Experience and Training; Licensing). Job comprises Occupational Requirements (Work Activities at general, intermediate and detailed levels; Work Context) and Occupation-Specific Info (Occupation Title, Description, Job Titles, Tasks). Market comprises Workforce Characteristics (Labor Market Information; Occupational Outlook).">
-  <figcaption><b>Figure 1</b> — the O*NET® Content Model. Source: National Center
+  <figcaption>Figure 1: the O*NET® Content Model. Source: National Center
   for O*NET Development, O*NET Resource Center. Used under the CC BY 4.0
   license.</figcaption>
 </figure>
@@ -609,7 +615,7 @@ explains there why that question is put to a regression rather than to a
 decomposition.
 
 
-## 5. Analysis and results
+## 5 Analysis and results
 
 ### 5.1 Standardisation
 
@@ -829,7 +835,7 @@ the angles, the worst-aligned direction.
 <figure class="plot-figure">
   <img src="assets/subspace_stability.png" style="width: 100%; height: auto;"
        alt="Line chart over k from 1 to 15 of the split-half stability of the leading-k subspace. It is about 0.97 to 0.99 for k from 1 to 3, falls to 0.87 at k = 4 and 0.23 at k = 5, recovers to 0.88 at k = 6, and stays at or below 0.66 from k = 7 to 15, with deep dips to 0.04 at k = 8, 0.04 at k = 10 and 0.05 at k = 11. The same measure on column-permuted data stays between 0.03 and 0.13.">
-  <figcaption><b>Figure 5.1</b> — split-half stability of nested subspaces. For
+  <figcaption>Figure 5.1: split-half stability of nested subspaces. For
   each k, the 5th percentile over 200 random half-splits of the smallest
   principal-angle cosine between the two halves' leading-k subspaces. Dashed
   line: the 95th percentile of the same measure on 200 column-permuted matrices,
@@ -1001,11 +1007,11 @@ below.
 <figure class="plot-figure">
   <div class="plot plot-axis" id="plot-axis-R1" data-axis="R1" role="img"
        aria-label="Two panels for the physical against symbolic work axis: above, the loadings of all 220 variables, by block of the Content Model; below, the scores of all 910 occupations, by SOC major group."></div>
-  <figcaption><b>Figure 5.2</b> — physical against symbolic work (R1). Above: the loading of each of the
-  220 variables on the axis, by block of O\*NET's Content Model. Below: each
+  <figcaption>Figure 5.2: physical against symbolic work (R1). Above: the loading of each of the
+  220 variables on the axis, by block of O*NET's Content Model. Below: each
   occupation's score on the axis, by SOC major group, the groups ordered by
-  their median, which the bar marks. Hover for the name of any variable or
-  occupation.</figcaption>
+  their median, which the bar marks. <span class="web-only">Hover for the name of any variable or
+  occupation.</span></figcaption>
 </figure>
 ```
 
@@ -1022,11 +1028,11 @@ airline pilots score high, while janitors and maids sit near the middle.
 <figure class="plot-figure">
   <div class="plot plot-axis" id="plot-axis-R2" data-axis="R2" role="img"
        aria-label="Two panels for the complex against simple work axis: above, the loadings of all 220 variables, by block of the Content Model; below, the scores of all 910 occupations, by SOC major group."></div>
-  <figcaption><b>Figure 5.3</b> — complex against simple work (R2). Above: the loading of each of the
-  220 variables on the axis, by block of O\*NET's Content Model. Below: each
+  <figcaption>Figure 5.3: complex against simple work (R2). Above: the loading of each of the
+  220 variables on the axis, by block of O*NET's Content Model. Below: each
   occupation's score on the axis, by SOC major group, the groups ordered by
-  their median, which the bar marks. Hover for the name of any variable or
-  occupation.</figcaption>
+  their median, which the bar marks. <span class="web-only">Hover for the name of any variable or
+  occupation.</span></figcaption>
 </figure>
 ```
 
@@ -1064,11 +1070,11 @@ dimensions, not two groups.
 <figure class="plot-figure">
   <div class="plot plot-axis" id="plot-axis-R3" data-axis="R3" role="img"
        aria-label="Two panels for the people against artefact work axis: above, the loadings of all 220 variables, by block of the Content Model; below, the scores of all 910 occupations, by SOC major group."></div>
-  <figcaption><b>Figure 5.4</b> — people against artefact work (R3). Above: the loading of each of the
-  220 variables on the axis, by block of O\*NET's Content Model. Below: each
+  <figcaption>Figure 5.4: people against artefact work (R3). Above: the loading of each of the
+  220 variables on the axis, by block of O*NET's Content Model. Below: each
   occupation's score on the axis, by SOC major group, the groups ordered by
-  their median, which the bar marks. Hover for the name of any variable or
-  occupation.</figcaption>
+  their median, which the bar marks. <span class="web-only">Hover for the name of any variable or
+  occupation.</span></figcaption>
 </figure>
 ```
 
@@ -1102,11 +1108,11 @@ less clear-cut. The rest of this section discusses them.
 <figure class="plot-figure">
   <div class="plot plot-axis" id="plot-axis-R4" data-axis="R4" role="img"
        aria-label="Two panels for the hands-on against field work axis: above, the loadings of all 220 variables, by block of the Content Model; below, the scores of all 910 occupations, by SOC major group."></div>
-  <figcaption><b>Figure 5.5</b> — hands-on against field work (R4). Above: the loading of each of the
-  220 variables on the axis, by block of O\*NET's Content Model. Below: each
+  <figcaption>Figure 5.5: hands-on against field work (R4). Above: the loading of each of the
+  220 variables on the axis, by block of O*NET's Content Model. Below: each
   occupation's score on the axis, by SOC major group, the groups ordered by
-  their median, which the bar marks. Hover for the name of any variable or
-  occupation.</figcaption>
+  their median, which the bar marks. <span class="web-only">Hover for the name of any variable or
+  occupation.</span></figcaption>
 </figure>
 ```
 
@@ -1126,11 +1132,11 @@ do both, such as electricians, and desk work that does neither.
 <figure class="plot-figure">
   <div class="plot plot-axis" id="plot-axis-R5" data-axis="R5" role="img"
        aria-label="Two panels for the standardised against open-ended work axis: above, the loadings of all 220 variables, by block of the Content Model; below, the scores of all 910 occupations, by SOC major group."></div>
-  <figcaption><b>Figure 5.6</b> — standardised against open-ended work (R5). Above: the loading of each of the
-  220 variables on the axis, by block of O\*NET's Content Model. Below: each
+  <figcaption>Figure 5.6: standardised against open-ended work (R5). Above: the loading of each of the
+  220 variables on the axis, by block of O*NET's Content Model. Below: each
   occupation's score on the axis, by SOC major group, the groups ordered by
-  their median, which the bar marks. Hover for the name of any variable or
-  occupation.</figcaption>
+  their median, which the bar marks. <span class="web-only">Hover for the name of any variable or
+  occupation.</span></figcaption>
 </figure>
 ```
 
@@ -1149,11 +1155,11 @@ control work; repetitive manual work lies near the middle.
 <figure class="plot-figure">
   <div class="plot plot-axis" id="plot-axis-R6" data-axis="R6" role="img"
        aria-label="Two panels for the commercial against individual work axis: above, the loadings of all 220 variables, by block of the Content Model; below, the scores of all 910 occupations, by SOC major group."></div>
-  <figcaption><b>Figure 5.7</b> — commercial against individual work (R6). Above: the loading of each of the
-  220 variables on the axis, by block of O\*NET's Content Model. Below: each
+  <figcaption>Figure 5.7: commercial against individual work (R6). Above: the loading of each of the
+  220 variables on the axis, by block of O*NET's Content Model. Below: each
   occupation's score on the axis, by SOC major group, the groups ordered by
-  their median, which the bar marks. Hover for the name of any variable or
-  occupation.</figcaption>
+  their median, which the bar marks. <span class="web-only">Hover for the name of any variable or
+  occupation.</span></figcaption>
 </figure>
 ```
 
@@ -1620,13 +1626,18 @@ as colour if wanted.
   </div>
   <div class="plot plot-space" id="plot-space" role="img"
        aria-label="Scatter plot of 910 occupations on one to three of the six axes, chosen with the boxes above, and optionally coloured by one axis. By default R1, R2 and R3, coloured by R4."></div>
-  <figcaption><b>Figure 5.8</b> — the 910 occupations on the six axes. Three
-  ticked axes span the space, two a plane and one a line, whose vertical spread
-  only separates the points; ticked axes are taken in order from R1 to R6.
-  Any one axis can be chosen as the colour, or none. Dotted lines in the plane
-  and the line mark the medians. Each axis is named by its + pole and its
-  − pole. Drag to rotate; hold ⌘ or Ctrl and scroll to zoom; hover for the
-  occupation.
+  <figcaption>Figure 5.8: the 910 occupations on the six axes.
+  <span class="web-only">Three ticked axes span the space, two a plane and one
+  a line, whose vertical spread only separates the points; ticked axes are
+  taken in order from R1 to R6. Any one axis can be chosen as the colour, or
+  none. Dotted lines in the plane and the line mark the medians.</span>
+  <span class="print-only">R1, R2 and R3 span the space and R4 is the colour.
+  The web version of the paper, at
+  <a href="https://alicebobcharlie.github.io/AI_and_employment/">alicebobcharlie.github.io/AI_and_employment</a>,
+  draws any one to three of the axes, coloured by any one.</span>
+  Each axis is named by its + pole and its − pole.
+  <span class="web-only">Drag to rotate; hold ⌘ or Ctrl and scroll to zoom;
+  hover for the occupation.</span>
   <a class="plot-fullscreen" href="figures.html#space">Open full screen</a></figcaption>
 </figure>
 ```
@@ -1638,7 +1649,7 @@ is supported by the data. Which regions of the space are most exposed to
 substitution is the subject of Section 6; the figure is the coordinate system,
 not the answer.
 
-## 6. Discussion
+## 6 Discussion
 
 ### 6.1 Which part of the occupational space is most substitutable
 
@@ -1692,11 +1703,12 @@ account of language-model capability would place at the front of the queue.
 <figure class="plot-figure">
   <div class="plot plot-young" id="plot-young" role="img"
        aria-label="Three scatter plots of the change in the share of workers aged 22 to 25 within each occupation, 2022 to 2024, against the physical intensity, judgement and person-facing axes."></div>
-  <figcaption><b>Figure 6.2</b> — change in the share of workers aged 22 to 25
+  <figcaption>Figure 6.2: change in the share of workers aged 22 to 25
   within each occupation, 2022 to 2024, in percentage points, against each axis.
   American Community Survey; occupations whose survey code matches a single
   SOC code only. Each panel gives the correlation unweighted and weighted by
-  employment. Marker size is log employment; hover for the occupation.</figcaption>
+  employment. Marker size is log employment<span class="web-only">; hover for the
+  occupation</span>.</figcaption>
 </figure>
 ```
 

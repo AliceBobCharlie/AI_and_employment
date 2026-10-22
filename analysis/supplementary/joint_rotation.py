@@ -31,8 +31,35 @@ import pandas as pd
 from sklearn.decomposition import PCA
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-from pca_rotated import OUTDIR, SEED, load_and_prep, rotate_tier, tier_scores, banner  # noqa: E402
-from plot_axes import BLOCKS, CTP_NAMES, SOC_GROUPS  # noqa: E402
+from analysis.pca_rotated import OUTDIR, SEED, load_and_prep, rotate_tier, tier_scores, banner  # noqa: E402
+
+# Column prefix -> block of the Content Model.
+BLOCKS = {"skills_im__": "Skills", "abilities_im__": "Abilities",
+          "knowledge_im__": "Knowledge", "workact_im__": "Work Activities",
+          "workctx_cx__": "Work Context", "workctx_ctp__": "Work Context"}
+
+# The working-time items enter as category shares (see clean_master.py); these
+# are the names shown for them.
+CTP_NAMES = {"Duration of Typical Work Week__c1": "Work week under 40 hours (share)",
+             "Duration of Typical Work Week__c3": "Work week over 40 hours (share)",
+             "Work Schedules__c2": "Irregular work schedule (share)",
+             "Work Schedules__c3": "Seasonal work schedule (share)"}
+
+# SOC 2018 major groups, by the first two digits of the O*NET-SOC code.
+SOC_GROUPS = {
+    "11": "Management", "13": "Business and financial operations",
+    "15": "Computer and mathematical", "17": "Architecture and engineering",
+    "19": "Life, physical and social science", "21": "Community and social service",
+    "23": "Legal", "25": "Educational instruction and library",
+    "27": "Arts, design, entertainment, sports and media",
+    "29": "Healthcare practitioners and technical", "31": "Healthcare support",
+    "33": "Protective service", "35": "Food preparation and serving",
+    "37": "Building and grounds cleaning and maintenance",
+    "39": "Personal care and service", "41": "Sales and related",
+    "43": "Office and administrative support", "45": "Farming, fishing and forestry",
+    "47": "Construction and extraction", "49": "Installation, maintenance and repair",
+    "51": "Production", "53": "Transportation and material moving",
+}
 
 OUT = OUTDIR / "joint_rotation.xlsx"
 K = 6                 # components rotated together

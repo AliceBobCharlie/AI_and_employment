@@ -1,0 +1,35 @@
+# The PDF of the paper, built with
+#
+#     quarto render paper_draft.qmd --profile pdf --to typst
+#
+# which writes _site/paper.pdf. Without --profile pdf, quarto render builds the
+# web page only. GitHub builds the PDF when a release is published and attaches
+# it to the release (.github/workflows/release.yml).
+#
+# The PDF goes through Typst, which ships with Quarto. Its layout is in
+# pdf/typst-template.typ: that of the NeurIPS preprint style, on a 5.5 x 9 in
+# text block. Before the render, pdf/print_figures.ts prints each interactive
+# figure, as figures.js draws it by default, to output/figures/; then
+# pdf/figures.lua puts every figure of the paper in the PDF.
+
+project:
+  pre-render: publish/pdf/print_figures.ts
+
+format:
+  typst:
+    output-file: paper.pdf
+    papersize: us-letter
+    margin:
+      left: 1.5in
+      right: 1.5in
+      top: 1in
+      bottom: 1in
+    page-numbering: "1"
+    fontsize: 10pt
+    mainfont: "New Computer Modern"
+    lang: en-GB
+    tbl-cap-location: top
+    template-partials:
+      - publish/pdf/typst-template.typ
+    filters:
+      - publish/pdf/figures.lua

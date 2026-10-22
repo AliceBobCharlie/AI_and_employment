@@ -1,0 +1,37 @@
+name: Release PDF
+
+# When a release is published, renders the PDF of the paper from the release's
+# tag and attaches it to the release as paper.pdf. Each release is one version
+# of the paper, and its PDF does not change afterwards; the web page, rebuilt
+# on every push (publish.yml), links the PDF of the latest release.
+#
+# Before rendering, pdf/print_figures.ts prints the interactive figures with
+# headless Chrome, which GitHub's Ubuntu runners have installed.
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write        # to attach the PDF to the release
+
+jobs:
+  pdf:
+    runs-on: ubuntu-latest
+    steps:
+      # The release's tag: the PDF is built from the text as it was released.
+      - uses: actions/checkout@v7
+
+      - uses: quarto-dev/quarto-actions/setup@v2
+        with:
+          version: 1.10.18
+
+      - run: quarto render paper_draft.qmd --profile pdf --to typst
+
+      - name: Check the PDF exists
+        run: test -s _site/paper.pdf
+
+      - name: Attach the PDF to the release
+        run: gh release upload "${{ github.event.release.tag_name }}" _site/paper.pdf --clobber
+        env:
+          GH_TOKEN: ${{ github.token }}

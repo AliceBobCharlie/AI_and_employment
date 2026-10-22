@@ -166,7 +166,7 @@ from pca_rotated import (STABLE_THRESH, N_SPLIT_SUB, TIER1_ANCHORS, TIER2_ANCHOR
                          sign_and_order, match_axes, rotate_tier, promax)
 
 CLEAN = Path("output/master_clean.csv")
-OUT = Path("output/curvature_check.xlsx")
+OUT = Path("../output/curvature_check.xlsx")
 
 SEED = 0
 FEATURE_PREFIXES = ("skills_im__", "abilities_im__", "knowledge_im__",

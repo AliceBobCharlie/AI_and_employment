@@ -8,15 +8,15 @@ project:
     - figures.qmd
   # Copied into the site as they are, so the pages can load them.
   resources:
-    - figures.js
-    - output/plot_data.csv
-    - output/axis_loadings.csv
+    - publish/web/figures.js
+    - output/rotated_axes.csv
+    - output/rotated_loadings.csv
     - output/acs_young_share.csv
     - figures/onet_content_model.png
 
 format:
   html:
-    theme: theme.scss
+    theme: publish/web/theme.scss
     lang: en-GB
     toc: true
     toc-location: left
@@ -42,8 +42,6 @@ format:
         <script src="https://cdn.jsdelivr.net/npm/plotly.js-dist-min@4.1.1/plotly.min.js"
                 integrity="sha384-AFNp2MtSm5/oZbEs/J19F/Ah57MEiVsoed8nE3fq2Wnccdl1u/EkyJ9XKKU8rt7+"
                 crossorigin="anonymous"></script>
-        <script src="figures.js"></script>
+        <script src="publish/web/figures.js"></script>
 
-# "Table 5 — Title" rather than Quarto's default "Table 5: Title".
-crossref:
-  title-delim: " —"
+# The PDF of the paper is the profile in _quarto-pdf.yml.

@@ -2,6 +2,8 @@
 pagetitle: "Figures — the occupation space"
 description: "The 910 US occupations of the paper, on the six axes, at full size."
 output-file: figures.html
+# Web only: the PDF has no interactive figures to show at full size.
+format: html
 toc: false
 page-layout: custom
 ---
@@ -13,7 +15,7 @@ page-layout: custom
 # Figures {.figure-page-title}
 
 The 910 occupations of the paper, on the six axes recovered from O\*NET.
-The coordinates are in [`output/plot_data.csv`](output/plot_data.csv), one row
+The coordinates are in [`output/rotated_axes.csv`](output/rotated_axes.csv), one row
 per occupation.
 
 ## The occupation space {#space}
@@ -30,7 +32,7 @@ per occupation.
   </div>
   <div class="plot plot-space" id="plot-space" role="img"
        aria-label="Scatter plot of 910 occupations on one to three of the six axes, chosen with the boxes above, and optionally coloured by one axis. By default R1, R2 and R3, coloured by R4."></div>
-  <figcaption><b>Figure 5.8</b> — the six-axis space. Three ticked axes span
+  <figcaption>Figure 5.8: the six-axis space. Three ticked axes span
   the space, two a plane and one a line, whose vertical spread only separates
   the points; ticked axes are taken in order from R1 to R6. Any one axis can
   be chosen as the colour, or none. Dotted lines in the plane and the line mark

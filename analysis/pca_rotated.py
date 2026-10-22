@@ -86,11 +86,11 @@ from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
 
 MASTER = Path("output/master_clean.csv")
-OUTDIR = Path("output")
+OUTDIR = Path("../output")
 AXES = OUTDIR / "rotated_axes.csv"              # scores R1-R6
 LOADINGS = OUTDIR / "rotated_loadings.csv"
 OUT = OUTDIR / "pca_stability.xlsx"
-FIGURE = Path("assets/subspace_stability.png")   # Figure 5.1; assets/ is published
+FIGURE = Path("../assets/subspace_stability.png")   # Figure 5.1; assets/ is published
 
 SEED = 0
 STABLE_THRESH = 0.90

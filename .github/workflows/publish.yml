@@ -1,7 +1,9 @@
 name: Publish paper
 
-# Renders paper_draft.qmd and deploys the result to GitHub Pages. The rendered
-# site is uploaded as a Pages artifact, so it never lands on any branch.
+# Renders paper_draft.qmd as the web page and deploys it to GitHub Pages. The
+# rendered site is uploaded as a Pages artifact, so it never lands on any
+# branch, and only the latest deployment is kept. The PDF is built only for a
+# release (release.yml).
 
 # Every push to main rebuilds. There is no paths filter on purpose: a filter
 # that misses one input (or gets mangled) shows up as a silent non-deployment,

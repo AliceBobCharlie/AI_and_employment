@@ -6,7 +6,7 @@ are about institutional position.
 Built on O*NET 31.0 (910 detailed occupations) joined to wages, union coverage,
 occupational prestige, separation rates and self-employment.
 
-**[Paper draft, with interactive figures](https://alicebobcharlie.github.io/AI_and_employment/)** (source: `paper_draft.qmd`)
+**[Paper draft, with interactive figures](https://alicebobcharlie.github.io/AI_and_employment/)** · **[PDF of the latest release](https://github.com/AliceBobCharlie/AI_and_employment/releases/latest/download/paper.pdf)** (source: `paper_draft.qmd`)
 
 Everything reads and writes through `output/`. Run from the project root, the
 folder containing `data_raw/`.
@@ -27,9 +27,8 @@ python check_curvature.py       #  9. non-linear relations among the axes (Secti
 python rating_error.py          # 10. rating error beyond the axes    (Section 5.5)
 python check_locality.py        # 11. local structure beyond the axes (Section 5.5)
 python check_orthogonality.py   # 12. what the features can predict   (Section 5.6)
-python plot_axes.py             # 13. data for the figures             (needs 5)
-python corner_table.py          # 14. Table 6.1                        (needs 5)
-python acs_young_share.py       # 15. data for Figure 6.2              (needs 5 and the ACS extract)
+python corner_table.py          # 13. Table 6.1                        (needs 5)
+python acs_young_share.py       # 14. data for Figure 6.2              (needs 5 and the ACS extract)
 ```
 
 Steps 1 and 2 run in that order; every analysis afterwards reads
@@ -49,6 +48,7 @@ sequence; see below.
 |---|---|
 | `output/master.csv` | The raw table: every O*NET-SOC code in O*NET 31.0, rated or not; every scale of the five feature blocks and of education, training and experience, as published; the labour-market variables joined on the six-digit SOC code. Nothing dropped, filled or derived. |
 | `output/master_clean.csv` | Analysis-ready: the 910 occupations rated in all five feature blocks, the 220 feature columns, the 37 education, training and experience columns, and the labour-market variables, every gap filled and the derived columns added. All of this lives in `clean_master.py` and nowhere else. |
+| | `master.csv` is committed; `master_clean.csv` is not, since `clean_master.py` rebuilds it from `master.csv` in seconds. |
 | standardisation | Deliberately **not** stored. Each analysis z-scores its own matrix, because `check_orthogonality.py` must fit its scaler on training folds only; pre-standardising would leak test-fold information into the cross-validated R². |
 
 ## Building the data
@@ -213,19 +213,6 @@ Section 5.6 quotes. Values that `clean_master.py` filled in are left out, so eve
 computed on published values only. Unlike anything read off a PCA, the answer
 does not depend on how many feature columns happen to be in the matrix.
 
-**`plot_axes.py`** → `plot_data.csv`, `axis_loadings.csv`
-
-The tables the interactive figures are drawn from. `plot_data.csv` holds each
-occupation's position on the six axes and its SOC major group, and no
-labour-market variable; `axis_loadings.csv` holds every feature variable's loading on the
-six axes, with its block of the Content Model, for the axis figures of
-Section 5.4 (Figures 5.2 to 5.7). Figure 5.8 draws the occupations on any one
-to three of the six axes, chosen by the reader, optionally coloured by one
-more. It needs `rotated_axes.csv` and
-`rotated_loadings.csv`, so run it after `pca_rotated.py`. The figures
-themselves are drawn in the browser by plotly.js. `rotated_axes.csv` and both
-tables are committed, so the axes can be downloaded without running anything.
-
 **`corner_table.py`** → terminal
 
 Table 6.1: the ten occupations furthest into the corner positive on all three
@@ -293,31 +280,63 @@ proxy (r = 0.89 with employment), that the "typical education needed" threshold
 is redundant with the ETE distributions (R² = 0.82), and that "work experience
 needed" is mostly missing. All three were excluded on that basis.
 
-## The web paper
+## The web paper and the PDF
 
-The paper is written in `paper_draft.qmd` and published as a web page with
-[Quarto](https://quarto.org).
+The paper is written in `paper_draft.qmd` and rendered with
+[Quarto](https://quarto.org) in two ways. The web page, with interactive
+figures, is rebuilt on every push and always shows the current text and data.
+The PDF is built only for a release: each [release](https://github.com/AliceBobCharlie/AI_and_employment/releases) is one version of
+the paper, with its PDF attached, which does not change afterwards. The two may
+therefore differ: the web page is the working version, the PDF the released
+one.
 
 | file | role |
 |---|---|
 | `paper_draft.qmd` | the paper: title and abstract in the header, then the text |
-| `_quarto.yml` | page layout, fonts, and the scripts the page loads |
-| `theme.scss` | typography and colours |
-| `figures.js` | draws the interactive figures in the reader's browser with plotly.js, from `output/plot_data.csv`, `output/axis_loadings.csv` and `output/acs_young_share.csv` |
+| `_quarto.yml` | the web page: layout, fonts and the scripts it loads |
+| `theme.scss` | typography and colours of the web page |
+| `figures.js` | draws the interactive figures in the reader's browser with plotly.js, from `output/rotated_axes.csv`, `output/rotated_loadings.csv` and `output/acs_young_share.csv` |
+| `_quarto-pdf.yml` | the PDF: page size, margins, type size, and the two steps below |
+| `pdf/print_figures.ts` | before the PDF is rendered: opens each interactive figure in headless Chrome, drawn by `figures.js` as the web page first shows it, and prints it to `output/figures/<id>.pdf` |
+| `pdf/figures.lua` | while the PDF is rendered: puts each figure of the paper in it, with the caption text that applies to print |
+| `pdf/typst-template.typ` | the PDF's layout, that of the NeurIPS preprint style common on arXiv: US Letter, a 5.5 × 9 in text block, 10 pt New Computer Modern, booktabs tables |
 
-No Python runs when the page is built. The figures read `output/plot_data.csv`,
-`output/axis_loadings.csv` and `output/acs_young_share.csv` directly, so after re-running the analysis, run
-`plot_axes.py` and `acs_young_share.py` and commit the new CSVs for the page to
-pick them up.
+The figures are HTML blocks in `paper_draft.qmd`, one source for both formats.
+In a caption, text inside `<span class="web-only">` (how to rotate, hover,
+choose axes) is left out of the PDF, and text inside
+`<span class="print-only">` (which view the image shows) appears only in the
+PDF. The figures of the PDF are drawn by the same `figures.js` as those of the
+web page, so there is nothing to keep in step.
 
-To preview locally, install Quarto and run `quarto preview` from the project
-root. Opening `_site/index.html` straight from disk will not show the figures,
-because browsers block a local file from loading the CSV.
+No Python runs when either is built. The web page reads the committed CSVs, so
+after re-running the analysis, commit the new `rotated_axes.csv`,
+`rotated_loadings.csv` and `acs_young_share.csv`.
 
-Every push to `main` that touches one of the files above, or the CSV, triggers
-`.github/workflows/publish.yml`, which renders the page and deploys it to GitHub
-Pages. The rendered site is never committed. This requires Settings → Pages →
-Source to be set to *GitHub Actions*.
+To build locally, install Quarto and run, from the project root:
+
+```
+quarto render                                          # the web page -> _site/
+quarto render paper_draft.qmd --profile pdf --to typst # the PDF -> _site/paper.pdf
+```
+
+The PDF also needs Chrome or Chromium; set `CHROME` to its path if it is not
+in the usual place. `pdf/print_figures.ts` runs on the Deno that ships with
+Quarto. To preview the web page, run `quarto preview`. Opening
+`_site/index.html` straight from disk will not show the figures, because
+browsers block a local file from loading the CSV.
+
+Every push to `main` triggers `.github/workflows/publish.yml`, which renders
+the web page and deploys it to GitHub Pages; only the latest deployment is
+kept, and the rendered site is never committed. This requires Settings → Pages
+→ Source to be set to *GitHub Actions*. Publishing a release triggers
+`.github/workflows/release.yml`, which renders the PDF from the release's tag
+and attaches it to the release as `paper.pdf`. To release a version:
+
+```
+gh release create v1.0 --title "v1.0" --notes "What changed."
+```
+
+The web page links the PDF of the latest release from its table of contents.
 
 ## Conventions
 

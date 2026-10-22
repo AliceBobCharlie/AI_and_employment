@@ -36,7 +36,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from input_variants import analyse, load, matrix, report, IM, CX  # noqa: E402
-from pca_rotated import standardize, block_of                    # noqa: E402
+from analysis.pca_rotated import standardize, block_of                    # noqa: E402
 
 OUT = Path("output/block_weights.xlsx")
 

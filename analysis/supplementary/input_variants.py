@@ -55,8 +55,8 @@ import pandas as pd
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-from pca_rotated import (congruence, rotate_tier, subspace_cosines, standardize,  # noqa: E402
-                         match_axes, SEED, STABLE_THRESH)
+from analysis.pca_rotated import (congruence, rotate_tier, subspace_cosines, standardize,  # noqa: E402
+                                  match_axes, SEED, STABLE_THRESH)
 
 CLEAN = Path("../output/master_clean.csv")
 RAW = Path("../output/master.csv")

@@ -47,11 +47,11 @@ import numpy as np
 import pandas as pd
 from pathlib import Path
 
-IPUMS_CSV = Path("data_raw/usa_00001.csv")       # IPUMS ACS extract, not redistributable
-ACS = Path("data_raw/young_share.csv")           # the aggregate this script builds
+IPUMS_CSV = Path("../data_raw/usa_00001.csv")       # IPUMS ACS extract, not redistributable
+ACS = Path("../data_raw/young_share.csv")           # the aggregate this script builds
 AXES = Path("output/rotated_axes.csv")
 MASTER = Path("output/master_clean.csv")
-OUT = Path("output/acs_young_share.csv")
+OUT = Path("../output/acs_young_share.csv")
 
 Y0, Y1 = 2022, 2024
 YOUNG_MIN, YOUNG_MAX = 22, 25           # age band counted as "young",

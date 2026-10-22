@@ -56,10 +56,10 @@ from sklearn.model_selection import KFold, cross_val_predict
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 
-ONET_DIR = Path("data_raw/onet/db_31_0_text")
+ONET_DIR = Path("../data_raw/onet/db_31_0_text")
 RAW = Path("output/master.csv")
 CLEAN = Path("output/master_clean.csv")
-OUT = Path("output/data_quality.xlsx")
+OUT = Path("../output/data_quality.xlsx")
 SEED = 0
 
 # Column prefix -> O*NET files, and the scale the analysis uses.

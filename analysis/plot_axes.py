@@ -24,9 +24,9 @@ import pandas as pd
 from pathlib import Path
 
 AXES_CSV = Path("output/rotated_axes.csv")
-LOADINGS_CSV = Path("output/rotated_loadings.csv")
-OUT = Path("output/plot_data.csv")
-OUT_LOADINGS = Path("output/axis_loadings.csv")
+LOADINGS_CSV = Path("../output/rotated_loadings.csv")
+OUT = Path("../output/plot_data.csv")
+OUT_LOADINGS = Path("../output/axis_loadings.csv")
 
 AXES = ["R1", "R2", "R3", "R4", "R5", "R6"]
 
