@@ -1,11 +1,17 @@
 // figures.js -- draws the paper's interactive figures with plotly.js.
 //
-// Data: output/plot_data.csv, written by plot_axes.py. One row per occupation:
-// onet_soc, title, soc_group, R1 to R6.
+// Data: output/rotated_axes.csv, written by pca_rotated.py. One row per
+// occupation: onet_soc, title, R1 to R6. The SOC major group is read off the
+// first two digits of the code (SOC_GROUPS below).
 //
-// The axis figures of Section 5.4 also read output/axis_loadings.csv, written
-// by plot_axes.py: one row per feature variable, with its block of the Content
-// Model and its loading on each rotated axis.
+// The axis figures of Section 5.4 also read output/rotated_loadings.csv,
+// written by pca_rotated.py: one row per feature variable, named by its column
+// in the feature matrix (block prefix, then the O*NET element), with its
+// loading on each rotated axis. BLOCKS and CTP_NAMES below turn the column into
+// a block of the Content Model and a readable name.
+//
+// The PDF has no interactive figures; pdf/print_figures.ts prints each figure,
+// as drawn here in its default view, to a static PDF for it.
 //
 // Figure 6.2 reads output/acs_young_share.csv, written by acs_young_share.py:
 // one row per matched O*NET occupation, with the change in the young-worker
@@ -19,8 +25,8 @@
 (function () {
   "use strict";
 
-  const DATA_URL = "output/plot_data.csv";
-  const LOADINGS_URL = "output/axis_loadings.csv";
+  const DATA_URL = "output/rotated_axes.csv";
+  const LOADINGS_URL = "output/rotated_loadings.csv";
   const YOUNG_URL = "output/acs_young_share.csv";
   const SIZE_MAX = 16;
   const FONT = '"Source Sans 3", "Helvetica Neue", Arial, sans-serif';
@@ -34,6 +40,38 @@
     R4: { name: "Hands-on against field work", label: "Hands-on ↔ field", high: "hands-on", low: "field" },
     R5: { name: "Standardised against open-ended work", label: "Standardised ↔ open-ended", high: "standardised", low: "open-ended" },
     R6: { name: "Commercial against individual work", label: "Commercial ↔ individual", high: "commercial", low: "individual" },
+  };
+
+  // SOC 2018 major groups, by the first two digits of the O*NET-SOC code.
+  const SOC_GROUPS = {
+    "11": "Management", "13": "Business and financial operations",
+    "15": "Computer and mathematical", "17": "Architecture and engineering",
+    "19": "Life, physical and social science", "21": "Community and social service",
+    "23": "Legal", "25": "Educational instruction and library",
+    "27": "Arts, design, entertainment, sports and media",
+    "29": "Healthcare practitioners and technical", "31": "Healthcare support",
+    "33": "Protective service", "35": "Food preparation and serving",
+    "37": "Building and grounds cleaning and maintenance",
+    "39": "Personal care and service", "41": "Sales and related",
+    "43": "Office and administrative support", "45": "Farming, fishing and forestry",
+    "47": "Construction and extraction", "49": "Installation, maintenance and repair",
+    "51": "Production", "53": "Transportation and material moving",
+  };
+
+  // Column prefix of the feature matrix -> block of the Content Model.
+  const BLOCKS = {
+    "skills_im__": "Skills", "abilities_im__": "Abilities",
+    "knowledge_im__": "Knowledge", "workact_im__": "Work Activities",
+    "workctx_cx__": "Work Context", "workctx_ctp__": "Work Context",
+  };
+
+  // The working-time items enter as category shares (see clean_master.py);
+  // these are the names the figures show for them.
+  const CTP_NAMES = {
+    "Duration of Typical Work Week__c1": "Work week under 40 hours (share)",
+    "Duration of Typical Work Week__c3": "Work week over 40 hours (share)",
+    "Work Schedules__c2": "Irregular work schedule (share)",
+    "Work Schedules__c3": "Seasonal work schedule (share)",
   };
 
   // The occupation space (Figure 5.8). The reader ticks one to three axes to
@@ -99,9 +137,14 @@
 
   function toColumns(records) {
     const col = (k) => records.map((r) => Number(r[k]));
+    const group = records.map((r) => {
+      const g = SOC_GROUPS[r.onet_soc.slice(0, 2)];
+      if (!g) throw new Error("no SOC major group for " + r.onet_soc);
+      return g;
+    });
     return {
       title: records.map((r) => r.title),
-      group: records.map((r) => r.soc_group),
+      group: group,
       R1: col("R1"), R2: col("R2"), R3: col("R3"),
       R4: col("R4"), R5: col("R5"), R6: col("R6"),
     };
@@ -559,10 +602,21 @@
   const STRONG = 0.5;          // loadings counted as strong in the panel heading
   const LINE_MAX = 28;         // characters per line of a group's name: every name fits in two lines
 
+  // The first column of rotated_loadings.csv, unnamed, holds the feature
+  // column, e.g. "skills_im__Active Learning".
   function loadingColumns(records) {
+    const key = Object.keys(records[0])[0];
+    const columns = records.map((r) => r[key]);
     return {
-      variable: records.map((r) => r.variable),
-      block: records.map((r) => r.block),
+      variable: columns.map((c) => {
+        const name = c.split("__").slice(1).join("__");
+        return CTP_NAMES[name] || name;
+      }),
+      block: columns.map((c) => {
+        const prefix = Object.keys(BLOCKS).find((p) => c.startsWith(p));
+        if (!prefix) throw new Error("no block of the Content Model for " + c);
+        return BLOCKS[prefix];
+      }),
       value: (k) => records.map((r) => Number(r[k])),
     };
   }
