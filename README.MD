@@ -216,10 +216,12 @@ does not depend on how many feature columns happen to be in the matrix.
 **`plot_axes.py`** → `plot_data.csv`, `axis_loadings.csv`
 
 The tables the interactive figures are drawn from. `plot_data.csv` holds each
-occupation's position on the six axes, its SOC major group, union coverage and
-employment; `axis_loadings.csv` holds every feature variable's loading on the
+occupation's position on the six axes and its SOC major group, and no
+labour-market variable; `axis_loadings.csv` holds every feature variable's loading on the
 six axes, with its block of the Content Model, for the axis figures of
-Section 5.4 (Figures 5.2 to 5.4). It needs `rotated_axes.csv` and
+Section 5.4 (Figures 5.2 to 5.7). Figure 5.8 draws the occupations on any one
+to three of the six axes, chosen by the reader, optionally coloured by one
+more. It needs `rotated_axes.csv` and
 `rotated_loadings.csv`, so run it after `pca_rotated.py`. The figures
 themselves are drawn in the browser by plotly.js. `rotated_axes.csv` and both
 tables are committed, so the axes can be downloaded without running anything.

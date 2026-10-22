@@ -1,7 +1,7 @@
 // figures.js -- draws the paper's interactive figures with plotly.js.
 //
 // Data: output/plot_data.csv, written by plot_axes.py. One row per occupation:
-// onet_soc, title, soc_group, R1 to R6, union, employment.
+// onet_soc, title, soc_group, R1 to R6.
 //
 // The axis figures of Section 5.4 also read output/axis_loadings.csv, written
 // by plot_axes.py: one row per feature variable, with its block of the Content
@@ -9,11 +9,12 @@
 //
 // Figure 6.2 reads output/acs_young_share.csv, written by acs_young_share.py:
 // one row per matched O*NET occupation, with the change in the young-worker
-// share (delta) and the occupation's axis scores.
+// share (delta) and the occupation's axis scores. Its marker size is log
+// employment, scaled the way plotly express does it (area proportional to
+// value, largest marker SIZE_MAX pixels across).
 //
-// Axis signs are fixed in pca_rotated.py so that + always means harder to
-// automate. Marker size is log employment, scaled the way plotly express does
-// it (area proportional to value, largest marker SIZE_MAX pixels across).
+// Axis signs are fixed in pca_rotated.py by marker variables. Figure 5.8
+// names each axis by its two poles, the + pole first.
 
 (function () {
   "use strict";
@@ -24,22 +25,29 @@
   const SIZE_MAX = 16;
   const FONT = '"Source Sans 3", "Helvetica Neue", Arial, sans-serif';
 
+  // name: used by the axis figures of Section 5.4 and by Figure 6.2.
+  // label, high, low: used by Figure 5.8 only.
   const DIMS = {
-    R1: { name: "Physical against symbolic work", low: "symbolic", high: "physical" },
-    R2: { name: "Complex against simple work", low: "simple", high: "complex" },
-    R3: { name: "People against artefact work", low: "artefacts", high: "people" },
-    R4: { name: "Hands-on against field work" },
-    R5: { name: "Standardised against open-ended work" },
-    R6: { name: "Commercial against individual work" },
-    union: { name: "Union coverage" },
+    R1: { name: "Physical against symbolic work", label: "Physical ↔ symbolic", high: "physical", low: "symbolic" },
+    R2: { name: "Complex against simple work", label: "Complex ↔ simple", high: "complex", low: "simple" },
+    R3: { name: "People against artefact work", label: "People ↔ artefact", high: "people", low: "artefact" },
+    R4: { name: "Hands-on against field work", label: "Hands-on ↔ field", high: "hands-on", low: "field" },
+    R5: { name: "Standardised against open-ended work", label: "Standardised ↔ open-ended", high: "standardised", low: "open-ended" },
+    R6: { name: "Commercial against individual work", label: "Commercial ↔ individual", high: "commercial", low: "individual" },
   };
 
-  // Every plane through the space. When union coverage is not an axis it is
-  // the colour; when it is, the points are drawn in one colour, since colouring
-  // by one of the two plotted axes would repeat what the position already shows.
-  const SECTIONS = [
-    ["R1", "R2"], ["R1", "R3"], ["R2", "R3"],
-    ["R1", "union"], ["R2", "union"], ["R3", "union"],
+  // The occupation space (Figure 5.8). The reader ticks one to three axes to
+  // plot, taken in the order of AXES, and at most one axis to colour by.
+  const AXES = ["R1", "R2", "R3", "R4", "R5", "R6"];
+  const DEFAULT_AXES = ["R1", "R2", "R3"];
+  const DEFAULT_COLOUR = "R4";
+  const MAX_AXES = 3;
+
+  const POINT_COLOUR = "#2a78d6";
+  // Diverging: blue for +, red for -, a grey midpoint at zero that still shows
+  // on the white page.
+  const DIVERGING = [
+    [0, "#a32b2a"], [0.25, "#e3807e"], [0.5, "#c4c3bf"], [0.75, "#6da7ec"], [1, "#104281"],
   ];
 
   // scrollZoom is off so that the wheel scrolls the page. Plotly turns it on
@@ -91,15 +99,11 @@
 
   function toColumns(records) {
     const col = (k) => records.map((r) => Number(r[k]));
-    const employment = col("employment");
     return {
       title: records.map((r) => r.title),
       group: records.map((r) => r.soc_group),
       R1: col("R1"), R2: col("R2"), R3: col("R3"),
       R4: col("R4"), R5: col("R5"), R6: col("R6"),
-      union: col("union"),
-      employment: employment,
-      size: employment.map((e) => Math.log1p(e)),
     };
   }
 
@@ -120,44 +124,11 @@
     };
   }
 
-  function unionColour(d, colourbarExtra) {
-    return {
-      color: d.union,
-      colorscale: "Viridis",
-      colorbar: Object.assign({
-        title: { text: "Union<br>coverage", side: "top" },
-        tickformat: ".0%",
-        thickness: 9,
-        outlinewidth: 0,
-        len: 0.55,
-        lenmode: "fraction",
-        x: 1,
-        xanchor: "right",
-        y: 0.5,
-        yanchor: "middle",
-        tickfont: { size: 12 },
-      }, colourbarExtra || {}),
-    };
-  }
-
-  function hoverTemplate(dims) {
-    const lines = dims.map((k, i) => {
-      const v = "customdata[" + i + "]";
-      return k === "union"
-        ? DIMS[k].name + ": %{" + v + ":.0%}"
-        : DIMS[k].name + ": %{" + v + ":+.2f}";
-    });
-    return "<b>%{text}</b><br>" + lines.join("<br>") +
-      "<br>Employment: %{customdata[" + dims.length + "]:,.0f}<extra></extra>";
-  }
-
-  function customData(d, dims) {
-    return d.title.map((_, i) => dims.map((k) => d[k][i]).concat(d.employment[i]));
-  }
-
+  // Axis title for the plane and the line of Figure 5.8: the axis between
+  // its two poles, each on the side it lies.
   function axisTitle(k) {
     const dim = DIMS[k];
-    return dim.low ? "← " + dim.low + "     " + dim.name + "     " + dim.high + " →" : dim.name;
+    return "← " + dim.low + "        " + k + "        " + dim.high + " →";
   }
 
   function baseLayout() {
@@ -169,33 +140,108 @@
     };
   }
 
-  // ---------------------------------------------------------------- figure 6.1
+  function spread(i, width) {
+    // Golden-ratio sequence: evenly spread, never the same twice in a row.
+    return (((i * 0.6180339887) % 1) - 0.5) * width;
+  }
 
-  function drawSpace(el, d) {
-    const dims = ["R1", "R2", "R3"];
-    const points = {
-      type: "scatter3d",
-      mode: "markers",
-      x: d.R1, y: d.R2, z: d.R3,
+  function wrap(text, n) {
+    // Break between words so that no line is longer than n characters, unless
+    // a single word is.
+    const lines = [];
+    text.split(" ").forEach((word) => {
+      const last = lines[lines.length - 1];
+      if (last !== undefined && (last + " " + word).length <= n) lines[lines.length - 1] = last + " " + word;
+      else lines.push(word);
+    });
+    return lines.join("<br>");
+  }
+
+  function maxAbs(values) {
+    return Math.max(...values.map(Math.abs));
+  }
+
+  // ---------------------------------------------------------------- figure 5.8
+
+  // The points of the occupation space. Hover shows the occupation, its SOC
+  // major group, its score on each plotted axis and on the colour axis.
+  function pointsTrace(d, dims, colour) {
+    const shown = colour && !dims.includes(colour) ? dims.concat(colour) : dims;
+    const lines = shown.map((k, i) =>
+      k + " " + DIMS[k].label.toLowerCase() + ": %{customdata[" + (i + 1) + "]:+.2f}");
+    return {
       text: d.title,
-      customdata: customData(d, dims.concat("union")),
-      hovertemplate: hoverTemplate(dims.concat("union")),
-      marker: Object.assign(markerSize(d), unionColour(d), { opacity: 0.8, line: { width: 0 } }),
+      customdata: d.title.map((_, i) => [d.group[i]].concat(shown.map((k) => d[k][i]))),
+      hovertemplate: "<b>%{text}</b><br>%{customdata[0]}<br>" + lines.join("<br>") + "<extra></extra>",
       showlegend: false,
     };
+  }
+
+  // Where the colour bar goes. "inside": at the right edge of a 3-D scene,
+  // which is narrowed to leave it room. "outside": right of a 2-D plot, in its
+  // margin. "below" and "above": lying flat, for a narrow screen.
+  const COLOURBAR_PLACE = {
+    inside: { len: 0.55, x: 1, xanchor: "right", y: 0.5, yanchor: "middle" },
+    outside: { len: 0.7, x: 1.03, xanchor: "left", y: 0.5, yanchor: "middle" },
+    below: { orientation: "h", len: 0.8, x: 0.5, xanchor: "center", y: 0, yanchor: "bottom" },
+    above: { orientation: "h", len: 0.8, x: 0.5, xanchor: "center", y: 1.04, yanchor: "bottom" },
+  };
+
+  // Marker colour: one colour, or diverging about zero on the colour axis,
+  // with the same range on both sides so that zero is always the grey midpoint.
+  function markerColour(d, colour, place) {
+    if (!colour) return { color: POINT_COLOUR };
+    const c = maxAbs(d[colour]);
+    const flat = place === "below" || place === "above";
+    const title = flat
+      ? "Colour: " + colour + " " + DIMS[colour].label.toLowerCase()
+      : "Colour: " + colour + "<br>" + wrap(DIMS[colour].label, 18);
+    return {
+      color: d[colour],
+      colorscale: DIVERGING,
+      cmin: -c, cmax: c, cmid: 0,
+      colorbar: Object.assign({
+        title: { text: title, side: "top" },
+        tickvals: [-c * 0.9, 0, c * 0.9],
+        ticktext: ["− " + DIMS[colour].low, "0", "+ " + DIMS[colour].high],
+        thickness: 9,
+        outlinewidth: 0,
+        lenmode: "fraction",
+        tickfont: { size: 12 },
+      }, COLOURBAR_PLACE[place]),
+    };
+  }
+
+  // Three axes. They share one range, centred on the origin, so the origin is
+  // the centre of the scene and the point the camera looks at: the axis lines
+  // then cross in the middle of the view and the vertical one stays upright.
+  // All six axes are in standard deviations, so one range also keeps their
+  // scales equal.
+  function spaceFigure3d(d, dims, colour, narrow) {
+    const [x, y, z] = dims;
+    const extent = Math.max(maxAbs(d[x]), maxAbs(d[y]), maxAbs(d[z])) * 1.05;
+    const labelAt = extent * 1.25;
+    const range = [-labelAt * 1.05, labelAt * 1.05];
+
+    const points = Object.assign(pointsTrace(d, dims, colour), {
+      type: "scatter3d",
+      mode: "markers",
+      x: d[x], y: d[y], z: d[z],
+      marker: Object.assign({ size: 3.5, opacity: 0.85, line: { width: 0 } },
+        markerColour(d, colour, narrow ? "below" : "inside")),
+    });
 
     // Three lines through the origin stand in for the axes; a plot box and
-    // grid would hide points while the figure is rotated.
+    // grid would hide points while the figure is rotated. Each end is labelled
+    // with its pole, beyond the end of the line: placed at the line's end the
+    // label falls inside the point cloud from most camera angles.
     const traces = [points];
-    dims.forEach((k) => {
-      const lo = Math.min(...d[k]) * 1.05, hi = Math.max(...d[k]) * 1.05;
+    [x, y, z].forEach((k, j) => {
+      const key = ["x", "y", "z"][j];
       const line = { x: [0, 0], y: [0, 0], z: [0, 0] };
-      const end = { x: [0], y: [0], z: [0] };
-      const key = { R1: "x", R2: "y", R3: "z" }[k];
-      line[key] = [lo, hi];
-      // The label sits beyond the end of its axis line: placed at the line's
-      // end it falls inside the point cloud from most camera angles.
-      end[key] = [hi * 1.22];
+      const ends = { x: [0, 0], y: [0, 0], z: [0, 0] };
+      line[key] = [-extent, extent];
+      ends[key] = [-labelAt, labelAt];
       traces.push(Object.assign({
         type: "scatter3d", mode: "lines",
         line: { color: "#555555", width: 4 },
@@ -203,25 +249,159 @@
       }, line));
       traces.push(Object.assign({
         type: "scatter3d", mode: "text",
-        text: ["+ " + DIMS[k].name.toLowerCase()],
+        text: ["− " + DIMS[k].low + " (" + k + ")", "+ " + DIMS[k].high + " (" + k + ")"],
         textfont: { family: FONT, size: 13, color: "#000000" },
         hoverinfo: "skip", showlegend: false,
-      }, end));
+      }, ends));
     });
 
-    const hidden = { visible: false };
+    const axis = { visible: false, range: range };
     const layout = Object.assign(baseLayout(), {
       margin: { l: 0, r: 0, t: 0, b: 0 },
       scene: {
-        xaxis: hidden, yaxis: hidden, zaxis: hidden,
+        xaxis: axis, yaxis: axis, zaxis: axis,
         aspectmode: "cube",
-        camera: { eye: { x: 0.86, y: 0.86, z: 0.62 } },
+        // Leaves room for the colour bar, so no axis label runs under it.
+        domain: !colour ? { x: [0, 1], y: [0, 1] }
+          : narrow ? { x: [0, 1], y: [0.2, 1] } : { x: [0, 0.84], y: [0, 1] },
+        // On a narrow screen the camera stands further back, so the labels at
+        // the ends of the horizontal axes stay inside the frame.
+        camera: {
+          center: { x: 0, y: 0, z: 0 },
+          up: { x: 0, y: 0, z: 1 },
+          eye: narrow ? { x: 1.25, y: 1.25, z: 0.78 } : { x: 0.9, y: 0.9, z: 0.56 },
+        },
+        // Keeps the reader's rotation when the axes shown change.
+        uirevision: "space",
       },
     });
-    return Plotly.newPlot(el, traces, layout, CONFIG).then(() => {
-      enableModifierZoom(el);
-      return el;
+    return { data: traces, layout: layout };
+  }
+
+  function axis2d(k) {
+    return {
+      title: { text: axisTitle(k) },
+      zeroline: false,
+      showgrid: false,
+      linecolor: "#000000",
+      ticks: "outside",
+    };
+  }
+
+  function medianRule(axisRef, value) {
+    const rule = { type: "line", line: { color: "#8c8c8c", width: 1, dash: "dot" }, layer: "below" };
+    return axisRef === "x"
+      ? Object.assign({ xref: "x", yref: "paper", x0: value, x1: value, y0: 0, y1: 1 }, rule)
+      : Object.assign({ xref: "paper", yref: "y", x0: 0, x1: 1, y0: value, y1: value }, rule);
+  }
+
+  // Layout shared by the plane and the line, with room in the margin for the
+  // colour bar: at the right, or above the plot on a narrow screen.
+  function layout2d(colour, narrow, extra) {
+    const base = baseLayout();
+    if (colour) {
+      if (narrow) base.margin = Object.assign({}, base.margin, { t: 76 });
+      else base.margin = Object.assign({}, base.margin, { r: 150 });
+    }
+    return Object.assign(base, { plot_bgcolor: "#ffffff" }, extra);
+  }
+
+  // Two axes: a plane, both axes at the same scale.
+  function spaceFigure2d(d, dims, colour, narrow) {
+    const [x, y] = dims;
+    const trace = Object.assign(pointsTrace(d, dims, colour), {
+      type: "scatter", mode: "markers",
+      x: d[x], y: d[y],
+      marker: Object.assign({ size: 6, opacity: colour ? 0.8 : 0.6, line: { width: 0 } },
+        markerColour(d, colour, narrow ? "above" : "outside")),
     });
+    const layout = layout2d(colour, narrow, {
+      xaxis: axis2d(x),
+      yaxis: Object.assign(axis2d(y), { scaleanchor: "x", scaleratio: 1 }),
+      shapes: [medianRule("x", median(d[x])), medianRule("y", median(d[y]))],
+    });
+    return { data: [trace], layout: layout };
+  }
+
+  // One axis: a line. The vertical offset only separates the points and
+  // carries no value.
+  function spaceFigure1d(d, dims, colour, narrow) {
+    const [x] = dims;
+    const trace = Object.assign(pointsTrace(d, dims, colour), {
+      type: "scatter", mode: "markers",
+      x: d[x], y: d[x].map((_, i) => spread(i, 1)),
+      marker: Object.assign({ size: 6, opacity: colour ? 0.8 : 0.6, line: { width: 0 } },
+        markerColour(d, colour, narrow ? "above" : "outside")),
+    });
+    const layout = layout2d(colour, narrow, {
+      xaxis: axis2d(x),
+      // A band a third of the height, so it does not read as a second axis.
+      yaxis: { visible: false, range: [-1.5, 1.5], fixedrange: true },
+      shapes: [medianRule("x", median(d[x]))],
+    });
+    return { data: [trace], layout: layout };
+  }
+
+  function spaceFigure(d, dims, colour, narrow) {
+    if (dims.length === 3) return spaceFigure3d(d, dims, colour, narrow);
+    if (dims.length === 2) return spaceFigure2d(d, dims, colour, narrow);
+    return spaceFigure1d(d, dims, colour, narrow);
+  }
+
+  function addBoxes(fieldset, text, ticked) {
+    return AXES.map((k) => {
+      const label = document.createElement("label");
+      const box = document.createElement("input");
+      box.type = "checkbox";
+      box.value = k;
+      box.checked = ticked.includes(k);
+      label.append(box, " " + text(k));
+      fieldset.appendChild(label);
+      return box;
+    });
+  }
+
+  // The axes to plot: one checkbox per axis. At most MAX_AXES can be ticked,
+  // and the last one cannot be unticked, so the figure always has something
+  // to draw.
+  function axisPicker(fieldset, onChange) {
+    const boxes = addBoxes(fieldset, (k) => k + " " + DIMS[k].label.toLowerCase(), DEFAULT_AXES);
+    const update = () => {
+      const ticked = boxes.filter((b) => b.checked).length;
+      boxes.forEach((b) => {
+        b.disabled = b.checked ? ticked === 1 : ticked >= MAX_AXES;
+      });
+    };
+    boxes.forEach((b) => b.addEventListener("change", () => { update(); onChange(); }));
+    update();
+    return () => boxes.filter((b) => b.checked).map((b) => b.value);
+  }
+
+  // The axis to colour by: at most one. Ticking a box unticks the one ticked
+  // before; unticking it leaves the points in one colour.
+  function colourPicker(fieldset, onChange) {
+    const boxes = addBoxes(fieldset, (k) => k, [DEFAULT_COLOUR]);
+    boxes.forEach((box) => box.addEventListener("change", () => {
+      if (box.checked) boxes.forEach((b) => { if (b !== box) b.checked = false; });
+      onChange();
+    }));
+    return () => {
+      const ticked = boxes.find((b) => b.checked);
+      return ticked ? ticked.value : null;
+    };
+  }
+
+  function drawSpace(el, axesBox, colourBox, d) {
+    let axes = () => DEFAULT_AXES;
+    let colour = () => DEFAULT_COLOUR;
+    const draw = () => {
+      const fig = spaceFigure(d, axes(), colour(), el.clientWidth < 600);
+      return Plotly.react(el, fig.data, fig.layout, CONFIG);
+    };
+    if (axesBox) axes = axisPicker(axesBox, draw);
+    if (colourBox) colour = colourPicker(colourBox, draw);
+    enableModifierZoom(el);
+    return draw();
   }
 
   // Plotly cancels the wheel event over a 3-D scene whether or not scrollZoom
@@ -229,95 +409,35 @@
   // listener runs in the capture phase, before Plotly's own: a plain wheel is
   // stopped there, so Plotly never sees it and the page scrolls normally, and
   // Ctrl/Cmd + wheel is handled here instead, moving the camera towards or
-  // away from the point it looks at.
+  // away from the point it looks at. When the figure is a plane or a line
+  // there is no scene, and the wheel is left alone.
   function enableModifierZoom(el) {
     el.addEventListener("wheel", (ev) => {
-      if (!ev.ctrlKey && !ev.metaKey) {
-        ev.stopPropagation();
-        return;
-      }
-      ev.stopPropagation();
-      ev.preventDefault();
-
       const camera = el.layout && el.layout.scene && el.layout.scene.camera;
       const eye = camera && camera.eye;
       if (!eye) return;
 
+      ev.stopPropagation();
+      if (!ev.ctrlKey && !ev.metaKey) return;
+      ev.preventDefault();
+
+      // The camera as the reader left it, which may differ from the layout's.
+      const current = (el._fullLayout && el._fullLayout.scene &&
+        el._fullLayout.scene.camera && el._fullLayout.scene.camera.eye) || eye;
       const step = clamp(1 + ev.deltaY * ZOOM_STEP, ZOOM_PER_EVENT[0], ZOOM_PER_EVENT[1]);
-      const distance = Math.hypot(eye.x, eye.y, eye.z);
+      const distance = Math.hypot(current.x, current.y, current.z);
       const wanted = clamp(distance * step, ZOOM_LIMITS[0], ZOOM_LIMITS[1]);
       const factor = wanted / distance;
       if (factor === 1) return;
 
       Plotly.relayout(el, {
-        "scene.camera.eye": { x: eye.x * factor, y: eye.y * factor, z: eye.z * factor },
+        "scene.camera.eye": { x: current.x * factor, y: current.y * factor, z: current.z * factor },
       });
     }, { capture: true, passive: false });
   }
 
   function clamp(v, lo, hi) {
     return Math.min(Math.max(v, lo), hi);
-  }
-
-  // ---------------------------------------------------------------- figure 6.3
-
-  function sectionFigure(d, x, y) {
-    const unionIsAxis = x === "union" || y === "union";
-    const dims = unionIsAxis ? [x, y] : [x, y, "union"];
-    const marker = Object.assign(markerSize(d), { opacity: 0.75, line: { width: 0 } },
-      unionIsAxis ? { color: "#333333" } : unionColour(d, { len: 0.8 }));
-
-    const trace = {
-      type: "scatter", mode: "markers",
-      x: d[x], y: d[y],
-      text: d.title,
-      customdata: customData(d, dims),
-      hovertemplate: hoverTemplate(dims),
-      marker: marker,
-      showlegend: false,
-    };
-
-    const rule = { line: { color: "#8c8c8c", width: 1, dash: "dot" }, layer: "below" };
-    const mx = median(d[x]), my = median(d[y]);
-    const axis = (k) => ({
-      title: { text: axisTitle(k) },
-      zeroline: false,
-      showgrid: false,
-      linecolor: "#000000",
-      ticks: "outside",
-      tickformat: k === "union" ? ".0%" : "",
-    });
-
-    const layout = Object.assign(baseLayout(), {
-      plot_bgcolor: "#ffffff",
-      xaxis: axis(x),
-      yaxis: Object.assign(axis(y),
-        // Two rotated axes share standardised units, so they are drawn at the
-        // same scale. Union coverage (0 to 0.9) against an axis of about ±4
-        // would collapse to a sliver, so that pair is left free.
-        unionIsAxis ? {} : { scaleanchor: "x", scaleratio: 1 }),
-      shapes: [
-        Object.assign({ type: "line", xref: "x", yref: "paper", x0: mx, x1: mx, y0: 0, y1: 1 }, rule),
-        Object.assign({ type: "line", xref: "paper", yref: "y", x0: 0, x1: 1, y0: my, y1: my }, rule),
-      ],
-    });
-    return { data: [trace], layout: layout };
-  }
-
-  function drawSections(el, select, d) {
-    SECTIONS.forEach(([x, y], i) => {
-      const opt = document.createElement("option");
-      opt.value = String(i);
-      opt.textContent = DIMS[x].name + " × " + DIMS[y].name.toLowerCase();
-      select.appendChild(opt);
-    });
-    const draw = () => {
-      const [x, y] = SECTIONS[Number(select.value)];
-      const fig = sectionFigure(d, x, y);
-      return Plotly.react(el, fig.data, fig.layout, CONFIG);
-    };
-    select.addEventListener("change", draw);
-    return draw();
   }
 
   // ---------------------------------------------------------------- figure 6.2
@@ -438,23 +558,6 @@
   const AXIS_GREY = "#8c8c8c";
   const STRONG = 0.5;          // loadings counted as strong in the panel heading
   const LINE_MAX = 28;         // characters per line of a group's name: every name fits in two lines
-
-  function spread(i, width) {
-    // Golden-ratio sequence: evenly spread, never the same twice in a row.
-    return (((i * 0.6180339887) % 1) - 0.5) * width;
-  }
-
-  function wrap(text, n) {
-    // Break between words so that no line is longer than n characters, unless
-    // a single word is.
-    const lines = [];
-    text.split(" ").forEach((word) => {
-      const last = lines[lines.length - 1];
-      if (last !== undefined && (last + " " + word).length <= n) lines[lines.length - 1] = last + " " + word;
-      else lines.push(word);
-    });
-    return lines.join("<br>");
-  }
 
   function loadingColumns(records) {
     return {
@@ -591,8 +694,8 @@
     });
   }
 
-  async function drawAxesFigures(space, section, select, axisPlots) {
-    const targets = [space, section].filter(Boolean).concat(axisPlots);
+  async function drawAxesFigures(space, axesBox, colourBox, axisPlots) {
+    const targets = [space].filter(Boolean).concat(axisPlots);
     if (!targets.length) return;
     let d;
     try {
@@ -601,8 +704,7 @@
       showError(targets, "The figure data could not be loaded (" + err.message + "). " + LOAD_HELP);
       return;
     }
-    if (space) drawSpace(space, d);
-    if (section && select) drawSections(section, select, d);
+    if (space) drawSpace(space, axesBox, colourBox, d);
     drawAxisFigures(axisPlots, d);
   }
 
@@ -620,11 +722,11 @@
 
   function main() {
     const space = document.getElementById("plot-space");
-    const section = document.getElementById("plot-section");
-    const select = document.getElementById("section-select");
+    const axesBox = document.getElementById("space-picker");
+    const colourBox = document.getElementById("colour-picker");
     const young = document.getElementById("plot-young");
     const axisPlots = [...document.querySelectorAll(".plot-axis[data-axis]")];
-    const targets = [space, section, young].filter(Boolean).concat(axisPlots);
+    const targets = [space, young].filter(Boolean).concat(axisPlots);
     if (!targets.length) return;
 
     if (typeof Plotly === "undefined") {
@@ -634,7 +736,7 @@
 
     // Separate data files, loaded independently, so a missing file leaves
     // only its own figure empty.
-    drawAxesFigures(space, section, select, axisPlots);
+    drawAxesFigures(space, axesBox, colourBox, axisPlots);
     drawYoungFigure(young);
   }
 

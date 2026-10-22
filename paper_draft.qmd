@@ -1603,17 +1603,30 @@ confirming it.
 
 ### 5.8 The occupational space
 
-Three stable axes with names that survive checking are a coordinate system, and
-every occupation in the data has a position in it.
+Six stable axes with names that survive checking are a coordinate system, and
+every occupation in the data has a position in it. Six dimensions cannot be
+drawn at once, so the figure shows up to three of them at a time, with a fourth
+as colour if wanted.
 
 ```{=html}
 <figure class="plot-figure">
-  <div class="plot plot-3d" id="plot-space" role="img"
-       aria-label="Three-dimensional scatter plot of 910 occupations on the physical intensity, judgement and person-facing axes, coloured by union coverage."></div>
-  <figcaption><b>Figure 5.8</b> — the 910 occupations in the three-axis space,
-  coloured by union coverage. Drag to rotate; hold ⌘ or Ctrl and scroll to
-  zoom. Marker size is log employment; hover for the occupation. On every axis,
-  + means harder to automate.
+  <div class="plot-pickers">
+    <fieldset class="plot-controls plot-picker" id="space-picker">
+      <legend>Axes (tick one to three)</legend>
+    </fieldset>
+    <fieldset class="plot-controls plot-picker plot-picker-small" id="colour-picker">
+      <legend>Colour (optional)</legend>
+    </fieldset>
+  </div>
+  <div class="plot plot-space" id="plot-space" role="img"
+       aria-label="Scatter plot of 910 occupations on one to three of the six axes, chosen with the boxes above, and optionally coloured by one axis. By default R1, R2 and R3, coloured by R4."></div>
+  <figcaption><b>Figure 5.8</b> — the 910 occupations on the six axes. Three
+  ticked axes span the space, two a plane and one a line, whose vertical spread
+  only separates the points; ticked axes are taken in order from R1 to R6.
+  Any one axis can be chosen as the colour, or none. Dotted lines in the plane
+  and the line mark the medians. Each axis is named by its + pole and its
+  − pole. Drag to rotate; hold ⌘ or Ctrl and scroll to zoom; hover for the
+  occupation.
   <a class="plot-fullscreen" href="figures.html#space">Open full screen</a></figcaption>
 </figure>
 ```
@@ -1809,20 +1822,10 @@ subset of occupations can be shown in them. Each plane admits a reading of its
 quadrants. We give one as an illustration, and it is the plane on which the
 conjecture above has the most to say.
 
-```{=html}
-<figure class="plot-figure">
-  <div class="plot-controls">
-    <label for="section-select">Section</label>
-    <select id="section-select"></select>
-  </div>
-  <div class="plot plot-2d" id="plot-section" role="img"
-       aria-label="Scatter plot of 910 occupations on two of the axes; the menu above chooses the pair."></div>
-  <figcaption><b>Figure 6.3</b> — physical intensity × judgement, all 910
-  occupations. The menu shows the other sections. Dotted lines mark the
-  medians; marker size is log employment.
-  <a class="plot-fullscreen" href="figures.html#sections">Open full screen</a></figcaption>
-</figure>
-```
+<!-- TODO (six axes): Figure 6.3, the menu of two-dimensional sections, has
+been removed. Figure 5.8 draws any pair of axes as a plane when two are ticked.
+Rewrite this subsection to point there. -->
+
 
 **Low physical intensity, low judgement — exposed on both counts.** Work that
 demands little of the body and little in the way of decisions has a defence on

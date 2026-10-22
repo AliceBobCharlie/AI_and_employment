@@ -7,9 +7,9 @@ The figures themselves are drawn in the browser by plotly.js on the paper's web
 page, so this script only assembles two small tables.
 
   output/plot_data.csv     one row per occupation: its position on the six
-                           rotated axes, its SOC major group, and the two
-                           variables the figures show as colour and marker
-                           size (union coverage and employment).
+                           rotated axes and its SOC major group. No
+                           labour-market variable is included; the figures
+                           show the axes only.
   output/axis_loadings.csv one row per feature variable: its name, the block
                            of O*NET's Content Model it belongs to, and its
                            loading on each of the six rotated axes.
@@ -17,7 +17,7 @@ page, so this script only assembles two small tables.
 Axis signs are fixed by the marker variables in pca_rotated.py.
 
 Reads output/rotated_axes.csv and output/rotated_loadings.csv (from
-pca_rotated.py) and output/master_clean.csv. Writes the two files above.
+pca_rotated.py). Writes the two files above.
 """
 
 import pandas as pd
@@ -25,7 +25,6 @@ from pathlib import Path
 
 AXES_CSV = Path("output/rotated_axes.csv")
 LOADINGS_CSV = Path("output/rotated_loadings.csv")
-MASTER = Path("output/master_clean.csv")
 OUT = Path("output/plot_data.csv")
 OUT_LOADINGS = Path("output/axis_loadings.csv")
 
@@ -62,14 +61,7 @@ SOC_GROUPS = {
 
 def occupations():
     axes = pd.read_csv(AXES_CSV, index_col="onet_soc")
-    master = pd.read_csv(MASTER, index_col="onet_soc")[["ext_union_cov_pct", "ext_employment"]]
-
-    df = axes[["title"] + [a for a in AXES if a in axes.columns]].join(master, how="inner")
-    df = df.rename(columns={"ext_union_cov_pct": "union",
-                            "ext_employment": "employment"})
-    if len(df) != len(axes):
-        raise ValueError(f"{len(axes) - len(df)} occupations in {AXES_CSV} "
-                         f"have no row in {MASTER}")
+    df = axes[["title"] + [a for a in AXES if a in axes.columns]].copy()
 
     codes = df.index.str[:2]
     unknown = sorted(set(codes) - set(SOC_GROUPS))

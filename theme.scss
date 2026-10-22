@@ -260,16 +260,10 @@ main .table-striped > tbody > tr:nth-of-type(odd) > * {
   width: 100%;
 }
 
-// Sized to sit inside the text column rather than dominate the page. The
-// standalone figures page overrides both heights below.
-.plot-3d {
-  height: clamp(360px, 54vh, 560px);
-}
-
-// Near-square: both axes are in the same standardised units and are drawn
-// to the same scale, so a wide frame just pads the range with empty space.
-.plot-2d {
-  height: clamp(380px, 68vh, 640px);
+// The occupation space (Figure 5.8). Sized to sit inside the text column
+// rather than dominate the page; the standalone figures page overrides it.
+.plot-space {
+  height: clamp(380px, 60vh, 580px);
 }
 
 // Three panels side by side, each about as tall as it is wide. On a narrow
@@ -321,22 +315,48 @@ a.plot-fullscreen::after {
   margin-bottom: 0.5rem;
 }
 
-.plot-controls label {
-  font-weight: 600;
+// The checkboxes above Figure 5.8: the axes to plot, then a smaller row for
+// the axis to colour by.
+.plot-pickers {
+  margin-bottom: 0.5rem;
 }
 
-.plot-controls select {
-  font: inherit;
-  color: $ink;
-  background-color: $paper;
-  border: 1px solid $ink;
-  border-radius: 3px;
-  padding: 0.3rem 0.5rem;
-  // The longest option name is wider than a phone screen, so let the control
-  // shrink rather than set the width of the row.
-  flex: 1 1 14rem;
-  min-width: 0;
-  max-width: 100%;
+.plot-pickers fieldset.plot-picker {
+  margin-bottom: 0.4rem;
+}
+
+fieldset.plot-picker.plot-picker-small {
+  font-size: 0.8rem;
+  gap: 0.2rem 0.9rem;
+}
+
+fieldset.plot-picker {
+  border: 0;
+  padding: 0;
+  margin-left: 0;
+  margin-right: 0;
+  gap: 0.3rem 1.1rem;
+}
+
+fieldset.plot-picker legend {
+  font-weight: 600;
+  font-size: inherit;
+  float: none;
+  width: 100%;
+  margin-bottom: 0.2rem;
+}
+
+fieldset.plot-picker label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  cursor: pointer;
+}
+
+// A box that cannot change: the fifth when four are ticked, the last one left.
+fieldset.plot-picker label:has(input:disabled) {
+  color: $ink-secondary;
+  cursor: default;
 }
 
 .plot-error {
@@ -383,8 +403,7 @@ a.plot-fullscreen::after {
   margin-bottom: 0.5rem;
 }
 
-.figure-page .plot-3d,
-.figure-page .plot-2d {
+.figure-page .plot-space {
   height: clamp(420px, 74vh, 760px);
 }
 
