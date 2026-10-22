@@ -9,7 +9,7 @@ its gaps:
   ROWS. Keeps the occupations rated in all five feature blocks: Abilities,
   Skills, Knowledge and Work Activities on the Importance scale, Work Context
   on the Context scale. The rows kept here are also the rows of
-  output/labour_clean.csv (see clean_labour.py).
+  output/labour_clean.csv (see clean_lmv.py).
 
   COLUMNS. Importance for four blocks; for Work Context, CX for the items
   rated on it and the category percentages (CTP) of the two working-time

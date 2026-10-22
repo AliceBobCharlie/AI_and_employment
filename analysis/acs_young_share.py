@@ -52,6 +52,7 @@ ACS = Path("data_raw/young_share.csv")           # the aggregate this script bui
 AXES = Path("output/occupation_coordinates.csv")
 LABOUR = Path("output/labour_clean.csv")
 OUT = Path("output/acs_young_share.csv")
+CSV_FLOAT = "%.10g"     # tracked in git: 10 significant digits drop floating-point noise
 
 Y0, Y1 = 2022, 2024
 YOUNG_MIN, YOUNG_MAX = 22, 25           # age band counted as "young",
@@ -249,7 +250,7 @@ def main():
               f"R1{r.get('R1', float('nan')):+.1f} R2{r.get('R2', float('nan')):+.1f} "
               f"R3{r.get('R3', float('nan')):+.1f}  {r['title'][:46]}")
 
-    M.to_csv(OUT, index=False)
+    M.to_csv(OUT, index=False, float_format=CSV_FLOAT)
     print(f"\n[ok] wrote {OUT}")
     print("\nReminder: a negative delta means the young-worker share fell. Any")
     print("association with an axis is a location, not a cause -- the ACS cannot")

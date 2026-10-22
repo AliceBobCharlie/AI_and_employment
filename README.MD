@@ -14,33 +14,33 @@ folder containing `data_raw/`.
 ## Run order
 
 ```
-python analysis/build_master.py            #  1. raw O*NET features             -> master.csv
-python analysis/clean_master.py            #  2. rows, columns and gaps         -> master_clean.csv
-python analysis/check_data.py              #  3. data quality of the features   (Section 4.2)
-python analysis/build_labour.py            #     raw labour-market table        -> labour.csv
-python analysis/clean_labour.py            #     fill and derive (needs 2)      -> labour_clean.csv
-python analysis/check_labour_data.py       #     data quality of the labour-market variables (needs 2)
+python analysis/build_master.py              #  1. raw O*NET features             -> master.csv
+python analysis/clean_master.py              #  2. rows, columns and gaps         -> master_clean.csv
+python analysis/check_data.py                #  3. data quality of the features   (Section 4.2)
+python analysis/build_lmv.py                 #     raw labour-market table        -> labour.csv
+python analysis/clean_lmv.py                 #     fill and derive (needs 2)      -> labour_clean.csv
+python analysis/check_lmv.py                 #     data quality of the labour-market variables (needs 2)
 
-python analysis/cluster_onet.py            #  4. are there clusters at all?       (Section 5.2)
-python analysis/pca_rotated.py             #  5. two tiers, six rotated axes     (Section 5.3, Figure 5.1)
-python analysis/validate_axes.py           #  6. do the six names hold up?       (Sections 5.2, 5.4; needs 4 and 5)
-python analysis/validate_labour_market.py  #  7. the axes and the labour market  (Sections 5.6, 5.7; needs 5)
-python analysis/content_model_halves.py    #  8. job and worker halves           (Section 5.4; needs 5)
-python analysis/check_curvature.py         #  9. non-linear relations among the axes (Sections 5.3, 5.5)
-python analysis/rating_error.py            # 10. rating error beyond the axes    (Section 5.5)
-python analysis/check_locality.py          # 11. local structure beyond the axes (Section 5.5)
-python analysis/check_labour_market.py     # 12. what the features can predict   (Section 5.6)
-python analysis/corner_table.py            # 13. Table 6.1                        (needs 5)
-python analysis/acs_young_share.py         # 14. data for Figure 6.2              (needs 5 and the ACS extract)
+python analysis/cluster_onet.py              #  4. are there clusters at all?       (Section 5.2)
+python analysis/pca_rotated.py               #  5. two tiers, six rotated axes     (Section 5.3, Figure 5.1)
+python analysis/validate_axes.py             #  6. do the six names hold up?       (Sections 5.2, 5.4; needs 4 and 5)
+python analysis/validate_labour_market.py    #  7. the axes and the labour market  (Sections 5.6, 5.7; needs 5)
+python analysis/content_model_halves.py      #  8. job and worker halves           (Section 5.4; needs 5)
+python analysis/check_curvature.py           #  9. non-linear relations among the axes (Sections 5.3, 5.5)
+python analysis/rating_error.py              # 10. rating error beyond the axes    (Section 5.5)
+python analysis/check_locality.py            # 11. local structure beyond the axes (Section 5.5)
+python analysis/labour_market_regression.py  # 12. what the features can predict   (Section 5.6)
+python analysis/corner_table.py              # 13. Table 6.1                        (needs 5)
+python analysis/acs_young_share.py           # 14. data for Figure 6.2              (needs 5 and the ACS extract)
 ```
 
 Steps 1 and 2 run in that order; every analysis of the features reads
-`output/master_clean.csv`, and `check_data.py`, `check_labour_market.py` and
+`output/master_clean.csv`, and `check_data.py`, `labour_market_regression.py` and
 `analysis/supplementary/input_variants.py` also read `output/master.csv`.
-The labour-market scripts are needed only by `check_labour_market.py`,
+The labour-market scripts are needed only by `labour_market_regression.py`,
 `acs_young_share.py` and `analysis/supplementary/pca_ete.py`, which read
-`output/labour_clean.csv` (and `check_labour_market.py` also `output/labour.csv`).
-`clean_labour.py` takes its rows from `output/master_clean.csv`, so it runs after step 2.
+`output/labour_clean.csv` (and `labour_market_regression.py` also `output/labour.csv`).
+`clean_lmv.py` takes its rows from `output/master_clean.csv`, so it runs after step 2.
 `check_data.py`, `validate_axes.py` and `rating_error.py` also read the O*NET
 text files in `data_raw/onet/db_31_0_text` (`validate_axes.py` skips the checks
 whose files are missing). `validate_axes.py` needs the outputs of both
@@ -58,7 +58,7 @@ sequence; see below.
 | `output/labour.csv` | Raw labour market, same rows as `master.csv`: the education, training and experience distributions and the external variables joined on the six-digit SOC code. Nothing dropped, filled or derived. |
 | `output/labour_clean.csv` | Analysis-ready labour market, on the rows of `master_clean.csv`: the 37 education, training and experience columns and the external variables, gaps filled and derived columns added. |
 | | None is committed: the build and clean scripts rebuild them from the raw data in `data_raw/`. |
-| standardisation | Deliberately **not** stored. Each analysis z-scores its own matrix, because `check_labour_market.py` must fit its scaler on training folds only; pre-standardising would leak test-fold information into the cross-validated R². |
+| standardisation | Deliberately **not** stored. Each analysis z-scores its own matrix, because `labour_market_regression.py` must fit its scaler on training folds only; pre-standardising would leak test-fold information into the cross-validated R². |
 
 ## Building the data
 
@@ -77,7 +77,7 @@ regular) dropped. The CTP cells of the nine occupations without them take the
 column median. The Level scale and the Work Context category percentages of
 the CX items (CXP) stay in the raw table only.
 
-**`build_labour.py`** → `labour.csv`
+**`build_lmv.py`** → `labour.csv`
 
 Reads O*NET's education, training and experience files and the external
 sources in `data_raw/`, and joins them on the six-digit SOC code. It only reads
@@ -85,7 +85,7 @@ and joins. Two source codes are read rather than left blank: an OEWS wage
 marked `#` (at or above $239,200 a year) is read as 239200, and a blank or dash
 in BLS table 1.2 (negligible self-employment) is read as 0.
 
-**`clean_labour.py`** → `labour_clean.csv`
+**`clean_lmv.py`** → `labour_clean.csv`
 
 Keeps the occupations of `master_clean.csv`, in its order. Merges the two
 education scales (RL and RQ), drops the highest category of each education,
@@ -220,7 +220,7 @@ rank-normal scores so that skewed single scales cannot produce the tails.
 Part C asks whether some structure is specific to one region of the space, by
 comparing regional and global directions on held-out occupations.
 
-**`check_labour_market.py`** → `orthogonality.xlsx`
+**`labour_market_regression.py`** → `orthogonality.xlsx`
 
 How much of each labour-market variable the description of the work can
 predict, by ridge regression with cross-validated R², from all 220 feature
@@ -289,7 +289,7 @@ beyond their mean (CX); and the missing cells of the final matrix as published
 (Table 4.1). The flags and standard errors are not in the master table, so this script reads
 them from the O*NET text files.
 
-**`check_labour_data.py`** → `labour_data_quality.xlsx`
+**`check_lmv.py`** → `labour_data_quality.xlsx`
 
 The quality of the labour-market data, for the occupations of
 `master_clean.csv` and on raw values: which occupations miss which external

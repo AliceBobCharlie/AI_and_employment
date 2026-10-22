@@ -6,7 +6,7 @@ check_data.py -- data quality of the occupational features.
 Computed from the master tables and, for the flags and standard errors, from
 the O*NET text files themselves (build_master.py does not carry the flags into
 the master table). The labour-market variables are checked by
-check_labour_data.py.
+check_lmv.py.
 
   A  codes        O*NET-SOC codes in Occupation Data; which feature blocks
                   each is rated in; the unrated codes by kind (military,

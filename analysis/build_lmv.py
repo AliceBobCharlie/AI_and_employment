@@ -12,7 +12,7 @@ RL and the RQ scale), followed by the external variables joined on the
 six-digit SOC code (column soc6).
 
 This script only reads and joins. It drops no occupation, fills no gap and
-derives no variable; that is done in clean_labour.py.
+derives no variable; that is done in clean_lmv.py.
 
 External columns (prefix ext_), and how their source codes are read:
 
@@ -183,7 +183,7 @@ def main():
     n_ext = len([c for c in L.columns if c.startswith("ext_")])
     print(f"\n[ok] wrote {OUT}: {L.shape[0]} rows x {L.shape[1]} columns "
           f"({n_ete} education/training/experience, {n_ext} external)")
-    print("missingness and distributions: run check_labour_data.py")
+    print("missingness and distributions: run check_lmv.py")
 
 
 if __name__ == "__main__":

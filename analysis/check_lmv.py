@@ -4,10 +4,10 @@
 check_lmv.py -- data quality of the labour-market variables.
 
 For the occupations of the feature matrix, on raw values as published (before
-clean_labour.py fills anything): which occupations miss which external
+clean_lmv.py fills anything): which occupations miss which external
 variable, and each variable's distribution and skew.
 
-Run after build_labour.py and clean_master.py, from the project root. Reads
+Run after build_lmv.py and clean_master.py, from the project root. Reads
 output/labour.csv and output/master_clean.csv (for the rows). Writes
 output/labour_data_quality.xlsx and prints every table in full.
 """

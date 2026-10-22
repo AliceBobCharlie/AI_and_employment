@@ -20,7 +20,7 @@ Column names: <block>_<scale>__<Element Name>, with __c<category> added for
 scales that have categories, e.g. abilities_lv__Oral Comprehension,
 workctx_cxp__Public Speaking__c3.
 
-The labour-market data are assembled separately, by build_labour.py.
+The labour-market data are assembled separately, by build_lmv.py.
 """
 
 import numpy as np

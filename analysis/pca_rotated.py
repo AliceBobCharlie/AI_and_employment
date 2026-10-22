@@ -85,6 +85,9 @@ AXES = OUTDIR / "occupation_coordinates.csv"              # scores R1-R6
 LOADINGS = OUTDIR / "axis_loadings.csv"
 OUT = OUTDIR / "pca_stability.xlsx"
 FIGURE = Path("assets/subspace_stability.png")   # Figure 5.1; assets/ is published
+# CSVs are written to 10 significant digits, so that floating-point noise from
+# one run to the next does not change the files tracked in git.
+CSV_FLOAT = "%.10g"
 
 SEED = 0
 STABLE_THRESH = 0.90
@@ -476,7 +479,7 @@ def promax_check(L, feats, names):
         print("   distortion. Report these correlations.")
     else:
         print("\n-> substantial correlation; report the oblique solution instead.")
-    pd.DataFrame(Lp, index=feats, columns=names).to_csv(OUTDIR / "oblique_pattern.csv")
+    pd.DataFrame(Lp, index=feats, columns=names).to_csv(OUTDIR / "oblique_pattern.csv", float_format=CSV_FLOAT)
     phi["congruence with varimax"] = cong
     return phi
 
@@ -805,8 +808,8 @@ def main():
 
     out = S.copy()
     out.insert(0, "title", title.values)
-    out.to_csv(AXES)
-    Ld.to_csv(LOADINGS)
+    out.to_csv(AXES, float_format=CSV_FLOAT)
+    Ld.to_csv(LOADINGS, float_format=CSV_FLOAT)
     with pd.ExcelWriter(OUT) as writer:
         eig.to_excel(writer, sheet_name="eigenvalues", index=False)
         pa.to_excel(writer, sheet_name="parallel_analysis", index=False)

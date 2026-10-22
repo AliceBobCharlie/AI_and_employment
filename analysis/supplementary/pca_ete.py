@@ -59,7 +59,7 @@ def main():
     df = pd.read_csv(LABOUR, index_col="onet_soc")
     title = df["title"]
     ete_cols = [c for c in df.columns if c.startswith("ete_")]
-    E = df[ete_cols]            # already imputed in clean_labour.py
+    E = df[ete_cols]            # already imputed in clean_lmv.py
     Ez = StandardScaler().fit_transform(E.values)
     print(f"ETE matrix: {Ez.shape[0]} occ x {Ez.shape[1]} cols")
     by_scale = {}
