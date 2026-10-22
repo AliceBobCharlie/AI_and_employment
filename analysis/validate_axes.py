@@ -50,7 +50,7 @@ terminal shows one line per section; every table is in the workbook, and
 
 Run after pca_rotated.py and cluster_onet.py:
     python validate_axes.py [O*NET text folder] [-v]
-Reads output/rotated_axes.csv, output/rotated_loadings.csv,
+Reads output/occupation_coordinates.csv, output/axis_loadings.csv,
 output/master_clean.csv, output/cluster_assignments.csv,
 output/cluster_skills.csv and the O*NET text files (default
 data_raw/onet/db_31_0_text). Writes output/validate_axes.xlsx.

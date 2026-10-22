@@ -1,10 +1,10 @@
 // figures.js -- draws the paper's interactive figures with plotly.js.
 //
-// Data: output/rotated_axes.csv, written by pca_rotated.py. One row per
+// Data: output/occupation_coordinates.csv, written by pca_rotated.py. One row per
 // occupation: onet_soc, title, R1 to R6. The SOC major group is read off the
 // first two digits of the code (SOC_GROUPS below).
 //
-// The axis figures of Section 5.4 also read output/rotated_loadings.csv,
+// The axis figures of Section 5.4 also read output/axis_loadings.csv,
 // written by pca_rotated.py: one row per feature variable, named by its column
 // in the feature matrix (block prefix, then the O*NET element), with its
 // loading on each rotated axis. BLOCKS and CTP_NAMES below turn the column into
@@ -25,8 +25,8 @@
 (function () {
   "use strict";
 
-  const DATA_URL = "output/rotated_axes.csv";
-  const LOADINGS_URL = "output/rotated_loadings.csv";
+  const DATA_URL = "output/occupation_coordinates.csv";
+  const LOADINGS_URL = "output/axis_loadings.csv";
   const YOUNG_URL = "output/acs_young_share.csv";
   const SIZE_MAX = 16;
   const FONT = '"Source Sans 3", "Helvetica Neue", Arial, sans-serif';
@@ -602,7 +602,7 @@
   const STRONG = 0.5;          // loadings counted as strong in the panel heading
   const LINE_MAX = 28;         // characters per line of a group's name: every name fits in two lines
 
-  // The first column of rotated_loadings.csv, unnamed, holds the feature
+  // The first column of axis_loadings.csv, unnamed, holds the feature
   // column, e.g. "skills_im__Active Learning".
   function loadingColumns(records) {
     const key = Object.keys(records[0])[0];

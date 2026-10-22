@@ -27,7 +27,7 @@ Sections:
      present; on published values only, like A to C
 
 Run after pca_rotated.py. Reads output/master.csv (to tell published values
-from filled ones), output/master_clean.csv and output/rotated_axes.csv. Writes
+from filled ones), output/master_clean.csv and output/occupation_coordinates.csv. Writes
 output/orthogonality.xlsx and prints every sheet.
 """
 
@@ -42,7 +42,7 @@ from sklearn.preprocessing import StandardScaler
 RAW = Path("output/master.csv")
 MASTER = Path("output/master_clean.csv")
 OUT = Path("output/orthogonality.xlsx")
-AXES = Path("output/rotated_axes.csv")
+AXES = Path("output/occupation_coordinates.csv")
 ELOUNDOU = Path("data_raw/eloundou_occ_level.csv")
 ELOUNDOU_COLUMNS = ["human_rating_alpha", "human_rating_beta",
                     "dv_rating_alpha", "dv_rating_beta"]

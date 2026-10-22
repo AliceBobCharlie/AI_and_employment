@@ -45,7 +45,7 @@ depend on which variants ran before it.
 Run after pca_rotated.py, from the project root:
     python supplementary/input_variants.py
 Reads output/master_clean.csv, output/master.csv (Level columns) and
-output/rotated_axes.csv. Writes output/input_variants.xlsx and prints every
+output/occupation_coordinates.csv. Writes output/input_variants.xlsx and prints every
 sheet.
 """
 
@@ -60,7 +60,7 @@ from pca_rotated import (congruence, rotate_tier, subspace_cosines, standardize,
 
 CLEAN = Path("output/master_clean.csv")
 RAW = Path("output/master.csv")
-AXES = Path("output/rotated_axes.csv")
+AXES = Path("output/occupation_coordinates.csv")
 OUT = Path("output/input_variants.xlsx")
 
 N_SPLIT = 200

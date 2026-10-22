@@ -37,7 +37,7 @@ Printed for each axis:
     weighted and unweighted columns are on one scale;
   - the TOP_OCC occupations with the highest and lowest scores;
   - the correlation of its scores with the paper's axes R1-R6, if
-    output/rotated_axes.csv exists.
+    output/occupation_coordinates.csv exists.
 
 Axes are ordered by variance and signed so that the larger pole is positive.
 The signs carry no claim about substitutability.
@@ -61,7 +61,7 @@ from pca_rotated import rotate_tier, standardize  # noqa: E402
 
 CLEAN = ROOT / "output" / "master_clean.csv"
 RAW = ROOT / "output" / "master.csv"
-AXES = ROOT / "output" / "rotated_axes.csv"
+AXES = ROOT / "output" / "occupation_coordinates.csv"
 
 N_AXES = 6              # components rotated together
 CXP_WEIGHT = 0.5        # variance weight of every CXP column

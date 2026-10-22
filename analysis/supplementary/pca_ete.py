@@ -21,7 +21,7 @@ The analysis is descriptive.
 
 A supplementary analysis: run from the project root, after pca_rotated.py, as
     python supplementary/pca_ete.py
-Reads output/master_clean.csv and output/rotated_axes.csv. Terminal +
+Reads output/master_clean.csv and output/occupation_coordinates.csv. Terminal +
 output/ete_axes.csv.
 """
 
@@ -32,7 +32,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import PCA
 
 MASTER = Path("output/master_clean.csv")
-AXES = Path("output/rotated_axes.csv")
+AXES = Path("output/occupation_coordinates.csv")
 OUTDIR = Path("output"); OUTDIR.mkdir(exist_ok=True)
 SEED = 0
 N_AXES = 2      # components rotated and reported

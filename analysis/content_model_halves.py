@@ -27,7 +27,7 @@ descriptions of the same 910 occupations.
                  between the job-half and the worker-half axes.
 
 Run after pca_rotated.py. Reads output/master_clean.csv and
-output/rotated_axes.csv. Writes output/content_model_halves.xlsx and prints
+output/occupation_coordinates.csv. Writes output/content_model_halves.xlsx and prints
 every sheet.
 """
 
@@ -38,7 +38,7 @@ from pathlib import Path
 from pca_rotated import eigen, standardize, rotate_tier, STABLE_THRESH, SEED
 
 CLEAN = Path("output/master_clean.csv")
-AXES = Path("output/rotated_axes.csv")
+AXES = Path("output/occupation_coordinates.csv")
 OUT = Path("output/content_model_halves.xlsx")
 
 N_SPLIT = 200

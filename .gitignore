@@ -31,8 +31,8 @@ data_raw/*
 output/*
 # Every occupation's score on the six axes, and every variable's loading on
 # them: the axes themselves.
-!output/rotated_axes.csv
-!output/rotated_loadings.csv
+!output/occupation_coordinates.csv
+!output/axis_loadings.csv
 # Figure 6.2 is drawn from this. It holds occupation-level shares aggregated
 # from the IPUMS extract, not the microdata, which stays in data_raw/.
 !output/acs_young_share.csv

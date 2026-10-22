@@ -69,8 +69,8 @@ check_curvature.py (part 1) checks that what is left still reproduces.
 The helpers (varimax, congruence, the tier rotation, the subspace measures,
 the anchors) are imported by the other scripts from here.
 
-Reads output/master_clean.csv. Writes output/rotated_axes.csv (scores R1-R6),
-output/rotated_loadings.csv, output/oblique_pattern.csv,
+Reads output/master_clean.csv. Writes output/occupation_coordinates.csv (scores R1-R6),
+output/axis_loadings.csv, output/oblique_pattern.csv,
 output/pca_stability.xlsx, output/scree.png and the paper's Figure 5.1,
 assets/subspace_stability.png, and prints every table.
 """
@@ -87,8 +87,8 @@ from sklearn.preprocessing import StandardScaler
 
 MASTER = Path("output/master_clean.csv")
 OUTDIR = Path("output")
-AXES = OUTDIR / "rotated_axes.csv"              # scores R1-R6
-LOADINGS = OUTDIR / "rotated_loadings.csv"
+AXES = OUTDIR / "occupation_coordinates.csv"              # scores R1-R6
+LOADINGS = OUTDIR / "axis_loadings.csv"
 OUT = OUTDIR / "pca_stability.xlsx"
 FIGURE = Path("assets/subspace_stability.png")   # Figure 5.1; assets/ is published
 

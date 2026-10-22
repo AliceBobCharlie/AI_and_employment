@@ -29,9 +29,9 @@ jobs:
       - run: quarto render paper_draft.qmd --profile pdf --to typst
 
       - name: Check the PDF exists
-        run: test -s _site/paper.pdf
+        run: test -s _site/_pdf/paper.pdf
 
       - name: Attach the PDF to the release
-        run: gh release upload "${{ github.event.release.tag_name }}" _site/paper.pdf --clobber
+        run: gh release upload "${{ github.event.release.tag_name }}" _site/_pdf/paper.pdf --clobber
         env:
           GH_TOKEN: ${{ github.token }}

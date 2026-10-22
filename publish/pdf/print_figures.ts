@@ -1,37 +1,42 @@
-// publish/pdf/print_figures.ts -- the PDF's figures, printed from the web page's own.
+// publish/pdf/print_figures.ts -- the PDF's figures, exported from the web page's own.
 //
 // The PDF cannot show interactive figures. This script draws each one with
 // figures.js, exactly as the web page draws it when it opens, in headless
-// Chrome, and prints it to output/figures/<id>.pdf, where publish/pdf/figures.lua
-// finds it. Plotly draws 2-D figures as SVG, so they print as vector graphics;
-// the 3-D figure is WebGL and is printed as an image at three times screen
-// resolution.
+// Chrome, and exports it to output/figures/, where publish/pdf/figures.lua
+// finds it:
+//
+//   <id>.svg   a 2-D figure, as plotly draws it. Its text is set in New
+//              Computer Modern, the paper's own font, which Typst lays out
+//              when it reads the SVG, so the PDF embeds no font for the
+//              figures and their type matches the text's.
+//   <id>.png   the 3-D figure, which is WebGL and has no vector form, at three
+//              times screen resolution.
 //
 // Quarto runs it before rendering the PDF (pre-render in _quarto-pdf.yml)
 // with the Deno that ships inside Quarto, so it needs no Python or Node, only
 // Chrome or Chromium. It looks for Chrome in the usual places; set CHROME to
 // its path if it is somewhere else. GitHub's Ubuntu runners have Chrome.
 //
-// It reads the figures from paper_draft.qmd (every <div class="plot ..." id>),
-// the plotly.js and font tags from _quarto.yml, so the PDF uses what the web
-// page uses, and serves the project folder on a local port so that figures.js
-// can load its CSV files. Offline, set PLOTLY_JS to a local plotly.min.js.
+// It reads the figures from paper_draft.qmd (every <div class="plot ..." id>)
+// and the plotly.js tag from _quarto.yml, so the PDF uses what the web page
+// uses, and serves the project folder on a local port so that figures.js can
+// load its CSV files. Offline, set PLOTLY_JS to a local plotly.min.js.
 //
 // By hand, from the project root:  quarto run publish/pdf/print_figures.ts
 
 const PAPER = "paper_draft.qmd";
 const QUARTO_YML = "_quarto.yml";
 const OUT_DIR = "output/figures";
+const FIGURE_FONT = "New Computer Modern";
 
 // The pages sit at the root of the server, like the web page, so that the
-// relative paths in figures.js (figures.js itself, output/*.csv) resolve.
+// relative paths in figures.js (output/*.csv) resolve.
 
-// Each kind of figure is laid out at a size of its own in CSS pixels, then
-// printed 5.5 in wide, the width of the PDF's text block, so its type prints
-// at about 14 px / 700 px of 5.5 in, 8 pt. The axis figures keep the web
-// page's height (theme.scss); the three panels of the young-share figure need
-// the web page's width, or their axis titles run together.
-const TEXT_WIDTH_IN = 5.5;
+// Each kind of figure is laid out at a size of its own in CSS pixels; the PDF
+// sets it 5.5 in wide, the width of its text block, so 14 px type prints at
+// about 8 pt. The axis figures keep the web page's height (theme.scss); the
+// three panels of the young-share figure need the web page's width, or their
+// axis titles run together.
 const SIZES: Record<string, [number, number]> = {
   "plot-axis": [700, 1050],
   "plot-space": [700, 560],
@@ -57,42 +62,27 @@ function figures(paper: string): Figure[] {
   return out;
 }
 
-function tagsFromQuartoYml(yml: string) {
-  const fonts = yml.match(/<link rel="stylesheet" href="https:\/\/fonts\.googleapis\.com[^>]*>/)?.[0] ?? "";
-  const plotly = yml.match(/<script src="https:\/\/cdn\.jsdelivr\.net\/npm\/plotly[^>]*>\s*<\/script>/)?.[0];
-  if (!plotly) throw new Error(`no plotly.js script tag found in ${QUARTO_YML}`);
-  return { fonts, plotly };
+function plotlyTag(yml: string): string {
+  const tag = yml.match(/<script src="https:\/\/cdn\.jsdelivr\.net\/npm\/plotly[^>]*>\s*<\/script>/)?.[0];
+  if (!tag) throw new Error(`no plotly.js script tag found in ${QUARTO_YML}`);
+  return tag;
 }
 
-function page(fig: Figure, fonts: string, plotly: string): string {
+function page(fig: Figure, plotly: string): string {
   const [w, h] = SIZES[fig.kind];
   return `<!doctype html>
 <html lang="en-GB">
 <head>
 <meta charset="utf-8">
-${fonts}
 <style>
   html, body { margin: 0; padding: 0; background: #ffffff; overflow: hidden; }
   #${fig.id} { width: ${w}px; height: ${h}px; }
-  .modebar-container { display: none !important; }
 </style>
 </head>
 <body>
 ${fig.tag}</div>
 ${plotly}
-<script>
-  // plotly lays out text with the font it finds when it draws, so figures.js
-  // is loaded only once the fonts are, or after 5 s without them (offline),
-  // when figures.js falls back to the fonts it names after Source Sans 3.
-  const fonts = Promise.all(['400 14px "Source Sans 3"', '600 14px "Source Sans 3"']
-      .map((f) => document.fonts.load(f)));
-  Promise.race([fonts, new Promise((r) => setTimeout(r, 5000))])
-    .then(() => {
-      const s = document.createElement("script");
-      s.src = "publish/web/figures.js";
-      document.body.appendChild(s);
-    });
-</script>
+<script src="publish/web/figures.js"></script>
 </body>
 </html>
 `;
@@ -213,7 +203,7 @@ async function launch(chrome: string) {
   throw new Error("Chrome did not start:\n" + text);
 }
 
-// ---------------------------------------------------------------- printing
+// ---------------------------------------------------------------- export
 
 // Resolves once figures.js has drawn the figure, or rejects with its error.
 const DRAWN = (id: string) => `new Promise((resolve, reject) => {
@@ -233,16 +223,14 @@ const DRAWN = (id: string) => `new Promise((resolve, reject) => {
   })();
 })`;
 
-// A WebGL scene does not print; replace it with an image of itself.
-const SCENE_TO_IMAGE = (id: string, w: number, h: number) => `(async () => {
+// The figure as plotly exports it: an SVG, or a PNG for a WebGL scene.
+const EXPORT = (id: string, w: number, h: number) => `(async () => {
   const el = document.getElementById(${JSON.stringify(id)});
-  if (!el._fullLayout || !el._fullLayout.scene) return false;
-  const url = await Plotly.toImage(el, { format: "png", width: ${w}, height: ${h}, scale: ${IMAGE_SCALE} });
-  const img = new Image(${w}, ${h});
-  img.src = url;
-  await img.decode();
-  el.replaceChildren(img);
-  return true;
+  const scene = !!(el._fullLayout && el._fullLayout.scene);
+  const url = await Plotly.toImage(el, scene
+    ? { format: "png", width: ${w}, height: ${h}, scale: ${IMAGE_SCALE} }
+    : { format: "svg", width: ${w}, height: ${h} });
+  return { ext: scene ? "png" : "svg", url };
 })()`;
 
 async function evaluate(b: Browser, session: string, expression: string) {
@@ -253,7 +241,15 @@ async function evaluate(b: Browser, session: string, expression: string) {
   return r.result.value;
 }
 
-async function printFigure(b: Browser, origin: string, fig: Figure): Promise<Uint8Array> {
+// An SVG's text in the paper's font: every font-family plotly wrote, in a
+// style or as an attribute.
+function inPaperFont(svg: string): string {
+  return svg
+    .replace(/font-family:[^;"]*/g, `font-family: '${FIGURE_FONT}'`)
+    .replace(/font-family="[^"]*"/g, `font-family="${FIGURE_FONT}"`);
+}
+
+async function exportFigure(b: Browser, origin: string, fig: Figure) {
   const [w, h] = SIZES[fig.kind];
   const { targetId } = await b.send("Target.createTarget", { url: "about:blank" });
   const { sessionId } = await b.send("Target.attachToTarget", { targetId, flatten: true });
@@ -263,16 +259,12 @@ async function printFigure(b: Browser, origin: string, fig: Figure): Promise<Uin
     await b.send("Page.navigate", { url: `${origin}/__figure__.${fig.id}.html` }, sessionId);
     await evaluate(b, sessionId, DRAWN(fig.id));
     await new Promise((r) => setTimeout(r, 500));     // the 3-D scene's first frame
-    await evaluate(b, sessionId, SCENE_TO_IMAGE(fig.id, w, h));
-
-    const scale = (TEXT_WIDTH_IN * 96) / w;
-    const { data } = await b.send("Page.printToPDF", {
-      paperWidth: TEXT_WIDTH_IN,
-      paperHeight: (h * scale) / 96 + 0.01,
-      marginTop: 0, marginBottom: 0, marginLeft: 0, marginRight: 0,
-      scale, printBackground: true, pageRanges: "1",
-    }, sessionId);
-    return Uint8Array.from(atob(data), (c) => c.charCodeAt(0));
+    const { ext, url } = await evaluate(b, sessionId, EXPORT(fig.id, w, h));
+    const data = url.slice(url.indexOf(",") + 1);
+    const bytes = ext === "svg"
+      ? new TextEncoder().encode(inPaperFont(decodeURIComponent(data)))
+      : Uint8Array.from(atob(data), (c) => c.charCodeAt(0));
+    return { ext, bytes };
   } finally {
     await b.send("Target.closeTarget", { targetId });
   }
@@ -283,24 +275,22 @@ async function printFigure(b: Browser, origin: string, fig: Figure): Promise<Uin
 async function main() {
   const figs = figures(await Deno.readTextFile(PAPER));
   const plotlyFile = Deno.env.get("PLOTLY_JS");
-  const tags = tagsFromQuartoYml(await Deno.readTextFile(QUARTO_YML));
-  const plotly = plotlyFile ? `<script src="/__plotly__.js"></script>` : tags.plotly;
-  const pages = new Map(figs.map((f) => [`/__figure__.${f.id}.html`, page(f, tags.fonts, plotly)]));
+  const plotly = plotlyFile ? `<script src="/__plotly__.js"></script>`
+                            : plotlyTag(await Deno.readTextFile(QUARTO_YML));
+  const pages = new Map(figs.map((f) => [`/__figure__.${f.id}.html`, page(f, plotly)]));
 
   const server = serve(pages, plotlyFile);
   const origin = `http://127.0.0.1:${server.addr.port}`;
   const chrome = await launch(findChrome());
   const browser = await Browser.connect(chrome.url);
   try {
+    // Start from an empty folder, so no figure from an earlier run is left.
+    await Deno.remove(OUT_DIR, { recursive: true }).catch(() => {});
     await Deno.mkdir(OUT_DIR, { recursive: true });
-    for (const entry of Deno.readDirSync(OUT_DIR)) {
-      if (entry.name.endsWith(".pdf") && !figs.some((f) => `${f.id}.pdf` === entry.name)) {
-        await Deno.remove(`${OUT_DIR}/${entry.name}`);
-      }
-    }
     for (const fig of figs) {
-      const path = `${OUT_DIR}/${fig.id}.pdf`;
-      await Deno.writeFile(path, await printFigure(browser, origin, fig));
+      const { ext, bytes } = await exportFigure(browser, origin, fig);
+      const path = `${OUT_DIR}/${fig.id}.${ext}`;
+      await Deno.writeFile(path, bytes);
       console.log(`[ok] wrote ${path}`);
     }
   } finally {

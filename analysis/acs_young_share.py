@@ -38,7 +38,7 @@ rows share one value across several occupations, which manufactures correlation
 structure, so results are reported on exact matches and on all matches.
 
 Inputs:  usa_00001.csv (IPUMS extract, optional if the aggregate exists),
-         output/rotated_axes.csv, output/master_clean.csv
+         output/occupation_coordinates.csv, output/master_clean.csv
 Outputs: young_share.csv, output/acs_young_share.csv
 """
 
@@ -49,7 +49,7 @@ from pathlib import Path
 
 IPUMS_CSV = Path("data_raw/usa_00001.csv")       # IPUMS ACS extract, not redistributable
 ACS = Path("data_raw/young_share.csv")           # the aggregate this script builds
-AXES = Path("output/rotated_axes.csv")
+AXES = Path("output/occupation_coordinates.csv")
 MASTER = Path("output/master_clean.csv")
 OUT = Path("output/acs_young_share.csv")
 

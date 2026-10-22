@@ -25,7 +25,7 @@ agreement with the paper's six axes.
 
 Run after pca_rotated.py, from the project root:
     python supplementary/block_weights.py
-Reads output/master_clean.csv, output/master.csv and output/rotated_axes.csv.
+Reads output/master_clean.csv, output/master.csv and output/occupation_coordinates.csv.
 Writes output/block_weights.xlsx and prints every sheet.
 """
 

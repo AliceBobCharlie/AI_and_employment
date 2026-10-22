@@ -95,7 +95,7 @@ before its communities are read off, so the script reports how much of the data
 that step removes. Nothing here uses the rotated axes; the comparisons that
 do are in `validate_axes.py`.
 
-**`pca_rotated.py`** → `rotated_axes.csv`, `rotated_loadings.csv`,
+**`pca_rotated.py`** → `occupation_coordinates.csv`, `axis_loadings.csv`,
 `oblique_pattern.csv`, `pca_stability.xlsx`, `scree.png`,
 `assets/subspace_stability.png` (Figure 5.1)
 
@@ -219,7 +219,7 @@ Table 6.1: the ten occupations furthest into the corner positive on all three
 axes and the corner negative on all three. Depth into a corner is the smallest
 of the three coordinates taken with the corner's sign, so an occupation that is
 extreme on one axis and near zero on another does not rank as deep. Prints a
-Markdown table to paste into `paper_draft.qmd`. Needs `rotated_axes.csv`.
+Markdown table to paste into `paper_draft.qmd`. Needs `occupation_coordinates.csv`.
 
 **`acs_young_share.py`** → `acs_young_share.csv`
 
@@ -295,10 +295,11 @@ one.
 | `paper_draft.qmd` | the paper: title and abstract in the header, then the text |
 | `_quarto.yml` | the web page: layout, fonts and the scripts it loads |
 | `publish/web/theme.scss` | typography and colours of the web page |
-| `publish/web/figures.js` | draws the interactive figures in the reader's browser with plotly.js, from `output/rotated_axes.csv`, `output/rotated_loadings.csv` and `output/acs_young_share.csv` |
+| `publish/web/figures.js` | draws the interactive figures in the reader's browser with plotly.js, from `output/occupation_coordinates.csv`, `output/axis_loadings.csv` and `output/acs_young_share.csv` |
 | `_quarto-pdf.yml` | the PDF: page size, margins, type size, and the two steps below |
-| `publish/pdf/print_figures.ts` | before the PDF is rendered: opens each interactive figure in headless Chrome, drawn by `figures.js` as the web page first shows it, and prints it to `output/figures/<id>.pdf` |
+| `publish/pdf/print_figures.ts` | before the PDF is rendered: opens each interactive figure in headless Chrome, drawn by `figures.js` as the web page first shows it, and exports it to `output/figures/`: an SVG whose text Typst sets in the paper's font, or a PNG for the 3-D figure |
 | `publish/pdf/figures.lua` | while the PDF is rendered: puts each figure of the paper in it, with the caption text that applies to print |
+| `publish/pdf/move_pdf.ts` | after the PDF is rendered: moves it from `_site/` to `_site/_pdf/`, apart from the web page |
 | `publish/pdf/typst-template.typ` | the PDF's layout, that of the NeurIPS preprint style common on arXiv: US Letter, a 5.5 × 9 in text block, 10 pt New Computer Modern, booktabs tables |
 
 The figures are HTML blocks in `paper_draft.qmd`, one source for both formats.
@@ -309,14 +310,14 @@ PDF. The figures of the PDF are drawn by the same `figures.js` as those of the
 web page, so there is nothing to keep in step.
 
 No Python runs when either is built. The web page reads the committed CSVs, so
-after re-running the analysis, commit the new `rotated_axes.csv`,
-`rotated_loadings.csv` and `acs_young_share.csv`.
+after re-running the analysis, commit the new `occupation_coordinates.csv`,
+`axis_loadings.csv` and `acs_young_share.csv`.
 
 To build locally, install Quarto and run, from the project root:
 
 ```
 quarto render                                          # the web page -> _site/
-quarto render paper_draft.qmd --profile pdf --to typst # the PDF -> _site/paper.pdf
+quarto render paper_draft.qmd --profile pdf --to typst # the PDF -> _site/_pdf/paper.pdf
 ```
 
 The PDF also needs Chrome or Chromium; set `CHROME` to its path if it is not

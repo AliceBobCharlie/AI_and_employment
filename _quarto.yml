@@ -9,8 +9,8 @@ project:
   # Copied into the site as they are, so the pages can load them.
   resources:
     - publish/web/figures.js
-    - output/rotated_axes.csv
-    - output/rotated_loadings.csv
+    - output/occupation_coordinates.csv
+    - output/axis_loadings.csv
     - output/acs_young_share.csv
 
 format:

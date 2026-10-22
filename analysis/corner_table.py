@@ -15,14 +15,14 @@ every axis at once. Distance from the origin would not do: it ranks an
 occupation extreme on one axis and close to zero on another as deep in the
 corner, when it is barely inside it.
 
-Reads output/rotated_axes.csv. Prints a Markdown table to paste into
+Reads output/occupation_coordinates.csv. Prints a Markdown table to paste into
 paper_draft.qmd.
 """
 
 import pandas as pd
 from pathlib import Path
 
-AXES = Path("output/rotated_axes.csv")
+AXES = Path("output/occupation_coordinates.csv")
 AXIS_COLS = ["R1", "R2", "R3"]
 TOP_N = 10
 
