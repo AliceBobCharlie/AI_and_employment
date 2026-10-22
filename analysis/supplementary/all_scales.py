@@ -57,7 +57,7 @@ import pandas as pd
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
-from analysis.pca_rotated import rotate_tier, standardize  # noqa: E402
+from pca_rotated import rotate_tier, standardize  # noqa: E402
 
 CLEAN = ROOT / "output" / "master_clean.csv"
 RAW = ROOT / "output" / "master.csv"

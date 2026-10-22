@@ -10,7 +10,7 @@
 // loading on each rotated axis. BLOCKS and CTP_NAMES below turn the column into
 // a block of the Content Model and a readable name.
 //
-// The PDF has no interactive figures; pdf/print_figures.ts prints each figure,
+// The PDF has no interactive figures; publish/pdf/print_figures.ts prints each figure,
 // as drawn here in its default view, to a static PDF for it.
 //
 // Figure 6.2 reads output/acs_young_share.csv, written by acs_young_share.py:

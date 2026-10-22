@@ -39,7 +39,7 @@ from pca_rotated import eigen, standardize, rotate_tier, STABLE_THRESH, SEED
 
 CLEAN = Path("output/master_clean.csv")
 AXES = Path("output/rotated_axes.csv")
-OUT = Path("../output/content_model_halves.xlsx")
+OUT = Path("output/content_model_halves.xlsx")
 
 N_SPLIT = 200
 K_HALF = 8

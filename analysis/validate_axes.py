@@ -65,11 +65,11 @@ from sklearn.decomposition import PCA
 from sklearn.metrics import silhouette_score
 from sklearn.preprocessing import StandardScaler
 
-from analysis.pca_rotated import AXES, LOADINGS, MASTER, FEATURE_PREFIXES
+from pca_rotated import AXES, LOADINGS, MASTER, FEATURE_PREFIXES
 
 OUT = Path("output/validate_axes.xlsx")
-CLUSTERS = Path("../output/cluster_assignments.csv")
-SKILL_CLUSTERS = Path("../output/cluster_skills.csv")
+CLUSTERS = Path("output/cluster_assignments.csv")
+SKILL_CLUSTERS = Path("output/cluster_skills.csv")
 
 AX = ["R1", "R2", "R3", "R4", "R5", "R6"]
 NAMES = {"R1": "physical - symbolic", "R2": "complex - simple",
@@ -107,7 +107,7 @@ FALLBACK = {
     "4.C.3": "Structural job characteristics",
 }
 
-ONET_DIR = Path("../data_raw/onet/db_31_0_text")   # replaced by the argument, if given
+ONET_DIR = Path("data_raw/onet/db_31_0_text")   # replaced by the argument, if given
 
 
 # --------------------------------------------------------------------------- #

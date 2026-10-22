@@ -12,7 +12,6 @@ project:
     - output/rotated_axes.csv
     - output/rotated_loadings.csv
     - output/acs_young_share.csv
-    - figures/onet_content_model.png
 
 format:
   html:

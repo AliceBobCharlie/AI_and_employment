@@ -5,7 +5,7 @@ name: Release PDF
 # of the paper, and its PDF does not change afterwards; the web page, rebuilt
 # on every push (publish.yml), links the PDF of the latest release.
 #
-# Before rendering, pdf/print_figures.ts prints the interactive figures with
+# Before rendering, publish/pdf/print_figures.ts prints the interactive figures with
 # headless Chrome, which GitHub's Ubuntu runners have installed.
 
 on:

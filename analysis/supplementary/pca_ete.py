@@ -31,9 +31,9 @@ from pathlib import Path
 from sklearn.preprocessing import StandardScaler
 from sklearn.decomposition import PCA
 
-MASTER = Path("../output/master_clean.csv")
-AXES = Path("../output/rotated_axes.csv")
-OUTDIR = Path("../../output"); OUTDIR.mkdir(exist_ok=True)
+MASTER = Path("output/master_clean.csv")
+AXES = Path("output/rotated_axes.csv")
+OUTDIR = Path("output"); OUTDIR.mkdir(exist_ok=True)
 SEED = 0
 N_AXES = 2      # components rotated and reported
 TOP = 12
@@ -42,7 +42,7 @@ TOP = 12
 # varimax and congruence are defined once, in pca_rotated.py, one folder up
 import sys, os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from analysis.pca_rotated import varimax as _varimax  # noqa: E402
+from pca_rotated import varimax as _varimax  # noqa: E402
 
 
 def varimax(Phi, gamma=1.0, q=100, tol=1e-6):

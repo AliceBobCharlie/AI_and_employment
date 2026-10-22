@@ -31,7 +31,7 @@ import pandas as pd
 from sklearn.decomposition import PCA
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-from analysis.pca_rotated import OUTDIR, SEED, load_and_prep, rotate_tier, tier_scores, banner  # noqa: E402
+from pca_rotated import OUTDIR, SEED, load_and_prep, rotate_tier, tier_scores, banner  # noqa: E402
 
 # Column prefix -> block of the Content Model.
 BLOCKS = {"skills_im__": "Skills", "abilities_im__": "Abilities",

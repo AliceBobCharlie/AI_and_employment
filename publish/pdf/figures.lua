@@ -1,4 +1,4 @@
--- pdf/figures.lua -- the PDF's figures.
+-- publish/pdf/figures.lua -- the PDF's figures.
 --
 -- Runs for the PDF only (the profile in _quarto-pdf.yml).
 --
@@ -8,7 +8,7 @@
 --   <img src="...">          the same image file;
 --   <div class="plot" id=X>  output/figures/X.pdf, the interactive figure as
 --                            figures.js draws it by default, which
---                            pdf/print_figures.ts prints before the render.
+--                            publish/pdf/print_figures.ts prints before the render.
 --
 -- The caption is the block's <figcaption>, less what only makes sense on the
 -- web: the "Open full screen" link and any <span class="web-only">. Text in a
@@ -35,8 +35,8 @@ local function image_path(html)
   if not id then return nil end
   local path = FIGURE_DIR .. id .. ".pdf"
   if not exists(path) then
-    error("pdf/figures.lua: " .. path .. " is missing. Render the PDF with " ..
-          "--profile pdf, which prints the figures first (pdf/print_figures.ts).")
+    error("publish/pdf/figures.lua: " .. path .. " is missing. Render the PDF with " ..
+          "--profile pdf, which prints the figures first (publish/pdf/print_figures.ts).")
   end
   return path
 end
@@ -57,7 +57,7 @@ function RawBlock(el)
   end
   local path = image_path(el.text)
   if not path then
-    error("pdf/figures.lua: a figure block has neither an <img> nor a plot <div>:\n" .. el.text)
+    error("publish/pdf/figures.lua: a figure block has neither an <img> nor a plot <div>:\n" .. el.text)
   end
   return pandoc.RawBlock("typst", string.format(
     '#figure(image("%s", width: 100%%), caption: [%s], numbering: none, placement: auto)',

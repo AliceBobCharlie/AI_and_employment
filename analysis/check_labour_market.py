@@ -41,7 +41,7 @@ from sklearn.preprocessing import StandardScaler
 
 RAW = Path("output/master.csv")
 MASTER = Path("output/master_clean.csv")
-OUT = Path("../output/orthogonality.xlsx")
+OUT = Path("output/orthogonality.xlsx")
 AXES = Path("output/rotated_axes.csv")
 ELOUNDOU = Path("data_raw/eloundou_occ_level.csv")
 ELOUNDOU_COLUMNS = ["human_rating_alpha", "human_rating_beta",

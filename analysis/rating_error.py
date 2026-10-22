@@ -97,9 +97,9 @@ from sklearn.model_selection import KFold
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 
-ONET_DIR = Path("../data_raw/onet/db_31_0_text")
+ONET_DIR = Path("data_raw/onet/db_31_0_text")
 CLEAN = Path("output/master_clean.csv")
-OUT = Path("../output/rating_error.xlsx")
+OUT = Path("output/rating_error.xlsx")
 
 SEED = 0
 N_SIM = 200

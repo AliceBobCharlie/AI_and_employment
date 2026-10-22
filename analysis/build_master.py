@@ -48,7 +48,7 @@ import numpy as np
 import pandas as pd
 from pathlib import Path
 
-RAW = Path("../data_raw")
+RAW = Path("data_raw")
 ONET_DIR = RAW / "onet" / "db_31_0_text"
 OUT = Path("output/master.csv")
 

@@ -1,8 +1,8 @@
-// pdf/print_figures.ts -- the PDF's figures, printed from the web page's own.
+// publish/pdf/print_figures.ts -- the PDF's figures, printed from the web page's own.
 //
 // The PDF cannot show interactive figures. This script draws each one with
 // figures.js, exactly as the web page draws it when it opens, in headless
-// Chrome, and prints it to output/figures/<id>.pdf, where pdf/figures.lua
+// Chrome, and prints it to output/figures/<id>.pdf, where publish/pdf/figures.lua
 // finds it. Plotly draws 2-D figures as SVG, so they print as vector graphics;
 // the 3-D figure is WebGL and is printed as an image at three times screen
 // resolution.
@@ -17,7 +17,7 @@
 // page uses, and serves the project folder on a local port so that figures.js
 // can load its CSV files. Offline, set PLOTLY_JS to a local plotly.min.js.
 //
-// By hand, from the project root:  quarto run pdf/print_figures.ts
+// By hand, from the project root:  quarto run publish/pdf/print_figures.ts
 
 const PAPER = "paper_draft.qmd";
 const QUARTO_YML = "_quarto.yml";

@@ -63,7 +63,7 @@ from sklearn.cluster import KMeans, AgglomerativeClustering
 from sklearn.metrics import silhouette_score
 
 MASTER = Path("output/master_clean.csv")
-OUTDIR = Path("../output"); OUTDIR.mkdir(exist_ok=True)
+OUTDIR = Path("output"); OUTDIR.mkdir(exist_ok=True)
 K_RANGE = range(2, 11)
 THETA_CUT = 0.6          # the threshold used to draw the published network
 SEED = 0

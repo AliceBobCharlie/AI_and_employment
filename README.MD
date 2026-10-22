@@ -14,32 +14,32 @@ folder containing `data_raw/`.
 ## Run order
 
 ```
-python build_master.py          #  1. assemble the raw table          -> master.csv
-python clean_master.py          #  2. drop, fill and derive           -> master_clean.csv
-python check_data.py            #  3. data quality                    (Sections 4.2-4.3)
+python analysis/build_master.py            #  1. assemble the raw table          -> master.csv
+python analysis/clean_master.py            #  2. drop, fill and derive           -> master_clean.csv
+python analysis/check_data.py              #  3. data quality                    (Sections 4.2-4.3)
 
-python cluster_onet.py          #  4. are there clusters at all?       (Section 5.2)
-python pca_rotated.py           #  5. two tiers, six rotated axes     (Section 5.3, Figure 5.1)
-python validate_axes.py         #  6. do the six names hold up?       (Sections 5.2, 5.4; needs 4 and 5)
-python validate_labour_market.py #  7. the axes and the labour market  (Sections 5.6, 5.7; needs 5)
-python content_model_halves.py  #  8. job and worker halves           (Section 5.4; needs 5)
-python check_curvature.py       #  9. non-linear relations among the axes (Sections 5.3, 5.5)
-python rating_error.py          # 10. rating error beyond the axes    (Section 5.5)
-python check_locality.py        # 11. local structure beyond the axes (Section 5.5)
-python check_orthogonality.py   # 12. what the features can predict   (Section 5.6)
-python corner_table.py          # 13. Table 6.1                        (needs 5)
-python acs_young_share.py       # 14. data for Figure 6.2              (needs 5 and the ACS extract)
+python analysis/cluster_onet.py            #  4. are there clusters at all?       (Section 5.2)
+python analysis/pca_rotated.py             #  5. two tiers, six rotated axes     (Section 5.3, Figure 5.1)
+python analysis/validate_axes.py           #  6. do the six names hold up?       (Sections 5.2, 5.4; needs 4 and 5)
+python analysis/validate_labour_market.py  #  7. the axes and the labour market  (Sections 5.6, 5.7; needs 5)
+python analysis/content_model_halves.py    #  8. job and worker halves           (Section 5.4; needs 5)
+python analysis/check_curvature.py         #  9. non-linear relations among the axes (Sections 5.3, 5.5)
+python analysis/rating_error.py            # 10. rating error beyond the axes    (Section 5.5)
+python analysis/check_locality.py          # 11. local structure beyond the axes (Section 5.5)
+python analysis/check_labour_market.py     # 12. what the features can predict   (Section 5.6)
+python analysis/corner_table.py            # 13. Table 6.1                        (needs 5)
+python analysis/acs_young_share.py         # 14. data for Figure 6.2              (needs 5 and the ACS extract)
 ```
 
 Steps 1 and 2 run in that order; every analysis afterwards reads
-`output/master_clean.csv`, and `check_data.py`, `check_orthogonality.py` and
-`supplementary/input_variants.py` also read `output/master.csv`.
+`output/master_clean.csv`, and `check_data.py`, `check_labour_market.py` and
+`analysis/supplementary/input_variants.py` also read `output/master.csv`.
 `check_data.py`, `validate_axes.py` and `rating_error.py` also read the O*NET
 text files in `data_raw/onet/db_31_0_text` (`validate_axes.py` skips the checks
 whose files are missing). `validate_axes.py` needs the outputs of both
 `cluster_onet.py` and `pca_rotated.py`.
 
-The scripts in `supplementary/` are run as needed rather than as part of the
+The scripts in `analysis/supplementary/` are run as needed rather than as part of the
 sequence; see below.
 
 ## Two tables
@@ -48,8 +48,8 @@ sequence; see below.
 |---|---|
 | `output/master.csv` | The raw table: every O*NET-SOC code in O*NET 31.0, rated or not; every scale of the five feature blocks and of education, training and experience, as published; the labour-market variables joined on the six-digit SOC code. Nothing dropped, filled or derived. |
 | `output/master_clean.csv` | Analysis-ready: the 910 occupations rated in all five feature blocks, the 220 feature columns, the 37 education, training and experience columns, and the labour-market variables, every gap filled and the derived columns added. All of this lives in `clean_master.py` and nowhere else. |
-| | `master.csv` is committed; `master_clean.csv` is not, since `clean_master.py` rebuilds it from `master.csv` in seconds. |
-| standardisation | Deliberately **not** stored. Each analysis z-scores its own matrix, because `check_orthogonality.py` must fit its scaler on training folds only; pre-standardising would leak test-fold information into the cross-validated R². |
+| | Neither is committed: `build_master.py` and `clean_master.py` rebuild them from the raw data in `data_raw/`. |
+| standardisation | Deliberately **not** stored. Each analysis z-scores its own matrix, because `check_labour_market.py` must fit its scaler on training folds only; pre-standardising would leak test-fold information into the cross-validated R². |
 
 ## Building the data
 
@@ -203,7 +203,7 @@ rank-normal scores so that skewed single scales cannot produce the tails.
 Part C asks whether some structure is specific to one region of the space, by
 comparing regional and global directions on held-out occupations.
 
-**`check_orthogonality.py`** → `orthogonality.xlsx`
+**`check_labour_market.py`** → `orthogonality.xlsx`
 
 How much of each labour-market variable the description of the work can
 predict, by ridge regression with cross-validated R², from all 220 feature
@@ -232,11 +232,11 @@ occupation-level output is committed so the web paper can draw the figure.
 
 ## Supplementary analyses
 
-In `supplementary/`. Run from the project root, e.g.
-`python supplementary/pca_ete.py`. None of them is reported in the main text
+In `analysis/supplementary/`. Run from the project root, e.g.
+`python analysis/supplementary/pca_ete.py`. None of them is reported in the main text
 except where noted.
 
-**`supplementary/input_variants.py`** → `input_variants.xlsx`
+**`analysis/supplementary/input_variants.py`** → `input_variants.xlsx`
 
 The same analysis on different inputs: Level instead of Importance and the two
 together (Appendix A), without Knowledge, Work Context alone, and each half of
@@ -245,13 +245,13 @@ reproducing one by one, nested-subspace stability, the paper's tiers rotated
 and tested, and agreement with the six axes. Its parallel-analysis counts are
 the table in Section 5.5. Run after `pca_rotated.py`.
 
-**`supplementary/block_weights.py`** → `block_weights.xlsx`
+**`analysis/supplementary/block_weights.py`** → `block_weights.xlsx`
 
 The same analysis with the blocks reweighted (Appendix B): every block given
 the same total variance, and every block's leading eigenvalue set to 1 as in
 multiple factor analysis. Run after `pca_rotated.py`.
 
-**`supplementary/pca_ete.py`** → `ete_axes.csv`
+**`analysis/supplementary/pca_ete.py`** → `ete_axes.csv`
 
 Whether the education, training and experience block has axes of its own. Its
 first two components are rotated and correlated with the rotated axes of
@@ -294,12 +294,12 @@ one.
 |---|---|
 | `paper_draft.qmd` | the paper: title and abstract in the header, then the text |
 | `_quarto.yml` | the web page: layout, fonts and the scripts it loads |
-| `theme.scss` | typography and colours of the web page |
-| `figures.js` | draws the interactive figures in the reader's browser with plotly.js, from `output/rotated_axes.csv`, `output/rotated_loadings.csv` and `output/acs_young_share.csv` |
+| `publish/web/theme.scss` | typography and colours of the web page |
+| `publish/web/figures.js` | draws the interactive figures in the reader's browser with plotly.js, from `output/rotated_axes.csv`, `output/rotated_loadings.csv` and `output/acs_young_share.csv` |
 | `_quarto-pdf.yml` | the PDF: page size, margins, type size, and the two steps below |
-| `pdf/print_figures.ts` | before the PDF is rendered: opens each interactive figure in headless Chrome, drawn by `figures.js` as the web page first shows it, and prints it to `output/figures/<id>.pdf` |
-| `pdf/figures.lua` | while the PDF is rendered: puts each figure of the paper in it, with the caption text that applies to print |
-| `pdf/typst-template.typ` | the PDF's layout, that of the NeurIPS preprint style common on arXiv: US Letter, a 5.5 × 9 in text block, 10 pt New Computer Modern, booktabs tables |
+| `publish/pdf/print_figures.ts` | before the PDF is rendered: opens each interactive figure in headless Chrome, drawn by `figures.js` as the web page first shows it, and prints it to `output/figures/<id>.pdf` |
+| `publish/pdf/figures.lua` | while the PDF is rendered: puts each figure of the paper in it, with the caption text that applies to print |
+| `publish/pdf/typst-template.typ` | the PDF's layout, that of the NeurIPS preprint style common on arXiv: US Letter, a 5.5 × 9 in text block, 10 pt New Computer Modern, booktabs tables |
 
 The figures are HTML blocks in `paper_draft.qmd`, one source for both formats.
 In a caption, text inside `<span class="web-only">` (how to rotate, hover,
@@ -320,7 +320,7 @@ quarto render paper_draft.qmd --profile pdf --to typst # the PDF -> _site/paper.
 ```
 
 The PDF also needs Chrome or Chromium; set `CHROME` to its path if it is not
-in the usual place. `pdf/print_figures.ts` runs on the Deno that ships with
+in the usual place. `publish/pdf/print_figures.ts` runs on the Deno that ships with
 Quarto. To preview the web page, run `quarto preview`. Opening
 `_site/index.html` straight from disk will not show the figures, because
 browsers block a local file from loading the CSV.
