@@ -5,22 +5,17 @@ build_master.py -- assemble the raw table of occupational features:
 
     data_raw/onet/db_31_0_text  ->  output/master.csv
 
-One row per O*NET-SOC code listed in O*NET's Occupation Data, rated or not.
+One row per O*NET-SOC code listed in O*NET's Occupation Data.
 One column per block, scale, element and (where the scale has them) category,
 holding the Data Value as O*NET publishes it. The blocks are Abilities,
 Skills, Knowledge, Work Activities and Work Context.
 
-This script only reads and joins. It drops no occupation and no scale, fills
-no gap and derives no variable; that is done in clean_master.py. It keeps
-Importance and Level for Abilities, Skills, Knowledge and Work Activities, and
-CX, CT, CXP and CTP for Work Context. Ratings that O*NET flags Not Relevant or
-Recommend Suppress are kept as published; the flags are not carried over.
+This script only reads and joins. It one in clean_master.py. The labour-market data are assembled separately, by build_lmv.py.
 
 Column names: <block>_<scale>__<Element Name>, with __c<category> added for
 scales that have categories, e.g. abilities_lv__Oral Comprehension,
 workctx_cxp__Public Speaking__c3.
 
-The labour-market data are assembled separately, by build_lmv.py.
 """
 
 import numpy as np
