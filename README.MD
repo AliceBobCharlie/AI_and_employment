@@ -22,17 +22,22 @@ python analysis/clean_lmv.py                 #     fill and derive (needs 2)    
 python analysis/check_lmv.py                 #     data quality of the labour-market variables (needs 2)
 
 python analysis/cluster_onet.py              #  4. are there clusters at all?       (Section 5.2)
-python analysis/pca_rotated.py               #  5. two tiers, six rotated axes     (Section 5.3, Figure 5.1)
-python analysis/validate_axes.py             #  6. do the six names hold up?       (Sections 5.2, 5.4; needs 4 and 5)
-python analysis/validate_labour_market.py    #  7. the axes and the labour market  (Sections 5.6, 5.7; needs 5)
-python analysis/content_model_halves.py      #  8. job and worker halves           (Section 5.4; needs 5)
-python analysis/check_curvature.py           #  9. non-linear relations among the axes (Sections 5.3, 5.5)
-python analysis/rating_error.py              # 10. rating error beyond the axes    (Section 5.5)
-python analysis/check_locality.py            # 11. local structure beyond the axes (Section 5.5)
-python analysis/labour_market_regression.py  # 12. what the features can predict   (Section 5.6)
-python analysis/corner_table.py              # 13. Table 6.1                        (needs 5)
-python analysis/acs_young_share.py           # 14. data for Figure 6.2              (needs 5 and the ACS extract)
+python analysis/resampling_stability.py      #  5. which dimensions are stable     (Section 5.3, Figure 5.1)
+python analysis/pca_rotated.py               #  6. the six rotated axes            (Section 5.3)
+python analysis/validate_axes.py             #  7. do the six names hold up?       (Sections 5.2, 5.4; needs 4 and 6)
+python analysis/validate_labour_market.py    #  8. the axes and the labour market  (Sections 5.6, 5.7; needs 6)
+python analysis/content_model_halves.py      #  9. job and worker halves           (Section 5.4; needs 6)
+python analysis/check_curvature.py           # 10. non-linear relations among the axes (Sections 5.3, 5.5)
+python analysis/rating_error.py              # 11. rating error beyond the axes    (Section 5.5)
+python analysis/check_locality.py            # 12. local structure beyond the axes (Section 5.5)
+python analysis/labour_market_regression.py  # 13. what the features can predict   (Section 5.6)
+python analysis/corner_table.py              # 14. Table 6.1                        (needs 6)
+python analysis/acs_young_share.py           # 15. data for Figure 6.2              (needs 6 and the ACS extract)
 ```
+
+Step 6 does not need step 5 to run: the components it rotates are fixed in
+`pca_rotated.py` from the results of step 5. Rerun step 5 whenever
+`master_clean.csv` changes; it warns if the components it finds differ.
 
 Steps 1 and 2 run in that order; every analysis of the features reads
 `output/master_clean.csv`, and `check_data.py`, `labour_market_regression.py` and
@@ -113,32 +118,37 @@ before its communities are read off, so the script reports how much of the data
 that step removes. Nothing here uses the rotated axes; the comparisons that
 do are in `validate_axes.py`.
 
-**`pca_rotated.py`** → `occupation_coordinates.csv`, `axis_loadings.csv`,
-`oblique_pattern.csv`, `pca_stability.xlsx`, `scree.png`,
-`assets/subspace_stability.png` (Figure 5.1)
+**`resampling_stability.py`** → `resampled_spectra.npz`,
+`resampling_stability/` (one CSV per table), `assets/subspace_stability.png`
+(Figure 5.1)
 
-The main analysis, on the 220 feature columns only, in two tiers. Every
-resampling experiment (bootstrap, split-halves, permutations) is repeated
-`N_REPEAT` = 200 times. Tier 1:
-eigenvalues and parallel analysis (reported, not used to choose), then
-bootstrap and split-half congruence of each unrotated component, which finds
-the components that reproduce one by one (the first three). Tier 2: the
-eigenvalue gaps against their sampling error (North's ratio), which shows
-components 4-6 to be nearly degenerate; split-half principal angles between
-the leading-k subspaces, k = 1 to 14, against the same statistic on
-column-permuted data (Figure 5.1); then each candidate block
-after tier 1 judged as a whole, by the root mean square of the principal-angle
-cosines between the two halves' block subspaces (p05 >= 0.90 over 200
-split-halves). The data picks components 4-6; the rotated axes of each
-candidate, the smaller blocks inside the candidates (component 4 alone,
-components 5-6, ...) and every block of two or three components after tier 2
-up to component 14 are reported as well, and the same blocks are judged again
-by their medians to show that the boundary after tier 2 does not depend on
-how strictly stability is defined. The congruence of each rotated tier-2 axis
-with the unrotated components shows how far rotation moves them. Each tier is varimax-rotated on its own, so R1-R3 are the same axes
-whatever tier 2 turns out to be, and each axis is signed by a marker variable.
-A promax rotation of tier 1 checks whether its
-axes are orthogonal by preference of the data or only by construction.
+The resampling experiment on the 220 feature columns: which dimensions
+reproduce. It draws 200 resamples of each of four kinds (column-permuted
+copies, bootstrap resamples, random split-halves, and column-permuted
+split-halves), z-scores and decomposes each one, and saves every resample's
+eigenvalues and leading 20 eigenvectors, with the resample's rows, to
+`resampled_spectra.npz`. From these it tabulates: the eigenvalues against the
+parallel-analysis null, which sets how many components are examined
+(`K_MAX` = 15); the stability of each component, which finds the stable
+components (the first three); the eigenvalue gaps against their half-sample
+error; the stability of the leading-k subspaces against column-permuted data
+(Figure 5.1); the stability of blocks of components after the stable ones,
+which finds the stable subspace (components 4-6), with the blocks inside it and
+after it and the same blocks judged by their medians; and the stability of the
+six rotated axes. Every comparison is made both between the two halves of each
+split and between each bootstrap resample and the full sample; the split-halves
+decide.
+
+**`pca_rotated.py`** → `occupation_coordinates.csv`, `axis_loadings.csv`,
+`axis_block_composition.csv`, `axis_vs_components.csv`
+
+The six axes, from one PCA of the full sample. Varimax within the stable
+components gives R1-R3 and within the stable subspace R4-R6; each group is
+rotated on its own, and each axis is signed by a marker variable. Writes each
+occupation's score and each feature's loading on the axes, the share of each
+axis's squared loadings by block, and the congruence of R4-R6 with components
+4-6. The components rotated are fixed in the script (`STABLE_COMPONENTS`,
+`STABLE_SUBSPACE`), so it runs in seconds without `resampling_stability.py`.
 
 **`validate_axes.py`** → `validate_axes.xlsx`
 
@@ -361,9 +371,9 @@ The web page links the PDF of the latest release from its table of contents.
 
 ## Conventions
 
-- The sign anchors, `varimax`, `congruence`, the tier rotation and the
-  subspace helpers are defined once, in `pca_rotated.py`; the other scripts
-  import them rather than carrying their own copies.
+- The sign anchors, `varimax`, `congruence`, the rotation of each group of
+  components and the subspace helpers are defined once, in `pca_rotated.py`;
+  the other scripts import them rather than carrying their own copies.
 - Seeds are fixed (`SEED = 0`) and axis signs are anchored to marker variables,
   so results reproduce across runs and stay stable if the dataset is rebuilt.
 - Wage top-coding: OEWS publishes no annual wage at or above $239,200 and marks
