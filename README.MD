@@ -139,16 +139,13 @@ six rotated axes. Every comparison is made both between the two halves of each
 split and between each bootstrap resample and the full sample; the split-halves
 decide.
 
-**`pca_rotated.py`** → `occupation_coordinates.csv`, `axis_loadings.csv`,
-`axis_block_composition.csv`, `axis_vs_components.csv`
+**`pca_rotated.py`** → `occupation_coordinates.csv`, `axis_loadings.csv`
 
-The six axes, from one PCA of the full sample. Varimax within the stable
-components gives R1-R3 and within the stable subspace R4-R6; each group is
-rotated on its own, and each axis is signed by a marker variable. Writes each
-occupation's score and each feature's loading on the axes, the share of each
-axis's squared loadings by block, and the congruence of R4-R6 with components
-4-6. The components rotated are fixed in the script (`STABLE_COMPONENTS`,
-`STABLE_SUBSPACE`), so it runs in seconds without `resampling_stability.py`.
+The six axes, from one PCA of the full sample: varimax within PC1-3 gives
+R1-R3 and within PC4-6 R4-R6, each sorted by variance and signed by an anchor
+feature. The two groups are fixed in the script (`STABLE_COMPONENTS`,
+`STABLE_SUBSPACE`), copied from `resampling_stability.py`, so it runs in
+seconds on its own; it warns if they differ from what that script last found.
 
 **`validate_axes.py`** → `validate_axes.xlsx`
 

@@ -1,17 +1,20 @@
 #!/usr/bin/env python3
 """
-clean_master.py -- drop columns and handle missing values in the feature table.
+clean_master.py -- drop the occupations without ratings, drop the redundant
+category of each percentage item, and fill the remaining gaps.
 
 Input:  output/master.csv
 Output: output/master_clean.csv
 
-Columns: Skills, Knowledge, Abilities and Work Activities keep only Importance
-(IM); Work Context keeps only CX and CTP. CTP covers the two working-time items,
-Duration of Typical Work Week and Work Schedules, without the standard category
-of each (40 hours, regular).
+Rows: keeps the occupations rated in all five feature blocks, judged on
+Importance for Abilities, Skills, Knowledge and Work Activities and on the
+Context scale (CX) for Work Context.
 
-Missing values: an occupation missing a whole block is dropped. Scattered gaps
-(in CTP) are filled with the column median.
+Columns: drops percentage items that sum up to 100. CXP drops the lowest category.
+CTP drops the standard category of each working-time item
+(40 hours, regular).
+
+Gaps: every missing cell left takes its column median.
 """
 
 import sys
@@ -23,40 +26,64 @@ SRC = Path("output/master.csv")
 OUT = Path("output/master_clean.csv")
 
 ID_COLUMNS = ["onet_soc", "title"]
-FEATURE_PREFIXES = ["skills_im", "abilities_im", "knowledge_im", "workact_im", "workctx_cx"]
-WORKING_TIME = "workctx_ctp"     # in the feature matrix; not used to select rows
-CTP_STANDARD = {"Duration of Typical Work Week": "c2",    # 40 hours
-                "Work Schedules": "c1"}                   # regular
+# Scales that decide which occupations are kept.
+ROW_PREFIXES = ["skills_im", "abilities_im", "knowledge_im", "workact_im", "workctx_cx"]
+# Written first and in this order: the scripts read these columns by prefix,
+# and their column-permutation draws depend on the column order.
+FIRST_PREFIXES = ROW_PREFIXES + ["workctx_ctp"]
+# The category dropped from each item whose percentages sum to 100.
+CXP_DROPPED = "c1"                                        # lowest category
+CTP_DROPPED = {"Duration of Typical Work Week": "c2",     # 40 hours
+               "Work Schedules": "c1"}                    # regular
 
 
-def columns_with(df, prefix):
-    return [c for c in df.columns if c.startswith(prefix + "__")]
+def columns_with(columns, prefix):
+    return [c for c in columns if c.startswith(prefix + "__")]
 
 
 def keep_rated(df):
     """Keep occupations rated in all five feature blocks."""
-    has = pd.DataFrame({p: df[columns_with(df, p)].notna().any(axis=1)
-                        for p in FEATURE_PREFIXES})
+    has = pd.DataFrame({p: df[columns_with(df.columns, p)].notna().any(axis=1)
+                        for p in ROW_PREFIXES})
     keep = has.all(axis=1)
     print(f"[ok] rows: kept {int(keep.sum())}, "
           f"dropped {int((~keep).sum())} missing a whole block")
     return df[keep].reset_index(drop=True)
 
 
-def working_time_columns(df):
-    """The CTP columns kept: every category but the standard one of each item."""
-    return [c for c in columns_with(df, WORKING_TIME)
-            if c.split("__")[2] != CTP_STANDARD[c.split("__")[1]]]
+def is_redundant(col):
+    """True for the dropped category of a CXP or CTP item."""
+    parts = col.split("__")
+    if parts[0] == "workctx_cxp":
+        return parts[2] == CXP_DROPPED
+    if parts[0] == "workctx_ctp":
+        if parts[1] not in CTP_DROPPED:
+            sys.exit(f"[fail] columns: no dropped category set for CTP item '{parts[1]}'")
+        return parts[2] == CTP_DROPPED[parts[1]]
+    return False
+
+
+def ordered_columns(columns):
+    """The kept feature columns: FIRST_PREFIXES first, then the rest in input order."""
+    first = [c for p in FIRST_PREFIXES for c in columns_with(columns, p)]
+    rest = [c for c in columns if c not in first and c not in ID_COLUMNS]
+    return first + rest
 
 
 def clean(df):
     df = keep_rated(df)
-    features = [c for p in FEATURE_PREFIXES for c in columns_with(df, p)]
-    features += working_time_columns(df)
-    dropped = df.shape[1] - len(ID_COLUMNS) - len(features)
+    all_features = [c for c in df.columns if c not in ID_COLUMNS]
+    features = [c for c in ordered_columns(df.columns) if not is_redundant(c)]
+    redundant = len(all_features) - len(features)
     df = df[ID_COLUMNS + features].copy()
     df[features] = df[features].apply(pd.to_numeric, errors="coerce")
-    print(f"[ok] columns: kept {len(features)} features, dropped {dropped}")
+
+    empty = [c for c in features if df[c].isna().all()]
+    if empty:
+        print(f"[warn] columns: {len(empty)} empty on every kept occupation, dropped")
+        features = [c for c in features if c not in empty]
+        df = df[ID_COLUMNS + features]
+    print(f"[ok] columns: kept {len(features)}, dropped {redundant} redundant categories")
 
     filled = int(df[features].isna().sum().sum())
     df[features] = df[features].fillna(df[features].median())
