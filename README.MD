@@ -59,7 +59,7 @@ sequence; see below.
 | table | what it is |
 |---|---|
 | `output/master.csv` | Raw features: every O*NET-SOC code in O*NET 31.0, rated or not; every scale of the five feature blocks, as published. Nothing dropped, filled or derived. |
-| `output/master_clean.csv` | Analysis-ready features: the 910 occupations rated in all five feature blocks and the 220 feature columns, gaps filled. |
+| `output/master_clean.csv` | Analysis-ready features: the 910 occupations rated in all five feature blocks; every scale of `master.csv` but one redundant category of each percentage item; gaps filled. The paper's matrix is its 220 Importance, CX and CTP columns. |
 | `output/labour.csv` | Raw labour market, same rows as `master.csv`: the education, training and experience distributions and the external variables joined on the six-digit SOC code. Nothing dropped, filled or derived. |
 | `output/labour_clean.csv` | Analysis-ready labour market, on the rows of `master_clean.csv`: the 37 education, training and experience columns and the external variables, gaps filled and derived columns added. |
 | | None is committed: the build and clean scripts rebuild them from the raw data in `data_raw/`. |
@@ -74,13 +74,14 @@ and joins them. It only reads and joins.
 
 **`clean_master.py`** → `master_clean.csv`
 
-Keeps the occupations rated in all five feature blocks, keeps the Importance
-scale for four blocks and, for Work Context, the Context scale (CX) and the
-category percentages (CTP) of the two working-time items, Duration of Typical
-Work Week and Work Schedules, with the standard category of each (40 hours,
-regular) dropped. The CTP cells of the nine occupations without them take the
-column median. The Level scale and the Work Context category percentages of
-the CX items (CXP) stay in the raw table only.
+Keeps the occupations rated in all five feature blocks (Importance for four
+blocks, the Context scale CX for Work Context) and every scale of `master.csv`,
+except one category of each item whose category percentages sum to 100: the
+lowest (c1) of each Work Context item's percentages (CXP), and the standard
+category of each working-time item's percentages (CTP), 40 hours and regular.
+Every gap left takes the column median: 2,016 cells, the CXP and CTP columns of
+nine occupations. Columns keep the order of `master.csv`; the scripts select
+the paper's matrix by column prefix.
 
 **`build_lmv.py`** → `labour.csv`
 

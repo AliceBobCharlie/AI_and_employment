@@ -1,20 +1,18 @@
 #!/usr/bin/env python3
 """
-clean_master.py -- drop the occupations without ratings, drop the redundant
-category of each percentage item, and fill the remaining gaps.
+clean_master.py -- drop the occupations without ratings, drop one category of
+each percentage item, and fill the remaining gaps.
 
 Input:  output/master.csv
 Output: output/master_clean.csv
 
-Rows: keeps the occupations rated in all five feature blocks, judged on
-Importance for Abilities, Skills, Knowledge and Work Activities and on the
-Context scale (CX) for Work Context.
-
-Columns: drops percentage items that sum up to 100. CXP drops the lowest category.
-CTP drops the standard category of each working-time item
-(40 hours, regular).
-
-Gaps: every missing cell left takes its column median.
+keep_rated() keeps the occupations with a value in every block of ROW_PREFIXES:
+Importance for Abilities, Skills, Knowledge and Work Activities, and CX for
+Work Context. is_redundant() marks one category of each item whose
+percentages sum to 100: CXP_DROPPED in every CXP item, and the category in
+CTP_DROPPED in each CTP item. Those columns are dropped, and so is any column
+empty on every kept occupation, with a warning. Every remaining missing cell
+takes its column median. Columns keep the order of master.csv.
 """
 
 import sys
@@ -26,12 +24,7 @@ SRC = Path("output/master.csv")
 OUT = Path("output/master_clean.csv")
 
 ID_COLUMNS = ["onet_soc", "title"]
-# Scales that decide which occupations are kept.
 ROW_PREFIXES = ["skills_im", "abilities_im", "knowledge_im", "workact_im", "workctx_cx"]
-# Written first and in this order: the scripts read these columns by prefix,
-# and their column-permutation draws depend on the column order.
-FIRST_PREFIXES = ROW_PREFIXES + ["workctx_ctp"]
-# The category dropped from each item whose percentages sum to 100.
 CXP_DROPPED = "c1"                                        # lowest category
 CTP_DROPPED = {"Duration of Typical Work Week": "c2",     # 40 hours
                "Work Schedules": "c1"}                    # regular
@@ -42,7 +35,7 @@ def columns_with(columns, prefix):
 
 
 def keep_rated(df):
-    """Keep occupations rated in all five feature blocks."""
+    """Rows with a value in every block of ROW_PREFIXES."""
     has = pd.DataFrame({p: df[columns_with(df.columns, p)].notna().any(axis=1)
                         for p in ROW_PREFIXES})
     keep = has.all(axis=1)
@@ -63,17 +56,10 @@ def is_redundant(col):
     return False
 
 
-def ordered_columns(columns):
-    """The kept feature columns: FIRST_PREFIXES first, then the rest in input order."""
-    first = [c for p in FIRST_PREFIXES for c in columns_with(columns, p)]
-    rest = [c for c in columns if c not in first and c not in ID_COLUMNS]
-    return first + rest
-
-
 def clean(df):
     df = keep_rated(df)
     all_features = [c for c in df.columns if c not in ID_COLUMNS]
-    features = [c for c in ordered_columns(df.columns) if not is_redundant(c)]
+    features = [c for c in all_features if not is_redundant(c)]
     redundant = len(all_features) - len(features)
     df = df[ID_COLUMNS + features].copy()
     df[features] = df[features].apply(pd.to_numeric, errors="coerce")
