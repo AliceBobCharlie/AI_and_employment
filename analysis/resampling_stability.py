@@ -3,7 +3,7 @@
 resampling_stability.py -- resampling experiment on the dimensions of the
 feature matrix.
 
-Reads output/master_clean.csv and z-scores its 220 feature columns. Draws
+Reads Importance, CX and CTP from output/master_clean.csv and z-scores its 220 columns. Draws
 N_SPLIT_SUB (200) resamples of each of four kinds:
   permuted   every column permuted on its own
   bootstrap  as many occupations as the data, drawn with replacement
