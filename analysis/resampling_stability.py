@@ -10,7 +10,10 @@ Output: output/resampled_spectra.npz    bootstrap and split-half decompositions
         output/resampling_stability/    seven CSV tables
         assets/subspace_stability.png   Figure 5.1
 
-Every resample and every half is z-scored on its own and decomposed by eigen().
+run_experiment() runs steps 1 to 4 on a z-scored matrix; main() calls it on
+this one. Every resample and every half is z-scored on its own and decomposed
+by decompose(): eigen(), or, if column weights w are passed, eigen() after
+each column is multiplied by its weight.
 
 1. parallel_analysis() decomposes N (200) copies of the data with every column
    permuted. k_max is the number of leading eigenvalues above the 95th
@@ -31,19 +34,24 @@ Every resample and every half is z-scored on its own and decomposed by eigen().
                            bootstrap is the stable components (at least two).
      nested_table()        nested_subspaces.csv: PC1 to PCk for k = 1 to
                            k_max, with the null and the eigenvalue gaps.
-     block_table()         blocks.csv: blocks starting after the stable
-                           components and ending at N_PC at most. The largest
-                           with split RMS cosine p05 >= STABLE_THRESH is the
-                           stable subspace. Also the blocks inside it, and
-                           blocks of 2 to MAX_LATER_BLOCK components after it.
+     block_table()         blocks.csv: candidate blocks of 2 to MAX_BLOCK
+                           components starting after the stable components.
+                           The largest with split RMS cosine p05 >=
+                           STABLE_THRESH is the stable subspace. Also every
+                           smaller block inside the stable subspace (inside the
+                           largest candidate if none is found), and, if a
+                           stable subspace is found, every block of 2 to
+                           MAX_BLOCK components after it, up to k_max.
      looser_table()        looser_criteria.csv: medians for the components
                            and blocks after the stable subspace.
-     rotated_axes_table()  rotated_axes.csv: R1-R6 rotated by rotate_groups()
-                           in every resample, axes paired by match_axes().
+     rotated_axes_table()  rotated_axes.csv: the stable components and the
+                           stable subspace, each rotated by rotate_group() in
+                           every resample and paired by match_axes().
 
 4. dimensions_table() writes dimensions.csv: the stable components and stable
-   subspace found, against ROTATION_GROUPS in pca_rotated.py. main() warns if
-   they differ. plot_subspaces() draws Figure 5.1 from nested_subspaces.csv.
+   subspace found, against STABLE_COMPONENTS and STABLE_SUBSPACE in
+   pca_rotated.py. main() warns if they differ. plot_subspaces() draws
+   Figure 5.1 from nested_subspaces.csv.
 
 SEED seeds three generators: one for the permuted copies, one for the
 bootstrap resamples, and one shared by the split-halves and the null.
@@ -56,9 +64,9 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from pathlib import Path
 
-from pca_rotated import (CSV_FLOAT, OUTDIR, ROTATION_GROUPS, SEED, STABLE_COMPONENTS,
-                         STABLE_SUBSPACE, axis_names, congruence, eigen, load_and_prep,
-                         match_axes, rotate_group, rotate_groups, subspace_cosines)
+from pca_rotated import (CSV_FLOAT, OUTDIR, SEED, STABLE_COMPONENTS, STABLE_SUBSPACE,
+                         axis_names, congruence, eigen, load_and_prep, match_axes,
+                         rotate_group, standardize, subspace_cosines)
 
 SPECTRA = OUTDIR / "resampled_spectra.npz"
 TABLES = OUTDIR / "resampling_stability"
@@ -67,8 +75,7 @@ FIGURE = Path("assets/subspace_stability.png")
 N = 200                 # resamples of each kind
 STABLE_THRESH = 0.90    # p05 a component, block or axis needs to count as stable
 N_EIGEN_ROWS = 30       # eigenvalues tabulated and tested by parallel analysis
-N_PC = 8                # last component a candidate for the stable subspace may end at
-MAX_LATER_BLOCK = 3     # largest block after the stable subspace that is tabulated
+MAX_BLOCK = 4           # largest block of components tested
 
 
 # --------------------------------------------------------------------------- #
@@ -86,33 +93,42 @@ def parallel_analysis(Xz):
     return np.stack(out)
 
 
-def leading(X, k_max):
-    ev, V = eigen(X)
+def decompose(X, w=None):
+    """eigen() of X; with column weights w, X is z-scored and multiplied by w first."""
+    if w is None:
+        return eigen(X)
+    Z = standardize(X) * w
+    _, s, vt = np.linalg.svd(Z, full_matrices=False)
+    return s ** 2 / (len(Z) - 1), vt.T
+
+
+def leading(X, k_max, w=None):
+    ev, V = decompose(X, w)
     return ev, V[:, :k_max]
 
 
-def halves(X, perm, k_max):
+def halves(X, perm, k_max, w=None):
     n = len(X)
-    return leading(X[perm[: n // 2]], k_max), leading(X[perm[n // 2:]], k_max)
+    return leading(X[perm[: n // 2]], k_max, w), leading(X[perm[n // 2:]], k_max, w)
 
 
-def draw_resamples(Xz, k_max):
+def draw_resamples(Xz, k_max, w=None):
     """Bootstrap and split decompositions, as saved to SPECTRA, and the null
     split decompositions as a list of pairs."""
     n = len(Xz)
     rng = np.random.default_rng(SEED)
     boot_idx = np.stack([rng.integers(0, n, n) for _ in range(N)])
-    boot = [leading(Xz[i], k_max) for i in boot_idx]
+    boot = [leading(Xz[i], k_max, w) for i in boot_idx]
 
     rng = np.random.default_rng(SEED)
     split_perm = np.stack([rng.permutation(n) for _ in range(N)])
-    split = [halves(Xz, p, k_max) for p in split_perm]
+    split = [halves(Xz, p, k_max, w) for p in split_perm]
     null = []
     for _ in range(N):
         Xp = np.column_stack([rng.permutation(c) for c in Xz.T])
-        null.append(halves(Xp, rng.permutation(n), k_max))
+        null.append(halves(Xp, rng.permutation(n), k_max, w))
 
-    full_ev, full_V = leading(Xz, k_max)
+    full_ev, full_V = leading(Xz, k_max, w)
     s = {"full_ev": full_ev, "full_V": full_V,
          "bootstrap_index": boot_idx,
          "bootstrap_ev": np.stack([b[0] for b in boot]),
@@ -161,11 +177,18 @@ def block_cosines(sample_pairs, block):
 
 def rotation_congruence(sample_pairs, ref, idx):
     """Per pair: rotate_group() on idx in both decompositions, match_axes() to
-    ref, then the congruence of each axis between the two."""
+    ref, then the congruence of each axis between the two. A decomposition
+    that recurs across pairs (the full sample) is rotated once."""
+    cache = {}
+
+    def rotated(e, V):
+        if id(V) not in cache:
+            cache[id(V)] = match_axes(ref, rotate_group(V, e, idx)[0])
+        return cache[id(V)]
+
     out = []
     for (ea, Va), (eb, Vb) in sample_pairs:
-        A = match_axes(ref, rotate_group(Va, ea, idx)[0])
-        B = match_axes(ref, rotate_group(Vb, eb, idx)[0])
+        A, B = rotated(ea, Va), rotated(eb, Vb)
         out.append([congruence(A[:, j], B[:, j]) for j in range(ref.shape[1])])
     return np.array(out)
 
@@ -181,15 +204,15 @@ def median(x):
 # --------------------------------------------------------------------------- #
 # Tables
 # --------------------------------------------------------------------------- #
-def eigenvalue_table(full_ev, permuted_ev):
-    q95 = np.percentile(permuted_ev[:, :N_EIGEN_ROWS], 95, axis=0)
+def eigenvalue_table(full_ev, permuted_ev, n_rows=N_EIGEN_ROWS):
+    q95 = np.percentile(permuted_ev[:, :n_rows], 95, axis=0)
     share = full_ev / full_ev.sum()
-    return pd.DataFrame({"component": range(1, N_EIGEN_ROWS + 1),
-                         "eigenvalue": full_ev[:N_EIGEN_ROWS],
-                         "% variance": 100 * share[:N_EIGEN_ROWS],
-                         "cumulative %": 100 * np.cumsum(share)[:N_EIGEN_ROWS],
+    return pd.DataFrame({"component": range(1, n_rows + 1),
+                         "eigenvalue": full_ev[:n_rows],
+                         "% variance": 100 * share[:n_rows],
+                         "cumulative %": 100 * np.cumsum(share)[:n_rows],
                          "null p95": q95,
-                         "above null": full_ev[:N_EIGEN_ROWS] > q95})
+                         "above null": full_ev[:n_rows] > q95})
 
 
 def component_table(split, boot, k_max):
@@ -267,7 +290,7 @@ def candidate_rotation(s, split_pairs, boot_pairs, idx):
 def block_table(s, split_pairs, boot_pairs, n_comp, k_max):
     """Rows for every block tested; returns the table and sub_end, the last
     component of the stable subspace (n_comp if there is none)."""
-    last = min(N_PC, k_max)
+    last = min(n_comp + MAX_BLOCK, k_max)
     rows, sub_end = [block_row((0, n_comp), "stable components", split_pairs, boot_pairs)], n_comp
     for e in range(n_comp + 2, last + 1):
         row = block_row((n_comp, e), "stable subspace candidate", split_pairs, boot_pairs)
@@ -276,14 +299,16 @@ def block_table(s, split_pairs, boot_pairs, n_comp, k_max):
             sub_end = e
         rows.append(row)
 
-    inner_end = max(sub_end, n_comp + 3)
-    inner = [(a, z) for a in range(n_comp, last) for z in range(a + 1, min(a + 3, last) + 1)
-             if z <= inner_end and (a, z) != (n_comp, inner_end)]
-    rows += [block_row(b, "inside stable subspace", split_pairs, boot_pairs) for b in inner]
+    inner_end = sub_end if sub_end > n_comp else last
+    inner = [(a, z) for a in range(n_comp, inner_end) for z in range(a + 1, inner_end + 1)
+             if (a, z) != (n_comp, inner_end)]
+    group = "inside stable subspace" if sub_end > n_comp else "inside candidates"
+    rows += [block_row(b, group, split_pairs, boot_pairs) for b in inner]
 
-    later = [(a, z) for a in range(sub_end, k_max)
-             for z in range(a + 2, min(a + MAX_LATER_BLOCK, k_max) + 1)]
-    rows += [block_row(b, "after stable subspace", split_pairs, boot_pairs) for b in later]
+    if sub_end > n_comp:
+        later = [(a, z) for a in range(sub_end, k_max)
+                 for z in range(a + 2, min(a + MAX_BLOCK, k_max) + 1)]
+        rows += [block_row(b, "after stable subspace", split_pairs, boot_pairs) for b in later]
     return pd.DataFrame(rows), sub_end
 
 
@@ -309,19 +334,25 @@ def looser_table(nested, blocks, n_comp, sub_end):
     return pd.DataFrame(rows)
 
 
-def rotated_axes_table(s, split_pairs, boot_pairs, feats):
+def rotated_axes_table(split_pairs, boot_pairs, groups, rotated, names=axis_names):
+    """rotated holds (L, R) of each group of groups on the full sample;
+    names(idx) gives the axis names of a group."""
     rows = []
     labels = ["stable components", "stable subspace"]
-    groups = rotate_groups(s["full_V"], s["full_ev"], feats, ROTATION_GROUPS)
-    for label, idx, (L, _) in zip(labels, ROTATION_GROUPS, groups):
+    for label, idx, (L, _) in zip(labels, groups, rotated):
         split = rotation_congruence(split_pairs, L, idx)
         boot = rotation_congruence(boot_pairs, L, idx)
-        for j, name in enumerate(axis_names(idx)):
+        for j, name in enumerate(names(idx)):
             rows.append({"axis": name, "group": label,
                          "variance share": (L[:, j] ** 2).sum() / L.shape[0],
                          "split-half p05": p05(split)[j], "split-half median": median(split)[j],
                          "bootstrap p05": p05(boot)[j], "bootstrap median": median(boot)[j]})
     return pd.DataFrame(rows)
+
+
+def found_groups(n_comp, sub_end):
+    """The stable components and, if there is one, the stable subspace, as index lists."""
+    return [list(range(n_comp))] + ([list(range(n_comp, sub_end))] if sub_end > n_comp else [])
 
 
 def dimensions_table(n_comp, sub_end):
@@ -339,7 +370,7 @@ def dimensions_table(n_comp, sub_end):
 # --------------------------------------------------------------------------- #
 # Figure 5.1
 # --------------------------------------------------------------------------- #
-def plot_subspaces(t, n_comp, sub_end, k_max):
+def plot_subspaces(t, n_comp, sub_end, k_max, figure=FIGURE):
     """Split-half p05 of the smallest cosine of the leading-k subspaces, with the
     null p95 dashed and the ends of the stable components and subspace marked."""
     k = t["k"].to_numpy()
@@ -387,26 +418,30 @@ def plot_subspaces(t, n_comp, sub_end, k_max):
     ax.legend(frameon=False, fontsize=8, labelcolor=ink, loc="upper center",
               bbox_to_anchor=(0.5, -0.16), ncol=2)
     fig.tight_layout()
-    FIGURE.parent.mkdir(exist_ok=True)
-    fig.savefig(FIGURE, dpi=200, facecolor=surface)
+    figure.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(figure, dpi=200, facecolor=surface)
     plt.close(fig)
 
 
 # --------------------------------------------------------------------------- #
-def main():
-    TABLES.mkdir(parents=True, exist_ok=True)
-    Xz, feats, _ = load_and_prep()
-
-    full_ev, _ = eigen(Xz)
-    eig = eigenvalue_table(full_ev, parallel_analysis(Xz))
+def run_experiment(Xz, feats, tables_dir, spectra, figure, w=None,
+                   n_eigen=N_EIGEN_ROWS, names=axis_names):
+    """Steps 1-4 and the figure on the z-scored matrix Xz, with optional column
+    weights w; names(idx) names the rotated axes. Writes the tables to
+    tables_dir; returns k_max, n_comp, sub_end, the saved decompositions and
+    the tables."""
+    tables_dir.mkdir(parents=True, exist_ok=True)
+    full_ev, _ = decompose(Xz, w)
+    permuted = parallel_analysis(Xz if w is None else Xz * w)
+    eig = eigenvalue_table(full_ev, permuted, n_eigen)
     k_max = int(eig["above null"].cumprod().sum())
-    if k_max == N_EIGEN_ROWS:
-        print(f"[warn] all {N_EIGEN_ROWS} tested eigenvalues exceed the null; raise N_EIGEN_ROWS")
+    if k_max == n_eigen:
+        print(f"[warn] all {n_eigen} tested eigenvalues exceed the null; raise n_eigen")
     print(f"[ok] parallel analysis: k_max = {k_max}")
 
-    s, null_pairs = draw_resamples(Xz, k_max)
-    np.savez(SPECTRA, features=np.array(feats), seed=SEED, k_max=k_max, **s)
-    print(f"[ok] decomposed {N} bootstrap, {N} split-half and {N} null resamples; wrote {SPECTRA}")
+    s, null_pairs = draw_resamples(Xz, k_max, w)
+    np.savez(spectra, features=np.array(feats), seed=SEED, k_max=k_max, **s)
+    print(f"[ok] decomposed {N} bootstrap, {N} split-half and {N} null resamples; wrote {spectra}")
 
     split_pairs, boot_pairs = pairs(s, "split"), pairs(s, "bootstrap")
     split, boot = stats_over(split_pairs, k_max), stats_over(boot_pairs, k_max)
@@ -419,22 +454,30 @@ def main():
     nested = nested_table(s, split, boot, null, null_ev, k_max)
     blocks, sub_end = block_table(s, split_pairs, boot_pairs, n_comp, k_max)
     looser = looser_table(nested, blocks, n_comp, sub_end)
-    rot = rotated_axes_table(s, split_pairs, boot_pairs, feats)
+    groups = found_groups(n_comp, sub_end)
+    rotated = [rotate_group(s["full_V"], s["full_ev"], idx) for idx in groups]
+    rot = rotated_axes_table(split_pairs, boot_pairs, groups, rotated, names)
     dims = dimensions_table(n_comp, sub_end)
 
     tables = {"eigenvalues": eig, "components": comp, "nested_subspaces": nested,
               "blocks": blocks, "looser_criteria": looser, "rotated_axes": rot,
               "dimensions": dims}
     for name, table in tables.items():
-        table.to_csv(TABLES / f"{name}.csv", index=False, float_format=CSV_FLOAT)
-    plot_subspaces(nested, n_comp, sub_end, k_max)
+        table.to_csv(tables_dir / f"{name}.csv", index=False, float_format=CSV_FLOAT)
+    plot_subspaces(nested, n_comp, sub_end, k_max, figure)
+    return {"k_max": k_max, "n_comp": n_comp, "sub_end": sub_end, "spectra": s, "tables": tables}
 
+
+def main():
+    Xz, feats, _ = load_and_prep()
+    out = run_experiment(Xz, feats, TABLES, SPECTRA, FIGURE)
+    dims = out["tables"]["dimensions"]
     found = ", ".join(f"{r.dimensions} {r.found}" for r in dims.itertuples())
     if dims["match"].all():
         print(f"[ok] {found}, as in pca_rotated.py")
     else:
         print(f"[warn] {found}; pca_rotated.py differs (see dimensions.csv)")
-    print(f"[ok] wrote {len(tables)} tables to {TABLES}/ and {FIGURE}")
+    print(f"[ok] wrote {len(out['tables'])} tables to {TABLES}/ and {FIGURE}")
 
 
 if __name__ == "__main__":
