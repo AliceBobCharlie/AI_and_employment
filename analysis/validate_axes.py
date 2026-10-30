@@ -1,80 +1,60 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-validate_axes.py -- do the six axes measure what their names say?
-(Sections 5.2 and 5.4)
+validate_axes.py -- correlate the six rotated axes with O*NET descriptors that
+are not in the feature matrix, and with O*NET's own categories of the
+feature columns.
 
-The names of R1-R6 were read from the loadings and from the occupations at
-each end. This script sets each name against descriptions of the same
-occupations that took no part in forming the axes, all from the O*NET 31.0
-text files, and sets the clusters of Section 5.2 against the axes.
+Input:  output/occupation_coordinates.csv, output/axis_loadings.csv,
+        output/skillscape/skill_clusters.csv (optional), and the O*NET text
+        files in the folder given as the first argument (default ONET_DIR)
+Output: one CSV per table in output/validate_axes/
 
-  1 categories   O*NET's own grouping of the Content Model elements (the
-                 hierarchy encoded in each Element ID): the mean loading of
-                 each category on each axis, and the categories of the 15
-                 strongest items at each pole. R4-R6 contrast items within a
-                 category more than they contrast categories, so the pole
-                 composition is the more telling table for them.
-  2 interests    The six RIASEC interest types (Career Interest Types.txt,
-                 scale OI; "Interests.txt" before release 30.3) with Prediger's
-                 (1982) two summary dimensions,
-                     people - things = 2S + A + E - 2R - I - C
-                     data - ideas    = 1.73 (E + C - I - A)
-                 and the 41 basic interest areas (Specific Interest
-                 Areas.txt, scale OI): the areas most associated with each end
-                 of each axis.
-  3 job zones    O*NET's levels of preparation (Job Zones.txt).
-  4 software     The software each occupation uses (Software Skills.txt;
-                 "Technology Skills.txt" before release 30.3): the number of
-                 software categories used, and the categories most associated
-                 with each end of each axis. Release 31.0 has no tools table.
-  5 work styles  The 21 work styles (Work Styles.txt) on the Impact scale (WI,
-                 -3 to +3); the Distinctiveness Rank (DR) is not used.
-  6 clusters     The k = 2 partition of occupations from cluster_onet.py
-                 against the axes, the two skill clusters by O*NET category
-                 and by R1 loading, and the SOC major groups in the space of
-                 the three leading components (Section 5.2).
+main() reads the R1-R6 scores (AXES) and loadings (LOADINGS) and runs the
+sections in order. A section whose O*NET file is missing is skipped with a
+message. Report.table() writes each table; Report.done() prints one status
+line per section.
 
-What each name predicts:
-  R1 physical - symbolic       Realistic +, fewer software categories
-  R2 complex - simple          Job Zone +, Investigative +
-  R3 people - artefacts        Social +, engineering and IT interests -
-  R4 hands-on - field          health-care interests +, transport and
-                               outdoor interests -
-  R5 standardised - open-ended Conventional +, Artistic -, data - ideas +
-  R6 commercial - individual   Enterprising +, business software +
+1. element_categories() maps each feature column to its Content Model
+   category through the Element IDs of the files in BLOCK_FILES, named from
+   Content Model Reference.txt or FALLBACK. categories() gives the mean
+   loading of each category on each axis and the categories of the
+   POLE_ITEMS strongest items at each end of each axis. skill_clusters()
+   crosses the two skill-cluster labels of skill_clusters.csv with the
+   categories and gives the mean R1 loading of each cluster.
+2. interests() correlates the axes with the six RIASEC scores (scale OI of
+   Career Interest Types.txt or Interests.txt), with Prediger's
+   people - things = 2S + A + E - 2R - I - C and
+   data - ideas = 1.73 (E + C - I - A), and with the basic interest areas
+   (Specific Interest Areas.txt); ends() lists the TOP areas at each end of
+   each axis.
+3. job_zones() correlates the axes with the Job Zone and gives the median
+   score of each axis by zone.
+4. software() correlates the axes with the number of software categories an
+   occupation uses (Software Skills.txt or Technology Skills.txt) and, through
+   ends(), lists the categories used by at least MIN_OCC occupations most
+   associated with each end.
+5. work_styles() correlates the axes with the work styles on scale WI (or IM
+   where WI is absent) of Work Styles.txt.
 
-Each section runs only if its input is found and says so otherwise. The
-terminal shows one line per section; every table is in the workbook, and
--v prints them as well.
+corr_table() gives the Pearson correlation of each axis with each column, on
+the occupations present in both.
 
-Run after pca_rotated.py and cluster_onet.py:
-    python validate_axes.py [O*NET text folder] [-v]
-Reads output/occupation_coordinates.csv, output/axis_loadings.csv,
-output/master_clean.csv, output/cluster_assignments.csv,
-output/cluster_skills.csv and the O*NET text files (default
-data_raw/onet/db_31_0_text). Writes output/validate_axes.xlsx.
+Run from the project root:  python analysis/validate_axes.py [O*NET folder]
 """
 
 import argparse
+import sys
 from pathlib import Path
 
-import numpy as np
 import pandas as pd
-from sklearn.decomposition import PCA
-from sklearn.metrics import silhouette_score
-from sklearn.preprocessing import StandardScaler
 
-from pca_rotated import AXES, LOADINGS, MASTER, FEATURE_PREFIXES
+from pca_rotated import AXES, LOADINGS, OUTDIR
 
-OUT = Path("output/validate_axes.xlsx")
-CLUSTERS = Path("output/cluster_assignments.csv")
-SKILL_CLUSTERS = Path("output/cluster_skills.csv")
+OUT = OUTDIR / "validate_axes"
+SKILL_CLUSTERS = OUTDIR / "skillscape" / "skill_clusters.csv"
 
 AX = ["R1", "R2", "R3", "R4", "R5", "R6"]
-NAMES = {"R1": "physical - symbolic", "R2": "complex - simple",
-         "R3": "people - artefacts", "R4": "hands-on - field",
-         "R5": "standardised - open-ended", "R6": "commercial - individual"}
 CODE = "O*NET-SOC Code"
 RIASEC = ["Realistic", "Investigative", "Artistic", "Social", "Enterprising", "Conventional"]
 POLE_ITEMS = 15          # items per pole in the category composition
@@ -155,35 +135,24 @@ def ends(r, label):
     return pd.DataFrame(rows)
 
 
-def strongest(r):
-    """'R1 Realistic +0.81, R2 ...': the column most correlated with each axis."""
-    return ", ".join(f"{a} {r.loc[a].abs().idxmax()} {r.loc[a, r.loc[a].abs().idxmax()]:+.2f}"
-                     for a in AX)
-
-
 class Report:
-    """One line per section on the terminal; every table to the workbook,
-    and to the terminal as well with -v."""
+    """Writes each table to OUT as a CSV and prints one status line per section."""
 
-    def __init__(self, verbose):
-        self.verbose, self.sheets = verbose, {}
-
-    def line(self, section, text):
-        print(f"[{section}] {text}")
+    def __init__(self):
+        self.written = []
 
     def table(self, name, df, index=False):
-        self.sheets[name] = df.reset_index() if index else df
-        if self.verbose:
-            with pd.option_context("display.width", 250, "display.max_colwidth", 400,
-                                   "display.max_rows", 500):
-                print(f"\n--- {name}\n{df.round(3).to_string(index=index)}\n")
+        OUT.mkdir(parents=True, exist_ok=True)
+        (df.reset_index() if index else df).to_csv(OUT / f"{name}.csv", index=False)
+        self.written.append(name)
 
-    def write(self):
-        OUT.parent.mkdir(exist_ok=True)
-        with pd.ExcelWriter(OUT) as writer:
-            for name, df in self.sheets.items():
-                df.to_excel(writer, sheet_name=name[:31], index=False)
-        print(f"[ok] wrote {OUT} ({len(self.sheets)} sheets)")
+    def skip(self, section, reason):
+        print(f"[skip] {section}: {reason}")
+
+    def done(self, section):
+        if self.written:
+            print(f"[ok] {section}: " + ", ".join(f"{n}.csv" for n in self.written))
+        self.written = []
 
 
 # --------------------------------------------------------------------------- #
@@ -212,7 +181,7 @@ def element_categories():
 def categories(rep, L, name2cat):
     cat = pd.Series({c: name2cat.get(tuple(c.split("__", 1))) for c in L.index}).dropna()
     if cat.empty:
-        rep.line("1 categories", f"no Element IDs found in {ONET_DIR}; skipped")
+        rep.skip("1 categories", f"no Element IDs found in {ONET_DIR}")
         return
     Lc = L.loc[cat.index]
     means = Lc.groupby(cat).mean()
@@ -227,9 +196,6 @@ def categories(rep, L, name2cat):
                              "; ".join(f"{k} {v}" for k, v in counts.items())})
     rep.table("category_means", means.rename_axis("category"), index=True)
     rep.table("category_poles", pd.DataFrame(rows))
-    top = {a: means[a].idxmax() for a in AX}
-    rep.line("1 categories", f"{len(cat)} items in {len(means)} categories; highest mean loading: "
-             + ", ".join(f"{a} {top[a]} {means.at[top[a], a]:+.2f}" for a in AX))
 
 
 # --------------------------------------------------------------------------- #
@@ -238,7 +204,7 @@ def categories(rep, L, name2cat):
 def interests(rep, axes):
     path = find("Career Interest Types", "Interests")
     if path is None:
-        rep.line("2 interests", "Career Interest Types.txt not found; RIASEC skipped")
+        rep.skip("2 interests", "Career Interest Types.txt not found")
     else:
         X = ratings(path, "OI")
         X = X[[c for c in RIASEC if c in X.columns]]
@@ -249,17 +215,15 @@ def interests(rep, axes):
                                         - X["Investigative"] - X["Artistic"])
         r = corr_table(axes, X)
         rep.table("riasec", r.rename_axis("axis"), index=True)
-        rep.line("2 interests", "RIASEC, strongest type per axis: " + strongest(r[[c for c in RIASEC if c in r]]))
 
     path = find("Specific Interest Areas")
     if path is None:
-        rep.line("2 interests", "Specific Interest Areas.txt not found; basic interests skipped")
+        rep.skip("2 interests", "Specific Interest Areas.txt not found")
     else:
         X = ratings(path, "OI")
         r = corr_table(axes, X)
         rep.table("interest_areas", r.T.rename_axis("interest area"), index=True)
         rep.table("interest_area_ends", ends(r, "interest areas"))
-        rep.line("2 interests", f"{X.shape[1]} basic interest areas; strongest per axis: " + strongest(r))
 
 
 # --------------------------------------------------------------------------- #
@@ -268,7 +232,7 @@ def interests(rep, axes):
 def job_zones(rep, axes):
     path = find("Job Zones")
     if path is None:
-        rep.line("3 job zones", "Job Zones.txt not found; skipped")
+        rep.skip("3 job zones", "Job Zones.txt not found")
         return
     z = pd.to_numeric(read(path).set_index(CODE)["Job Zone"], errors="coerce").rename("job zone")
     r = corr_table(axes, z.to_frame())
@@ -277,7 +241,6 @@ def job_zones(rep, axes):
     m.insert(0, "n", z.loc[common].value_counts())
     rep.table("job_zone_corr", r.rename_axis("axis"), index=True)
     rep.table("job_zone_medians", m, index=True)
-    rep.line("3 job zones", "correlation: " + ", ".join(f"{a} {r.at[a, 'job zone']:+.2f}" for a in AX))
 
 
 # --------------------------------------------------------------------------- #
@@ -286,7 +249,7 @@ def job_zones(rep, axes):
 def software(rep, axes):
     path = find("Software Skills", "Technology Skills")
     if path is None:
-        rep.line("4 software", "Software Skills.txt not found; skipped")
+        rep.skip("4 software", "Software Skills.txt not found")
         return
     d = read(path)
     category = "Element Name" if "Element Name" in d.columns else "Commodity Title"
@@ -298,8 +261,6 @@ def software(rep, axes):
     ru = pd.DataFrame({c: [axes[a].corr(use[c]) for a in AX] for c in use.columns}, index=AX)
     rep.table("software_count", r.rename_axis("axis"), index=True)
     rep.table("software_ends", ends(ru, "software"))
-    rep.line("4 software", f"{d[category].nunique()} categories; number used, correlation: "
-             + ", ".join(f"{a} {r.at[a, 'software categories used']:+.2f}" for a in AX))
 
 
 # --------------------------------------------------------------------------- #
@@ -308,74 +269,34 @@ def software(rep, axes):
 def work_styles(rep, axes):
     path = find("Work Styles")
     if path is None:
-        rep.line("5 work styles", "Work Styles.txt not found; skipped")
+        rep.skip("5 work styles", "Work Styles.txt not found")
         return
     scales = read(path, ["Scale ID"])["Scale ID"].unique()
     scale = next((s for s in ("WI", "IM") if s in scales), None)
     if scale is None:
-        rep.line("5 work styles", f"neither WI nor IM among the scales ({', '.join(scales)}); skipped")
+        rep.skip("5 work styles", f"neither WI nor IM among the scales ({', '.join(scales)})")
         return
     X = ratings(path, scale)
     r = corr_table(axes, X)
     rep.table("work_styles", r.T.rename_axis("style"), index=True)
-    rep.line("5 work styles", f"scale {scale}, {X.shape[1]} styles; strongest per axis: " + strongest(r))
 
 
 # --------------------------------------------------------------------------- #
-# 6. Clusters against the axes (Section 5.2)
+# 1b. Skill clusters against the categories
 # --------------------------------------------------------------------------- #
-def mean_distances(X, groups):
-    """Mean Euclidean distance between occupations in the same group and in
-    different groups."""
-    from scipy.spatial.distance import pdist, squareform
-    D = squareform(pdist(X))
-    same = groups[:, None] == groups[None, :]
-    iu = np.triu_indices(len(X), k=1)
-    return D[iu][same[iu]].mean(), D[iu][~same[iu]].mean()
-
-
-def clusters(rep, L, S, m, name2cat):
-    if CLUSTERS.exists():
-        k2 = pd.read_csv(CLUSTERS, index_col=0)["cluster_k2"].reindex(S.index)
-        targets = {"R1 - R2": S["R1"] - S["R2"], **{a: S[a] for a in AX}}
-        part = pd.DataFrame({"compared with": list(targets),
-                             "|r| with the k = 2 partition":
-                                 [abs(np.corrcoef(k2, v)[0, 1]) for v in targets.values()]})
-        sizes = k2.value_counts().sort_index()
-        rep.table("k2_partition", part)
-        rep.line("6 clusters", "k = 2 partition (sizes " + ", ".join(str(n) for n in sizes) + "), |r|: "
-                 + ", ".join(f"{t} {v:.2f}" for t, v in part.iloc[:4].to_numpy()))
-    else:
-        rep.line("6 clusters", f"{CLUSTERS} not found; run cluster_onet.py first")
-
-    if SKILL_CLUSTERS.exists():
-        sk = pd.read_csv(SKILL_CLUSTERS)
-        sk["category"] = [name2cat.get(tuple(c.split("__", 1)), "?") for c in sk["column"]]
-        tab = pd.crosstab(sk["category"], sk["cluster"])
-        rep.table("skill_clusters_by_category", tab.loc[tab.sum(axis=1).sort_values(ascending=False).index],
+def skill_clusters(rep, L, name2cat):
+    if not SKILL_CLUSTERS.exists():
+        rep.skip("1 categories", f"{SKILL_CLUSTERS} not found; skill clusters skipped")
+        return
+    sk = pd.read_csv(SKILL_CLUSTERS)
+    sk["category"] = [name2cat.get(tuple(c.split("__", 1)), "?") for c in sk["column"]]
+    sk["R1 loading"] = L["R1"].reindex(sk["column"]).to_numpy()
+    for label in [c for c in sk.columns if c.startswith("cluster")]:
+        name = "skill_clusters_" + label.split(", ")[-1].split(" ")[0].lower()
+        tab = pd.crosstab(sk["category"], sk[label])
+        rep.table(f"{name}_by_category", tab.loc[tab.sum(axis=1).sort_values(ascending=False).index],
                   index=True)
-        sk["R1 loading"] = L["R1"].reindex(sk["column"]).to_numpy()
-        r1 = sk.groupby("cluster")["R1 loading"].agg(["size", "mean"])
-        rep.table("skill_clusters_R1", r1, index=True)
-
-    Z = StandardScaler().fit_transform(m[[c for c in m.columns if c.startswith(FEATURE_PREFIXES)]]
-                                       .to_numpy(float))
-    pca = PCA(random_state=0).fit(Z)
-    T3 = pca.transform(Z)[:, :3]
-    groups = np.array([s[:2] for s in m.index])
-    n_groups = len(set(groups))
-    within, between = mean_distances(T3, groups)
-    means = pd.DataFrame(Z).groupby(groups).transform("mean").to_numpy()
-    share = pca.explained_variance_ratio_
-    soc = pd.DataFrame([{
-        "SOC major groups": n_groups, "mean distance within": within,
-        "mean distance between": between, "within / between": within / between,
-        "silhouette, 3 components": silhouette_score(T3, groups),
-        "silhouette, all features": silhouette_score(Z, groups),
-        "feature variance reconstructed, 3 components": share[:3].sum(),
-        "feature variance reconstructed, major groups": (means ** 2).sum() / (Z ** 2).sum(),
-        f"feature variance reconstructed, {n_groups - 1} components": share[:n_groups - 1].sum()}])
-    rep.table("soc_major_groups", soc)
+        rep.table(f"{name}_R1", sk.groupby(label)["R1 loading"].agg(["size", "mean"]), index=True)
 
 
 # --------------------------------------------------------------------------- #
@@ -383,27 +304,26 @@ def main():
     global ONET_DIR
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     ap.add_argument("onet_dir", nargs="?", default=str(ONET_DIR), help="O*NET text folder")
-    ap.add_argument("-v", "--verbose", action="store_true", help="print every table")
-    args = ap.parse_args()
-    ONET_DIR = Path(args.onet_dir)
+    ONET_DIR = Path(ap.parse_args().onet_dir)
     if not ONET_DIR.exists():
-        print(f"[warn] {ONET_DIR} not found: only the cluster checks will run")
+        sys.exit(f"[fail] {ONET_DIR} not found")
+    try:
+        axes = pd.read_csv(AXES, index_col=0)[AX]
+        L = pd.read_csv(LOADINGS, index_col=0)[AX]
+    except OSError as err:
+        sys.exit(f"[fail] {err}")
+    print(f"[ok] read {len(axes)} occupations, {len(L)} feature columns; O*NET files from {ONET_DIR}")
 
-    axes = pd.read_csv(AXES, index_col=0)
-    S, axes = axes, axes[AX]
-    L = pd.read_csv(LOADINGS, index_col=0)[AX]
-    m = pd.read_csv(MASTER, index_col="onet_soc").reindex(S.index)
-    print(f"[data] {len(axes)} occupations, {len(L)} feature columns; O*NET files from {ONET_DIR}")
-
-    rep = Report(args.verbose)
+    rep = Report()
     name2cat = element_categories()
     categories(rep, L, name2cat)
-    interests(rep, axes)
-    job_zones(rep, axes)
-    software(rep, axes)
-    work_styles(rep, axes)
-    clusters(rep, L, S, m, name2cat)
-    rep.write()
+    if name2cat:
+        skill_clusters(rep, L, name2cat)
+    rep.done("1 categories")
+    for section, run in (("2 interests", interests), ("3 job zones", job_zones),
+                         ("4 software", software), ("5 work styles", work_styles)):
+        run(rep, axes)
+        rep.done(section)
 
 
 if __name__ == "__main__":

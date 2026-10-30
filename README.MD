@@ -21,35 +21,37 @@ python analysis/build_lmv.py                 #     raw labour-market table      
 python analysis/clean_lmv.py                 #     fill and derive (needs 2)      -> labour_clean.csv
 python analysis/check_lmv.py                 #     data quality of the labour-market variables (needs 2)
 
-python analysis/cluster_onet.py              #  4. are there clusters at all?       (Section 5.2)
-python analysis/resampling_stability.py      #  5. which dimensions are stable     (Section 5.3, Figure 5.1)
-python analysis/pca_rotated.py               #  6. the six rotated axes            (Section 5.3)
-python analysis/validate_axes.py             #  7. do the six names hold up?       (Sections 5.2, 5.4; needs 4 and 6)
-python analysis/validate_labour_market.py    #  8. the axes and the labour market  (Sections 5.6, 5.7; needs 6)
-python analysis/content_model_halves.py      #  9. job and worker halves           (Section 5.4; needs 6)
-python analysis/check_curvature.py           # 10. non-linear relations among the axes (Sections 5.3, 5.5)
-python analysis/rating_error.py              # 11. rating error beyond the axes    (Section 5.5)
-python analysis/check_locality.py            # 12. local structure beyond the axes (Section 5.5)
-python analysis/labour_market_regression.py  # 13. what the features can predict   (Section 5.6)
-python analysis/corner_table.py              # 14. Table 6.1                        (needs 6)
-python analysis/acs_young_share.py           # 15. data for Figure 6.2              (needs 6 and the ACS extract)
+python analysis/resampling_stability.py      #  4. which dimensions are stable     (Section 5.3, Figure 5.1)
+python analysis/pca_rotated.py               #  5. the six rotated axes            (Section 5.3)
+python analysis/clustering.py                #  6. k-means clusters of occupations (Section 5.2; needs 5)
+python analysis/validate_axes.py             #  7. do the six names hold up?       (Section 5.4; needs 5)
+python analysis/content_model_halves.py      #  8. job and worker halves           (Section 5.4; needs 5)
+python analysis/curvature.py                 #  9. non-linear relations among the axes (Sections 5.3, 5.5; needs 4)
+python analysis/rating_error.py              # 10. rating error beyond the axes    (Section 5.5; needs 4)
+python analysis/locality.py                  # 11. local structure beyond the axes (Section 5.5; needs 4)
+python analysis/labour_market_regression.py  # 12. what the features can predict   (Section 5.6)
+python analysis/corner_table.py              # 13. Table 6.1                        (needs 5)
+python analysis/acs_young_share.py           # 14. data for Figure 6.2              (needs 5 and the ACS extract)
 ```
 
-Step 6 does not need step 5 to run: the components it rotates are fixed in
-`pca_rotated.py` from the results of step 5. Rerun step 5 whenever
+Step 5 does not need step 4 to run: the components it rotates are fixed in
+`pca_rotated.py` from the results of step 4. Rerun step 4 whenever
 `master_clean.csv` changes; it warns if the components it finds differ.
+`curvature.py`, `rating_error.py` and `locality.py` read `k_max` (and
+`curvature.py` the split-halves) from `output/resampled_spectra.npz`, written
+by step 4.
 
 Steps 1 and 2 run in that order; every analysis of the features reads
-`output/master_clean.csv`, and `check_data.py`, `labour_market_regression.py` and
-`analysis/supplementary/input_variants.py` also read `output/master.csv`.
+`output/master_clean.csv`, and `check_data.py` and `labour_market_regression.py` also read `output/master.csv`.
 The labour-market scripts are needed only by `labour_market_regression.py`,
 `acs_young_share.py` and `analysis/supplementary/pca_ete.py`, which read
 `output/labour_clean.csv` (and `labour_market_regression.py` also `output/labour.csv`).
 `clean_lmv.py` takes its rows from `output/master_clean.csv`, so it runs after step 2.
 `check_data.py`, `validate_axes.py` and `rating_error.py` also read the O*NET
 text files in `data_raw/onet/db_31_0_text` (`validate_axes.py` skips the checks
-whose files are missing). `validate_axes.py` needs the outputs of both
-`cluster_onet.py` and `pca_rotated.py`.
+whose files are missing). `validate_axes.py` also reads
+`output/skillscape/skill_clusters.csv` from `analysis/supplementary/skillscape.py`
+if it is there.
 
 The scripts in `analysis/supplementary/` are run as needed rather than as part of the
 sequence; see below.
@@ -102,23 +104,6 @@ column median over those occupations. Adds the three wage ratios,
 
 ## Results
 
-**`cluster_onet.py`** → `cluster_occupations.png`,
-`cluster_skill_similarity.png`, `cluster_assignments.csv`, `cluster_skills.csv`
-
-Whether the polarisation reported in earlier work is a property of skills or of
-the way the skill matrix is built. Part A asks whether occupations themselves
-fall into groups under continuous or binarised ratings — they do not, which is
-what licenses describing them with continuous axes. Part B goes after the
-published claim directly, which is about skills rather than occupations:
-skill-skill similarity is rebuilt both by the published route (binarise at
-RCA > 1, then take the minimum conditional co-occurrence probability) and
-straightforwardly by correlating the published ratings across occupations, and
-the two are compared on how bimodal the resulting edge weights are and how
-separable the skill clusters are. The published network is also thresholded
-before its communities are read off, so the script reports how much of the data
-that step removes. Nothing here uses the rotated axes; the comparisons that
-do are in `validate_axes.py`.
-
 **`resampling_stability.py`** → `resampled_spectra.npz`,
 `resampling_stability/` (one CSV per table), `assets/subspace_stability.png`
 (Figure 5.1)
@@ -148,7 +133,17 @@ feature. The two groups are fixed in the script (`STABLE_COMPONENTS`,
 `STABLE_SUBSPACE`), copied from `resampling_stability.py`, so it runs in
 seconds on its own; it warns if they differ from what that script last found.
 
-**`validate_axes.py`** → `validate_axes.xlsx`
+**`clustering.py`** → `clustering/` (one CSV per table, `silhouette.png`)
+
+Whether occupations fall into groups. k-means for k = 2 to 10 on the z-scored
+matrix, on the matrix binarised at RCA > 1, on its first 10 principal
+components, and on what is left after removing PC1-6 and their quadratic
+curvature (all columns and first 10 components), each against the same
+clustering of Gaussian data with the same covariance. Also the |r| of the
+k = 2 partition with the axes, and the SOC major groups in the space of the
+leading components.
+
+**`validate_axes.py`** → `validate_axes/` (one CSV per table)
 
 Whether R1-R6 measure what their names say, against descriptions of the same
 occupations that took no part in forming the axes, all from the O*NET text
@@ -156,21 +151,9 @@ files: O*NET's expert grouping of the elements (mean loading per category and
 the categories that form each pole), the RIASEC interest types with Prediger's
 people-things and data-ideas dimensions, the 41 basic interest areas, the job
 zones, the software each occupation uses and the work styles (Impact scale).
-Also the parts of Section 5.2 that need the axes: how the two-cluster split of
-occupations and the two skill clusters line up with them, and the SOC major
-groups in the space of the leading components. Each check runs if its input is
-present. Takes the O*NET folder as an optional argument; prints one line per
-check, and every table with `-v`.
-
-**`validate_labour_market.py`** → `validate_labour_market.xlsx`
-
-The axes and the labour-market variables, which take no part in forming them:
-whether adding them to the decomposition changes any of R1-R6; the median wage
-in each quadrant of the R1 × R2 plane; and the correlation of each axis with the
-labour-market variables, required education, the Work Context items on
-decisions and error, and the Eloundou et al. exposure measures (if
-`data_raw/eloundou_occ_level.csv` is present). Prints one line per check, and
-every table with `-v`.
+If `skillscape.py` has run, also the two skill clusters by O*NET category and
+by R1 loading. Takes the O*NET folder as an optional argument; prints one
+status line per section.
 
 **`content_model_halves.py`** → `content_model_halves.xlsx`
 
@@ -180,53 +163,41 @@ at the same axes on their own: each half's reproducing leading subspace, how
 well it recovers each of R1-R6, canonical correlations between the halves, and
 each half's own rotated axes against the other's.
 
-**`check_curvature.py`** → `curvature_check.xlsx`
+**`curvature.py`** → `curvature/` (one CSV per table)
 
-Whether the axes are related non-linearly. Part 0, within tier 1: whether
-R1, R2 and R3 depend on one another beyond the linear, under varimax and under
-promax (conditional means out of fold with permutation nulls, distance
-correlation, changes in spread, the shape of the joint distribution), and
-whether the pattern "physical work needs less judgement" belongs to physical
-effort or to physical skill. Then the same question at both tier boundaries:
-how much of what comes after is curvature of the components before it, and is
-what is left still structure? Part 1, the boundary at 3: how much of R4-R6 R1-R3 predict non-linearly (out of
-fold, with permutation nulls), which squares and products do it, and whether
-tier 2 still reproduces once that is removed, each half of a split decomposed
-and cleaned on its own (the residual of the 4-6 scores, as a subspace and axis
-by axis; and the data matrix with PC1-3 and
-their curvature removed, decomposed again, to see whether it still leads with a
-stable three-dimensional block in the space of the original 4-6 and whether the
-boundary after it holds); and, on the full sample, the square or product of
-R1-R3 most correlated with each of R4-R6, and R4-R6 rotated again after the
-removal, with their congruence with the originals and their share of the
-variance before and after. Part 2, the boundary at 6: how much of PC7-14 PC1-6
-predict non-linearly, with refits inside each fold and synthetic data with a
-known floor as a positive control, the spectrum after that curvature is
-removed, and which bends carry it. Part 3: normal scores against the floor of
-the rating scales.
+Whether the axes and later components are non-linear functions of earlier
+ones. Part 0: whether R1, R2 and R3 depend on one another beyond the linear
+(conditional means out of fold with permutation nulls, distance correlation,
+changes in spread, the shape of the joint distribution), and how composites of
+physical exertion, skilled physical work and complex reasoning items relate to
+them. Part 1: how much of R4-R6 R1-R3 predict non-linearly, which squares and
+products do it, and whether PC4-6 still reproduce across split-halves once
+that curvature is removed; R4-R6 rotated again after the removal. Part 2: how
+much of PC7 to PC `k_max`, and of all the variance after PC6, PC1-6 predict
+non-linearly, with refits inside each fold, a trimmed sample and synthetic data
+with a known floor as a positive control; the spectrum after that curvature is
+removed; and which squares and products carry it. The rank-normal version of
+the matrix is a variant in `variants_experiment.py`.
 
-**`rating_error.py`** → `rating_error.xlsx`
+**`rating_error.py`** → `rating_error/` (one CSV per table)
 
-How much of each item, and of each principal component, is sampling error in
-O*NET's ratings, from the published standard errors; an error-only spectrum as
-a measured null for parallel analysis; where components 7-14 load by block
-(candidate method factors: errors shared within one questionnaire); and whether
+How much of each IM and CX column, and of each principal component, is
+sampling error in O*NET's ratings, from the published standard errors (the
+CTP columns have none and are left out); an error-only spectrum as a measured
+null for parallel analysis; where PC7 to PC `k_max` load by block; and whether
 the items the six axes explain poorly are simply the unreliable ones.
 
-**`check_locality.py`** → `check_locality.xlsx`
+**`locality.py`** → `locality/` (one CSV per table)
 
-Whether what lies beyond the six axes is local: features that separate a few
-occupations sharply rather than ordering all of them. k-means is poor at
-finding a small group next to a large one, so kurtosis is used instead. Part A
-finds the most and least kurtotic direction in each subspace (PC1-3, PC4-6,
-PC7-14, PC4-14, PC1-14) by projection pursuit, against the same search on
-Gaussian data, with an outlier check, the occupation counts along the tail and
-the occupations in it. Part B goes through PC7-14 one direction at a time,
-curvature of the six removed, to find how many of its directions are
-heavy-tailed and how much of its variance they carry, and repeats this on
-rank-normal scores so that skewed single scales cannot produce the tails.
-Part C asks whether some structure is specific to one region of the space, by
-comparing regional and global directions on held-out occupations.
+Whether what lies beyond the six axes is local. Part A finds the most and
+least kurtotic direction in each subspace (PC1-3, PC4-6, PC7 to PC `k_max`,
+and others) by projection pursuit, against the same search on Gaussian data.
+Part B splits PC7 to PC `k_max`, curvature of PC1-6 removed, into its
+heavy-tailed directions one at a time, on the ratings and on rank-normal
+scores. Part C tests whether the covariance of what PC1-6 and their curvature
+leave differs between k-means regions of PC1-6 and between SOC major groups
+(label permutations), and whether each group's extra direction reproduces
+between halves of the group.
 
 **`labour_market_regression.py`** → `orthogonality.xlsx`
 
@@ -261,20 +232,23 @@ In `analysis/supplementary/`. Run from the project root, e.g.
 `python analysis/supplementary/pca_ete.py`. None of them is reported in the main text
 except where noted.
 
-**`analysis/supplementary/input_variants.py`** → `input_variants.xlsx`
+**`analysis/supplementary/variants_experiment.py`** → `variants_experiment/`
 
-The same analysis on different inputs: Level instead of Importance and the two
-together (Appendix A), without Knowledge, Work Context alone, and each half of
-the Content Model (Appendix B). For each: parallel analysis, components
-reproducing one by one, nested-subspace stability, the paper's tiers rotated
-and tested, and agreement with the six axes. Its parallel-analysis counts are
-the table in Section 5.5. Run after `pca_rotated.py`.
+The resampling experiment of `resampling_stability.py` on other input
+matrices (Appendices A and B): Level instead of Importance and the two
+together, with and without Knowledge; CXP alone; each half of the Content
+Model; the blocks reweighted to equal total variance or as in multiple factor
+analysis; all scales together; and the paper's matrix with every column
+replaced by the normal scores of its ranks. For each: the stable components
+and subspace it finds, their rotated axes, and how they match R1-R6. Run after
+`pca_rotated.py`.
 
-**`analysis/supplementary/block_weights.py`** → `block_weights.xlsx`
+**`analysis/supplementary/skillscape.py`** → `skillscape/`
 
-The same analysis with the blocks reweighted (Appendix B): every block given
-the same total variance, and every block's leading eigenvalue set to 1 as in
-multiple factor analysis. Run after `pca_rotated.py`.
+The skill-skill similarity of Alabdulkareem et al. (2018), rebuilt by
+binarising at RCA > 1 and taking the minimum conditional co-occurrence
+probability, against the correlation of the ratings across occupations: how
+bimodal each is and how well each splits into two skill clusters.
 
 **`analysis/supplementary/pca_ete.py`** → `ete_axes.csv`
 

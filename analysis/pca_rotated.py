@@ -163,11 +163,6 @@ def main():
 # Not used above; imported by other scripts. Remove each when its users no
 # longer import it.
 # ============================================================================ #
-STABLE_THRESH = 0.90    # p05 of congruence needed to call a component, block or axis stable
-K_MAX = 15              # components examined by the stability checks
-N_SPLIT_SUB = 200       # resamples per stability check
-
-
 def standardize(X):
     """z-score with the population sd, as StandardScaler does."""
     return (X - X.mean(axis=0)) / X.std(axis=0)
@@ -213,52 +208,6 @@ def banner(text):
     print("=" * 66)
 
 
-def split_statistics(X, rng, n_splits):
-    """Per split of X into halves, each z-scored and decomposed: the smallest
-    and mean squared principal-angle cosine of the leading-k subspaces for
-    k = 1..K_MAX, each component's best-match congruence, and both halves'
-    eigenvalues."""
-    n = len(X)
-    min_cos = np.empty((n_splits, K_MAX))
-    msq_cos = np.empty((n_splits, K_MAX))
-    single = np.empty((n_splits, K_MAX))
-    half_ev = np.empty((2 * n_splits, K_MAX + 1))
-    for s in range(n_splits):
-        perm = rng.permutation(n)
-        h1, h2 = perm[: n // 2], perm[n // 2:]
-        e1, V1 = eigen(X[h1])
-        e2, V2 = eigen(X[h2])
-        half_ev[2 * s], half_ev[2 * s + 1] = e1[: K_MAX + 1], e2[: K_MAX + 1]
-        for k in range(1, K_MAX + 1):
-            c = subspace_cosines(V1[:, :k], V2[:, :k])
-            min_cos[s, k - 1] = c.min()
-            msq_cos[s, k - 1] = (c ** 2).mean()
-        single[s] = np.abs(V1[:, :K_MAX].T @ V2[:, :K_MAX]).max(axis=1)
-    return min_cos, msq_cos, single, half_ev
-
-
-def promax(A, m=4):
-    """Promax rotation of a varimax-rotated loading matrix A. Returns the
-    pattern matrix A U, the factor correlation matrix and U."""
-    Q = A * np.abs(A) ** (m - 1)
-    U = np.linalg.lstsq(A, Q, rcond=None)[0]
-    d = np.diag(np.linalg.inv(U.T @ U))
-    U = U @ np.diag(np.sqrt(d))
-    pattern = A @ U
-    Uinv = np.linalg.inv(U)
-    Phi = Uinv @ Uinv.T
-    dg = np.sqrt(np.diag(Phi))
-    Phi = Phi / np.outer(dg, dg)
-    return pattern, Phi, U
-
-
-def sign_and_order(L, R, feats, anchors, offset, verbose=True):
-    """Old interface of sign_by_anchors()."""
-    return sign_by_anchors(L, R, feats, anchors, f"group starting at R{offset + 1}", verbose)
-
-
-TIER1_ANCHORS = COMPONENT_ANCHORS
-TIER2_ANCHORS = SUBSPACE_ANCHORS
 rotate_tier = rotate_group
 tier_scores = group_scores
 

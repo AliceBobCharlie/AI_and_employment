@@ -55,7 +55,11 @@ each column is multiplied by its weight.
 
 SEED seeds three generators: one for the permuted copies, one for the
 bootstrap resamples, and one shared by the split-halves and the null.
+
+load_spectra() reads resampled_spectra.npz back as a dict of arrays.
 """
+
+import sys
 
 import numpy as np
 import pandas as pd
@@ -137,6 +141,14 @@ def draw_resamples(Xz, k_max, w=None):
          "split_ev": np.stack([[h[0] for h in pair] for pair in split]),
          "split_V": np.stack([[h[1] for h in pair] for pair in split])}
     return s, null
+
+
+def load_spectra():
+    """The arrays saved to SPECTRA by main(); exits if the file is missing."""
+    if not SPECTRA.exists():
+        sys.exit(f"[fail] {SPECTRA} not found; run resampling_stability.py first")
+    with np.load(SPECTRA) as z:
+        return {k: z[k] for k in z.files}
 
 
 def pairs(s, kind):

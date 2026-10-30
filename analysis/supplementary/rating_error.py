@@ -1,105 +1,69 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-rating_error.py -- how much of the variance in the paper's matrix, and how
-much of each principal component, is sampling error in O*NET's ratings?
-(Section 5.5)
+rating_error.py -- estimate how much of the variance of the IM and CX columns
+of the feature matrix, and of each of its principal components, is sampling
+error of the O*NET ratings.
 
-Every O*NET rating is the mean over a sample of incumbents, occupation experts
-or analysts, and O*NET publishes its standard error. For the 216 columns of
-the paper's matrix (Importance for Abilities, Skills, Knowledge and Work
-Activities, Context for Work Context) and the 910 occupations of
-output/master_clean.csv:
+Input:  output/master_clean.csv, output/resampled_spectra.npz (for k_max), and
+        the O*NET text files in ONET_DIR (one per block in BLOCKS)
+Output: one CSV per table in output/rating_error/
 
-  item error share   e_j = mean over occupations of SE^2, divided by the
-                     variance of the item across occupations. Because the
-                     analysis z-scores every column, e_j is also the error
-                     variance of the standardised column. The reliability of
-                     the item is 1 - e_j.
-                     SE is published only for incumbent and analyst ratings;
-                     occupation-expert and provisional analyst ratings carry
-                     none. e_j is therefore computed on the occupations with a
-                     SE and applied to the item as a whole, which assumes the
-                     ratings without a SE are no more and no less precise. The
-                     share of occupations with a SE is reported for every item.
+The columns are the IM (Abilities, Skills, Knowledge, Work Activities) and CX
+(Work Context) columns of master_clean.csv. The CTP columns are left out: the
+text files give them no standard error.
 
-  error along each component
-                     With error covariance C (216 x 216, standardised units),
-                     the error variance along the unit eigenvector v_k of the
-                     correlation matrix is v_k' C v_k, to be set against the
-                     eigenvalue lambda_k. Summed over all 216 components it is
-                     trace(C) = sum of e_j, however C is arranged.
-                       independent errors   C = diag(e_j)
-                       within-group errors  the same respondents rate every
-                                            item of a questionnaire, so a
-                                            response style shared within an
-                                            occupation's sample correlates the
-                                            errors of items in one group. The
-                                            correlation rho cannot be estimated
-                                            from published data, so it is set
-                                            to RHOS as a sensitivity range.
-                                            Groups: Abilities with Skills (the
-                                            same analysts rate both), Knowledge,
-                                            Work Activities, Work Context (each
-                                            a separate incumbent questionnaire).
-                                            Cov_jl = rho * mean_i(SE_ij SE_il) /
-                                            (sd_j sd_l) for j, l in one group.
-
-  error-only spectrum
-                     N_SIM matrices of pure rating error are simulated, each
-                     cell drawn with the published SE of that occupation and
-                     item (the item's root-mean-square SE where none is
-                     published), standardised by the item's sd, with the
-                     within-group correlation rho. The 95th percentile of their
-                     k-th eigenvalue is what rating error alone produces; an
-                     observed eigenvalue above it is more than rating error.
-                     This is parallel analysis with a measured null instead of
-                     a permutation null.
-
-  reduced correlation matrix
-                     Eigenvalues of R - diag(e_j): the correlation matrix with
-                     the error variance taken off the diagonal, as in principal
-                     axis factoring. What is left in the tail is item-specific
-                     content plus any weak shared structure.
-
-  items against the six axes
-                     Whether the items the six axes explain poorly are simply
-                     the unreliable ones. Each column is left out, the first six
-                     principal components of the other 215 are computed, and the
-                     column is predicted from those six scores and, separately,
-                     from all 215 other columns, by ridge regression (five-fold
-                     cross-validated R2, penalty chosen in-fold). R2 /
-                     reliability is the share of the item's reliable variance
-                     that is predicted; it can exceed 1 when errors are
-                     correlated within a questionnaire, because shared error is
-                     predictable from the other items.
-
-  where components 7-14 load
-                     The share of each component's squared loadings that falls
-                     in each block, against the block's share of columns. A
-                     component confined to one block is a candidate method
-                     factor: errors shared within one questionnaire, which the
-                     within-group correlation rho above stands for.
-
-Reads data_raw/onet/db_31_0_text and output/master_clean.csv. Files are read
-one at a time, only the columns needed.
-
-Run from the project root:  python rating_error.py
-Writes output/rating_error.xlsx and prints every sheet.
+1. load() reads each block with read_block(), keeping the analysis scale, the
+   rows without a category and the occupations of master_clean.csv, and
+   pivots value, standard error (SE), N and domain source to occupation x
+   column tables. checks.csv records the column and cell counts and the
+   largest difference from the values in master_clean.csv.
+2. item_table() gives for each column: its variance across occupations, the
+   share of occupations with a SE, the mean SE^2, the error share e_j = mean
+   SE^2 / variance and the reliability 1 - e_j, also on Analyst and on
+   Incumbent ratings alone. e_j is computed on the occupations with a SE.
+   blocks.csv summarises it by block.
+3. standardised_sigma() gives every cell's SE divided by the column's sd, with
+   the column's RMS SE where none is published. error_covariance() builds the
+   error covariance C for each rho in RHOS: the mean squared SE on the
+   diagonal, rho times the mean product of SEs between columns of the same
+   error group in BLOCKS, and 0 elsewhere.
+4. component_table() gives, for each of the first N_COMPONENTS_SHOWN
+   eigenvectors v of the correlation matrix and for the ranges in
+   component_ranges(), the error variance v' C v and its share of the
+   eigenvalue.
+5. error_spectrum() simulates N_SIM matrices of error alone (each cell normal
+   with its standardised SE, with correlation rho within an error group) and
+   gives the p95 of each eigenvalue and the number of observed eigenvalues
+   above it before the first one below.
+6. The eigenvalues of R - diag(e_j) (reduced_matrix.csv) and the variance
+   beyond component k_max before and after the reduction (tail_summary.csv).
+7. block_concentration() gives, for PC7 to PC k_max, the share of the squared
+   loadings in each block against the block's share of columns.
+8. items_vs_axes() leaves each column out, computes the first N_AXES principal
+   components of the others, and gives the five-fold out-of-fold ridge R2 of
+   the column on those scores and on all other columns (cv_r2()), each
+   divided by the column's reliability; summarised by reliability band and by
+   block.
 """
+
+import sys
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
-from pathlib import Path
 from scipy.stats import spearmanr
 from sklearn.linear_model import RidgeCV
 from sklearn.model_selection import KFold
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from resampling_stability import load_spectra   # noqa: E402
+
 ONET_DIR = Path("data_raw/onet/db_31_0_text")
 CLEAN = Path("output/master_clean.csv")
-OUT = Path("output/rating_error.xlsx")
+OUT = Path("output/rating_error")
 
 SEED = 0
 N_SIM = 200
@@ -121,8 +85,12 @@ COLUMNS = {
     "Standard Error": "se", "Recommend Suppress": "suppress",
     "Domain Source": "source",
 }
-TIERS = {"components 1-3": range(0, 3), "components 4-6": range(3, 6),
-         "components 7-14": range(6, 14), "components 15-216": range(14, 216)}
+
+
+def component_ranges(k_max, p):
+    """Label -> component indices: PC1-3, PC4-6, PC7 to PC k_max and the rest."""
+    return {"components 1-3": range(0, 3), "components 4-6": range(3, 6),
+            f"components 7-{k_max}": range(6, k_max), f"components {k_max + 1}-{p}": range(k_max, p)}
 
 
 # --------------------------------------------------------------------------- #
@@ -133,7 +101,6 @@ def read_block(prefix, socs):
     parts = []
     for stem in stems:
         path = ONET_DIR / f"{stem}.txt"
-        print(f"  reading {path}")
         parts.append(pd.read_csv(path, sep="\t", dtype=str, encoding="utf-8",
                                  usecols=lambda c: c in COLUMNS).rename(columns=COLUMNS))
     df = pd.concat(parts, ignore_index=True)
@@ -174,8 +141,6 @@ def load(clean):
         {"check": "cells with a published SE", "value": int(se.notna().sum().sum())},
         {"check": "share of cells with a published SE", "value": float(se.notna().mean().mean())},
     ])
-    if missing_cols:
-        print("  columns not found:", missing_cols[:10])
     groups = np.array([BLOCKS[c.split("_")[0]][2] for c in cols])
     return cols, groups, value.to_numpy(float), se.to_numpy(float), n.to_numpy(float), source, checks
 
@@ -224,7 +189,7 @@ def error_covariance(S, groups, rho):
     return C
 
 
-def component_table(ev, V, covs):
+def component_table(ev, V, covs, ranges):
     rows = []
     for k in range(N_COMPONENTS_SHOWN):
         row = {"component": k + 1, "eigenvalue": ev[k]}
@@ -233,7 +198,7 @@ def component_table(ev, V, covs):
             row[f"error variance, rho={rho}"] = e
             row[f"error share, rho={rho}"] = e / ev[k]
         rows.append(row)
-    for name, idx in TIERS.items():
+    for name, idx in ranges.items():
         idx = list(idx)
         row = {"component": name, "eigenvalue": ev[idx].sum()}
         for rho, C in covs.items():
@@ -241,7 +206,7 @@ def component_table(ev, V, covs):
             row[f"error variance, rho={rho}"] = e
             row[f"error share, rho={rho}"] = e / ev[idx].sum()
         rows.append(row)
-    total = {"component": "all 216", "eigenvalue": ev.sum()}
+    total = {"component": f"all {len(ev)}", "eigenvalue": ev.sum()}
     for rho, C in covs.items():
         total[f"error variance, rho={rho}"] = np.trace(C)
         total[f"error share, rho={rho}"] = np.trace(C) / ev.sum()
@@ -287,6 +252,7 @@ def items_vs_axes(cols, X, items):
     """Leave-one-column-out R2 from the six leading components and from all
     other columns, set against each item's reliability."""
     Z = (X - X.mean(axis=0)) / X.std(axis=0)
+    other = f"R2 other {len(cols) - 1}"
     rows = []
     for j, col in enumerate(cols):
         rest = np.delete(Z, j, axis=1)
@@ -294,34 +260,34 @@ def items_vs_axes(cols, X, items):
         _, _, vt = np.linalg.svd(rest, full_matrices=False)
         rows.append({"item": col,
                      "R2 six axes": cv_r2(rest @ vt[:N_AXES].T, Z[:, j]),
-                     "R2 other 215": cv_r2(rest, Z[:, j])})
+                     other: cv_r2(rest, Z[:, j])})
     d = pd.DataFrame(rows).merge(items[["item", "block", "reliability 1 - e_j"]], on="item")
     d["six axes / reliability"] = d["R2 six axes"] / d["reliability 1 - e_j"]
-    d["other 215 / reliability"] = d["R2 other 215"] / d["reliability 1 - e_j"]
+    d[f"{other} / reliability"] = d[other] / d["reliability 1 - e_j"]
 
     rel = d["reliability 1 - e_j"]
     summary = pd.DataFrame([
         {"measure": "Spearman(reliability, R2 six axes)", "value": spearmanr(rel, d["R2 six axes"])[0]},
         {"measure": "Pearson(reliability, R2 six axes)", "value": np.corrcoef(rel, d["R2 six axes"])[0, 1]},
-        {"measure": "Spearman(reliability, R2 other 215)", "value": spearmanr(rel, d["R2 other 215"])[0]},
+        {"measure": f"Spearman(reliability, {other})", "value": spearmanr(rel, d[other])[0]},
     ])
     bands = pd.cut(rel, [0, .7, .8, .9, 1], labels=["<0.7", "0.7-0.8", "0.8-0.9", ">=0.9"])
-    by_band = (d.groupby(bands, observed=True)[["R2 six axes", "R2 other 215", "six axes / reliability"]]
+    by_band = (d.groupby(bands, observed=True)[["R2 six axes", other, "six axes / reliability"]]
                 .median().assign(items=d.groupby(bands, observed=True).size()).reset_index()
                 .rename(columns={"reliability 1 - e_j": "reliability band"}))
     by_block = d.groupby("block")[["reliability 1 - e_j", "R2 six axes", "six axes / reliability",
-                                   "R2 other 215", "other 215 / reliability"]].median().reset_index()
+                                   other, f"{other} / reliability"]].median().reset_index()
     return d.sort_values("R2 six axes"), summary, by_band, by_block
 
 
 # --------------------------------------------------------------------------- #
-def block_concentration(V, cols):
-    """For components 7-14: the share of the squared loadings in each block,
+def block_concentration(V, cols, k_max):
+    """For PC7 to PC k_max: the share of the squared loadings in each block,
     and the largest block share over that block's share of columns."""
     blocks = np.array([c.split("__")[0] for c in cols])
     names = list(dict.fromkeys(blocks))
     rows = [{"component": "share of columns", **{b: (blocks == b).mean() for b in names}}]
-    for t in TIERS["components 7-14"]:
+    for t in range(6, k_max):
         sq = V[:, t] ** 2
         row = {"component": f"PC{t + 1}", **{b: sq[blocks == b].sum() for b in names}}
         row["largest block share / its column share"] = max(
@@ -332,11 +298,20 @@ def block_concentration(V, cols):
 
 def main():
     rng = np.random.default_rng(SEED)
-    clean = pd.read_csv(CLEAN)
-    print(f"[read] {CLEAN}: {len(clean)} occupations")
+    try:
+        clean = pd.read_csv(CLEAN)
+    except OSError as err:
+        sys.exit(f"[fail] read {CLEAN}: {err}")
+    if not ONET_DIR.exists():
+        sys.exit(f"[fail] {ONET_DIR} not found")
+    k_max = int(load_spectra()["k_max"])
+    print(f"[ok] read {CLEAN}: {len(clean)} occupations; k_max {k_max}")
     cols, groups, X, SE, N, source, checks = load(clean)
     if np.isnan(X).any():
-        raise ValueError("some cells have no value in the text files; see the checks sheet")
+        OUT.mkdir(parents=True, exist_ok=True)
+        checks.to_csv(OUT / "checks.csv", index=False)
+        sys.exit(f"[fail] some cells have no value in the text files; see {OUT / 'checks.csv'}")
+    print(f"[ok] {len(cols)} columns with values for every occupation")
 
     items = item_table(cols, groups, X, SE, N, source)
     blocks = items.groupby("block").agg(
@@ -356,49 +331,46 @@ def main():
     R = np.corrcoef(X.T)
     ev, V = np.linalg.eigh(R)
     ev, V = ev[::-1], V[:, ::-1]
+    p = len(cols)
+    ranges = component_ranges(k_max, p)
     S = standardised_sigma(X, SE)
     covs = {rho: error_covariance(S, groups, rho) for rho in RHOS}
-    components = component_table(ev, V, covs)
+    components = component_table(ev, V, covs, ranges)
     spectrum, spectrum_summary = error_spectrum(S, groups, rng, ev)
+    print("[ok] error along components and error-only spectrum")
 
     e = items["error share e_j"].to_numpy()
     ev_reduced = np.linalg.eigvalsh(R - np.diag(e))[::-1]
     reduced = pd.DataFrame({"component": np.arange(1, N_COMPONENTS_SHOWN + 1),
                             "eigenvalue of R": ev[:N_COMPONENTS_SHOWN],
                             "eigenvalue of R - diag(e)": ev_reduced[:N_COMPONENTS_SHOWN]})
+    rest = list(ranges)[-1]
     tail = pd.DataFrame([{
-        "variance beyond component 14 (sum of eigenvalues)": ev[14:].sum(),
-        "share of total": ev[14:].sum() / ev.sum(),
+        f"variance beyond component {k_max} (sum of eigenvalues)": ev[k_max:].sum(),
+        "share of total": ev[k_max:].sum() / ev.sum(),
         "total rating error (sum of e_j)": e.sum(),
         "rating error as share of total": e.sum() / ev.sum(),
-        "error along components 15-216, independent errors": components.loc[
-            components["component"] == "components 15-216", "error variance, rho=0.0"].iloc[0],
-        "reduced matrix: variance beyond 14": ev_reduced[14:].clip(min=0).sum(),
+        f"error along {rest}, independent errors": components.loc[
+            components["component"] == rest, "error variance, rho=0.0"].iloc[0],
+        f"reduced matrix: variance beyond {k_max}": ev_reduced[k_max:].clip(min=0).sum(),
         "reduced matrix: negative eigenvalues (sum)": ev_reduced[ev_reduced < 0].sum(),
     }])
+    concentration = block_concentration(V, cols, k_max)
 
-    concentration = block_concentration(V, cols)
-
-    print("[items against the six axes] 216 leave-one-out fits")
     vs_axes, vs_summary, vs_band, vs_block = items_vs_axes(cols, X, items)
+    print(f"[ok] {p} leave-one-column-out fits")
 
-    sheets = {"checks": checks, "blocks": blocks, "tail_summary": tail,
+    tables = {"checks": checks, "blocks": blocks, "tail_summary": tail,
               "components": components, "error_spectrum": spectrum,
               "error_spectrum_summary": spectrum_summary, "reduced_matrix": reduced,
-              "block_concentration_7_14": concentration,
+              "block_concentration": concentration,
               "items": items.sort_values("error share e_j", ascending=False),
               "axes_vs_reliability": vs_summary, "axes_by_reliability_band": vs_band,
               "axes_by_block": vs_block, "items_vs_axes": vs_axes}
-    OUT.parent.mkdir(exist_ok=True)
-    with pd.ExcelWriter(OUT) as writer:
-        for name, df in sheets.items():
-            df.to_excel(writer, sheet_name=name, index=False)
-    with pd.option_context("display.width", 250, "display.max_columns", 30,
-                           "display.max_rows", 300, "display.float_format", "{:.4f}".format):
-        for name, df in sheets.items():
-            print(f"\n=== {name} ({len(df)} rows) ===")
-            print(df.to_string(index=False))
-    print(f"\n[ok] wrote {OUT}")
+    OUT.mkdir(parents=True, exist_ok=True)
+    for name, df in tables.items():
+        df.to_csv(OUT / f"{name}.csv", index=False)
+    print(f"[ok] wrote {len(tables)} tables to {OUT}/")
 
 
 if __name__ == "__main__":

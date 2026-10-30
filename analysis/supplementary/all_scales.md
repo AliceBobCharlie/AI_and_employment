@@ -1,4 +1,4 @@
-# All scales: axes with every rating scale in the input
+ # All scales: axes with every rating scale in the input
 
 Script: `supplementary/all_scales.py` (descriptive; prints only).
 

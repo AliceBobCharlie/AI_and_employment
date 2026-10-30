@@ -19,11 +19,13 @@ Output: output/variants_experiment/summary.csv   one row per variant
           column_correlations.csv  r of every column with every axis
           occupation_scores.csv    every occupation's score on every axis
 
-VARIANTS gives each variant's column prefixes and weighting. For each, in
-order:
+VARIANTS gives each variant's column prefixes, weighting and transform. For
+each, in order:
 
 1. matrix() takes the master_clean.csv columns with those prefixes, in the
-   order of master_clean.csv, drops any with zero variance and z-scores them.
+   order of master_clean.csv, and drops any with zero variance. With the
+   transform "rank normal", rank_normal() replaces each column by the normal
+   scores of its ranks. The columns are then z-scored.
    weights() gives the column weights: 1; CXP_WEIGHT on the variance of every
    CXP column ("cxp"); the same total variance for every block, by
    1 / sqrt(columns in the block) ("equal blocks"); or 1 / sqrt(the block's
@@ -49,6 +51,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 from scipy.optimize import linear_sum_assignment
+from scipy.stats import norm, rankdata
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from pca_rotated import block_of, rotate_group, standardize            # noqa: E402
@@ -66,26 +69,38 @@ LV = ("skills_lv__", "abilities_lv__", "knowledge_lv__", "workact_lv__")
 LV_NO_KNOWLEDGE = ("skills_lv__", "abilities_lv__", "workact_lv__")
 CX = ("workctx_cx__", "workctx_ctp__")
 CXP = ("workctx_cxp__", "workctx_ctp__")
-VARIANTS = {   # folder: (description, prefixes, weighting)
-    "im_cx": ("IM/CX (the paper's matrix)", IM + CX, None),
-    "lv_cx": ("LV/CX", LV + CX, None),
-    "lv_cx_no_knowledge": ("LV without Knowledge/CX", LV_NO_KNOWLEDGE + CX, None),
-    "im_lv_cx": ("IM+LV/CX", IM + LV + CX, None),
-    "im_lv_cx_no_knowledge": ("IM+LV without Knowledge/CX", IM + LV_NO_KNOWLEDGE + CX, None),
-    "cxp_only": ("CXP and CTP only", CXP, None),
-    "job_half": ("job half (Work Activities, Work Context)", ("workact_im__",) + CX, None),
-    "worker_half": ("worker half (Skills, Abilities, Knowledge)", ("skills_im__", "abilities_im__", "knowledge_im__"), None),
-    "equal_blocks": ("IM/CX, every block the same total variance", IM + CX, "equal blocks"),
-    "mfa": ("IM/CX, every block's leading eigenvalue 1 (MFA)", IM + CX, "mfa"),
-    "all_scales": ("IM, LV without Knowledge, CXP, CTP", IM + LV_NO_KNOWLEDGE + CXP, "cxp"),
+VARIANTS = {   # folder: (description, prefixes, weighting, transform)
+    "im_cx": ("IM/CX (the paper's matrix)", IM + CX, None, None),
+    "im_cx_rank_normal": ("IM/CX, rank-normal scores of every column", IM + CX, None, "rank normal"),
+    "lv_cx": ("LV/CX", LV + CX, None, None),
+    "lv_cx_no_knowledge": ("LV without Knowledge/CX", LV_NO_KNOWLEDGE + CX, None, None),
+    "im_lv_cx": ("IM+LV/CX", IM + LV + CX, None, None),
+    "im_lv_cx_no_knowledge": ("IM+LV without Knowledge/CX", IM + LV_NO_KNOWLEDGE + CX, None, None),
+    "cxp_only": ("CXP and CTP only", CXP, None, None),
+    "job_half": ("job half (Work Activities, Work Context)", ("workact_im__",) + CX, None, None),
+    "worker_half": ("worker half (Skills, Abilities, Knowledge)",
+                    ("skills_im__", "abilities_im__", "knowledge_im__"), None, None),
+    "equal_blocks": ("IM/CX, every block the same total variance", IM + CX, "equal blocks", None),
+    "mfa": ("IM/CX, every block's leading eigenvalue 1 (MFA)", IM + CX, "mfa", None),
+    "all_scales": ("IM, LV without Knowledge, CXP, CTP", IM + LV_NO_KNOWLEDGE + CXP, "cxp", None),
 }
 
 
-def matrix(clean, prefixes):
-    """The z-scored columns of clean with the prefixes, in clean's order, with nonzero variance."""
+def rank_normal(X):
+    """Each column replaced by the normal scores of its ranks."""
+    n = len(X)
+    return np.column_stack([norm.ppf((rankdata(c) - 0.5) / n) for c in X.T])
+
+
+def matrix(clean, prefixes, transform):
+    """The columns of clean with the prefixes, in clean's order, with nonzero
+    variance, transformed and z-scored."""
     df = clean[[c for c in clean.columns if c.startswith(prefixes)]]
     df = df.loc[:, df.std() > 0]
-    return standardize(df.to_numpy(float)), list(df.columns)
+    X = df.to_numpy(float)
+    if transform == "rank normal":
+        X = rank_normal(X)
+    return standardize(X), list(df.columns)
 
 
 def weights(Xz, feats, weighting):
@@ -148,10 +163,10 @@ def canonical(A, B):
     return np.linalg.svd(Qa.T @ Qb, compute_uv=False)
 
 
-def run_variant(folder, description, prefixes, weighting, clean, paper):
+def run_variant(folder, description, prefixes, weighting, transform, clean, paper):
     """Steps 1-4 for one variant; returns its row of summary.csv."""
     out = OUT / folder
-    Xz, feats = matrix(clean, prefixes)
+    Xz, feats = matrix(clean, prefixes, transform)
     w = weights(Xz, feats, weighting)
     print(f"[ok] {folder}: {Xz.shape[1]} columns")
     res = run_experiment(Xz, feats, out, out / "resampled_spectra.npz", out / "subspace_stability.png",
