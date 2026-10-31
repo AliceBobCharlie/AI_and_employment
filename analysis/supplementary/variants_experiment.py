@@ -23,14 +23,15 @@ VARIANTS gives each variant's column prefixes, weighting and transform. For
 each, in order:
 
 1. matrix() takes the master_clean.csv columns with those prefixes, in the
-   order of master_clean.csv, and drops any with zero variance. With the
-   transform "rank normal", rank_normal() replaces each column by the normal
-   scores of its ranks. The columns are then z-scored.
-   weights() gives the column weights: 1; CXP_WEIGHT on the variance of every
-   CXP column ("cxp"); the same total variance for every block, by
-   1 / sqrt(columns in the block) ("equal blocks"); or 1 / sqrt(the block's
-   leading eigenvalue) ("mfa"). block_of() from pca_rotated.py gives each
-   column's block.
+   order of master_clean.csv. For the prefix ENDS it adds, for each Work
+   Context item, ends(): the share in its two end categories, c1 + c5, with
+   c1 = 100 minus the item's c2 to c5. Columns with zero variance are dropped.
+   With the transform "rank normal", rank_normal() replaces each column by
+   the normal scores of its ranks. The columns are then z-scored.
+   weights() gives the column weights: 1; the same total variance for every
+   block, by 1 / sqrt(columns in the block) ("equal blocks"); or
+   1 / sqrt(the block's leading eigenvalue) ("mfa"). block_of() from
+   pca_rotated.py gives each column's block.
 2. run_experiment() finds k_max, the stable components and the stable
    subspace, and tests the axes of each group, named A1, A2, ...
 3. axes() computes the unit-variance component scores on the full sample and
@@ -61,7 +62,6 @@ CLEAN = Path("output/master_clean.csv")
 AXES = Path("output/occupation_coordinates.csv")
 OUT = Path("output/variants_experiment")
 
-CXP_WEIGHT = 0.5        # variance weight of every CXP column in "cxp" weighting
 N_EIGEN = 60            # eigenvalues tested by the parallel analysis (at most the columns)
 
 IM = ("skills_im__", "abilities_im__", "knowledge_im__", "workact_im__")
@@ -69,6 +69,7 @@ LV = ("skills_lv__", "abilities_lv__", "knowledge_lv__", "workact_lv__")
 LV_NO_KNOWLEDGE = ("skills_lv__", "abilities_lv__", "workact_lv__")
 CX = ("workctx_cx__", "workctx_ctp__")
 CXP = ("workctx_cxp__", "workctx_ctp__")
+ENDS = "workctx_ends__"     # derived by ends(): c1 + c5 of each Work Context item
 VARIANTS = {   # folder: (description, prefixes, weighting, transform)
     "im_cx": ("IM/CX (the paper's matrix)", IM + CX, None, None),
     "im_cx_rank_normal": ("IM/CX, rank-normal scores of every column", IM + CX, None, "rank normal"),
@@ -77,12 +78,10 @@ VARIANTS = {   # folder: (description, prefixes, weighting, transform)
     "im_lv_cx": ("IM+LV/CX", IM + LV + CX, None, None),
     "im_lv_cx_no_knowledge": ("IM+LV without Knowledge/CX", IM + LV_NO_KNOWLEDGE + CX, None, None),
     "cxp_only": ("CXP and CTP only", CXP, None, None),
-    "job_half": ("job half (Work Activities, Work Context)", ("workact_im__",) + CX, None, None),
-    "worker_half": ("worker half (Skills, Abilities, Knowledge)",
-                    ("skills_im__", "abilities_im__", "knowledge_im__"), None, None),
     "equal_blocks": ("IM/CX, every block the same total variance", IM + CX, "equal blocks", None),
     "mfa": ("IM/CX, every block's leading eigenvalue 1 (MFA)", IM + CX, "mfa", None),
-    "all_scales": ("IM, LV without Knowledge, CXP, CTP", IM + LV_NO_KNOWLEDGE + CXP, "cxp", None),
+    "all_scales": ("IM, LV without Knowledge, CX, CXP end share, CTP",
+                   IM + LV_NO_KNOWLEDGE + CX + (ENDS,), None, None),
 }
 
 
@@ -92,10 +91,22 @@ def rank_normal(X):
     return np.column_stack([norm.ppf((rankdata(c) - 0.5) / n) for c in X.T])
 
 
+def ends(clean):
+    """c1 + c5 of each Work Context item, from its c2 to c5 columns."""
+    items = [c.split("__", 1)[1] for c in clean.columns if c.startswith("workctx_cx__")]
+    out = {}
+    for item in items:
+        cats = clean[[f"workctx_cxp__{item}__c{k}" for k in range(2, 6)]]
+        out[f"{ENDS}{item}"] = 100 - cats.sum(axis=1) + cats.iloc[:, -1]
+    return pd.DataFrame(out, index=clean.index)
+
+
 def matrix(clean, prefixes, transform):
-    """The columns of clean with the prefixes, in clean's order, with nonzero
-    variance, transformed and z-scored."""
+    """The columns of clean with the prefixes, in clean's order (the ENDS
+    columns last), with nonzero variance, transformed and z-scored."""
     df = clean[[c for c in clean.columns if c.startswith(prefixes)]]
+    if ENDS in prefixes:
+        df = pd.concat([df, ends(clean)], axis=1)
     df = df.loc[:, df.std() > 0]
     X = df.to_numpy(float)
     if transform == "rank normal":
@@ -107,8 +118,6 @@ def weights(Xz, feats, weighting):
     """Column weights of the weighting named in VARIANTS (None: all 1)."""
     if weighting is None:
         return None
-    if weighting == "cxp":
-        return np.where([c.startswith("workctx_cxp__") for c in feats], np.sqrt(CXP_WEIGHT), 1.0)
     blocks = np.array([block_of(c) for c in feats])
     if weighting == "equal blocks":
         wb = {b: 1 / np.sqrt((blocks == b).sum()) for b in set(blocks)}

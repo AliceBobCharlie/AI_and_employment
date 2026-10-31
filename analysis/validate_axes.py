@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-validate_axes.py -- correlate the six rotated axes with O*NET descriptors that
-are not in the feature matrix, and with O*NET's own categories of the
-feature columns.
+validate_axes.py -- list the occupations deepest in two corners of the R1-R3
+space, and correlate the six rotated axes with O*NET descriptors that are
+not in the feature matrix and with O*NET's own categories of the feature
+columns.
 
 Input:  output/occupation_coordinates.csv, output/axis_loadings.csv,
         output/skillscape/skill_clusters.csv (optional), and the O*NET text
@@ -11,10 +12,16 @@ Input:  output/occupation_coordinates.csv, output/axis_loadings.csv,
 Output: one CSV per table in output/validate_axes/
 
 main() reads the R1-R6 scores (AXES) and loadings (LOADINGS) and runs the
-sections in order. A section whose O*NET file is missing is skipped with a
-message. Report.table() writes each table; Report.done() prints one status
+sections in order. Section 0 needs only AXES. If the O*NET folder does not
+exist, sections 1 to 5 are skipped with a message; a section whose O*NET
+file is missing is skipped likewise. Report.table() writes each table; Report.done() prints one status
 line per section.
 
+0. corners() takes the occupations positive on all of CORNER_AXES and those
+   negative on all of them. An occupation's depth in a corner is the smallest
+   of its CORNER_AXES scores taken with the corner's sign. corners.csv lists
+   the TOP_CORNER deepest occupations of each corner, with their scores, their
+   depth and the number of occupations in the corner.
 1. element_categories() maps each feature column to its Content Model
    category through the Element IDs of the files in BLOCK_FILES, named from
    Content Model Reference.txt or FALLBACK. categories() gives the mean
@@ -58,6 +65,8 @@ AX = ["R1", "R2", "R3", "R4", "R5", "R6"]
 CODE = "O*NET-SOC Code"
 RIASEC = ["Realistic", "Investigative", "Artistic", "Social", "Enterprising", "Conventional"]
 POLE_ITEMS = 15          # items per pole in the category composition
+CORNER_AXES = ["R1", "R2", "R3"]
+TOP_CORNER = 10          # occupations listed per corner
 MIN_OCC = 40             # a software category must be used by this many occupations
 TOP = 6                  # interest areas or software categories listed per end
 
@@ -153,6 +162,22 @@ class Report:
         if self.written:
             print(f"[ok] {section}: " + ", ".join(f"{n}.csv" for n in self.written))
         self.written = []
+
+
+# --------------------------------------------------------------------------- #
+# 0. Corners
+# --------------------------------------------------------------------------- #
+def corners(rep, scores):
+    rows = []
+    for label, sign in (("positive on all", 1), ("negative on all", -1)):
+        signed = scores[CORNER_AXES] * sign
+        inside = scores[(signed > 0).all(axis=1)].copy()
+        inside["depth"] = signed.loc[inside.index].min(axis=1)
+        inside = inside.sort_values("depth", ascending=False)
+        rows += [{"corner": f"{label} of {', '.join(CORNER_AXES)}", "occupations in corner": len(inside),
+                  "rank": rank, "occupation": r["title"], **{a: r[a] for a in CORNER_AXES}, "depth": r["depth"]}
+                 for rank, (_, r) in enumerate(inside.head(TOP_CORNER).iterrows(), 1)]
+    rep.table("corners", pd.DataFrame(rows))
 
 
 # --------------------------------------------------------------------------- #
@@ -305,16 +330,21 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     ap.add_argument("onet_dir", nargs="?", default=str(ONET_DIR), help="O*NET text folder")
     ONET_DIR = Path(ap.parse_args().onet_dir)
-    if not ONET_DIR.exists():
-        sys.exit(f"[fail] {ONET_DIR} not found")
     try:
-        axes = pd.read_csv(AXES, index_col=0)[AX]
+        scores = pd.read_csv(AXES, index_col=0)
         L = pd.read_csv(LOADINGS, index_col=0)[AX]
     except OSError as err:
         sys.exit(f"[fail] {err}")
-    print(f"[ok] read {len(axes)} occupations, {len(L)} feature columns; O*NET files from {ONET_DIR}")
+    axes = scores[AX]
+    print(f"[ok] read {len(axes)} occupations, {len(L)} feature columns")
 
     rep = Report()
+    corners(rep, scores)
+    rep.done("0 corners")
+    if not ONET_DIR.exists():
+        print(f"[skip] 1-5: {ONET_DIR} not found")
+        return
+    print(f"[ok] O*NET files from {ONET_DIR}")
     name2cat = element_categories()
     categories(rep, L, name2cat)
     if name2cat:
