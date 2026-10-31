@@ -1,54 +1,27 @@
-# Whitelist .gitignore -- ignore everything, then allow only what should ship.
-# New notes and drafts stay untracked by default, which is the point: nothing
-# reaches the remote unless it is named here.
+# Data: raw downloads and the tables built from them. All of it is public or
+# rebuilt by data_prep/; the sources are listed in README.MD.
+data/
 
-# 1. ignore every file
-*
+# Reference material kept locally.
+reference/
 
-# 2. but let git descend into directories, so the rules below can match inside
-!*/
+# Results: rebuilt by the scripts. Only the files the paper reads are tracked,
+# because no Python runs when the paper is built.
+output/**
+!output/**/
+!output/pca_rotated/occupation_coordinates.csv
+!output/pca_rotated/axis_loadings.csv
+!output/resampling_stability/subspace_stability.png
+!output/acs_young_share/acs_young_share.csv
 
-# 3. scripts, documents and the web paper
-!.gitignore
-!*.md
-!*.MD
-!*.py
-!*.qmd
-!*.yml
-!*.scss
-!*.js
-!publish/**
-!requirements.txt
-!LICENSE
-
-# 4. raw data: never committed -- large, and all of it is publicly downloadable.
-#    Ship the download instructions instead.
-data_raw/*
-!data_raw/README.md
-
-# 5. output: what the web paper draws its figures from, nothing else. A reader
-#    who downloads the raw data reproduces everything else with the scripts.
-#    The PDF's static figures (output/figures/) are printed when the PDF is
-#    rendered and are not stored.
-output/*
-# Every occupation's score on the six axes, and every variable's loading on
-# them: the axes themselves.
-!output/occupation_coordinates.csv
-!output/axis_loadings.csv
-# Figure 6.2 is drawn from this. It holds occupation-level shares aggregated
-# from the IPUMS extract, not the microdata, which stays in data_raw/.
-!output/acs_young_share.csv
-!assets/*.png
-
-# 6. junk
+# Build and editor files. The last two Quarto lines are the exact form Quarto
+# checks for; with them here it does not append them on every render.
+_site/
 __pycache__/
 .ipynb_checkpoints/
 .DS_Store
-reports/
 .idea/
-# Quarto build output. The last two lines are the exact form Quarto looks
-# for, so keeping them here stops it appending them on every render.
-_site/
+reports/
 .quarto/
 /.quarto/
 **/*.quarto_ipynb

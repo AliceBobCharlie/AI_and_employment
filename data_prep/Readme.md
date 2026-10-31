@@ -8,7 +8,7 @@ fill gaps.
 ## Order
 
 ```
-python data_prep/build_master.py   # data/raw/onet/            -> master.csv
+python data_prep/build_master.py   # data/raw/onet_31_0/        -> master.csv
 python data_prep/clean_master.py   # master.csv                -> master_clean.csv
 python data_prep/check_data.py     # master, master_clean, O*NET text files -> output/check_data/
 python data_prep/build_lmv.py      # O*NET + external sources  -> labour.csv

@@ -1,9 +1,5 @@
-// publish/pdf/move_pdf.ts -- puts the PDF in _site/_pdf/.
-//
-// Quarto writes every output to the project's output folder, _site/, and has
-// no option for a subfolder of it. Run after the PDF is rendered (post-render
-// in _quarto-pdf.yml), this moves _site/paper.pdf to _site/_pdf/paper.pdf, so
-// the PDF stays apart from the web page.
+// move_pdf.ts -- moves the rendered PDF from _site/paper.pdf to
+// _site/_pdf/paper.pdf, creating _site/_pdf/ if needed.
 
 const FROM = "_site/paper.pdf";
 const TO_DIR = "_site/_pdf";

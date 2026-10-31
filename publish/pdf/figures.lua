@@ -1,31 +1,16 @@
--- publish/pdf/figures.lua -- the PDF's figures.
+-- figures.lua -- Pandoc filter that turns the paper's HTML figures and tables
+-- into Typst for the PDF.
 --
--- Runs for the PDF only (the profile in _quarto-pdf.yml).
---
--- In paper_draft.qmd every figure is a raw HTML block, which the PDF would
--- otherwise drop. Each block becomes a figure here:
---
---   <img src="...">          the same image file;
---   <div class="plot" id=X>  output/figures/X.svg (or X.png for the 3-D
---                            figure), the interactive figure as figures.js
---                            draws it by default, which
---                            publish/pdf/print_figures.ts exports before the
---                            render. The SVG's text is set by Typst in the
---                            paper's own font, so the PDF embeds no other.
---
--- The caption is the block's <figcaption>, less what only makes sense on the
--- web: the "Open full screen" link and any <span class="web-only">. Text in a
--- <span class="print-only">, hidden on the web page, is kept. The figure
--- number is written in the caption, so Typst's own numbering is off. Each
--- figure floats to the top or bottom of a page, as in a printed paper, so a
--- tall one does not leave a page half empty.
---
--- Tables. Pandoc gives a table with long lines fixed column widths that add
--- up to the full text width, which sets it flush with both margins. Here every
--- column is sized to its content instead, so a table is as wide as it needs
--- and centred, as in a LaTeX paper; one too wide for the page still wraps.
---
--- Also sets the notes below tables (.table-note) in the table type size.
+-- RawBlock: an HTML block holding <figure> becomes a Typst #figure.
+--   image_path picks the image: the src of an <img>, or for
+--   <div class="plot" id=X> the file FIGURE_DIR/X.svg or X.png. It raises an
+--   error if neither exists.
+--   caption_typst converts the <figcaption> to Typst. It removes the
+--   <a class="plot-fullscreen"> link and every <span class="web-only">, and
+--   keeps <span class="print-only">.
+--   The figure is unnumbered and placed with placement: auto.
+-- Table: drops the column widths, so each column is sized to its content.
+-- Div: a .table-note div is wrapped in a 9 pt text block.
 
 local FIGURE_DIR = "output/figures/"
 
@@ -46,7 +31,7 @@ local function image_path(html)
     if exists(path) then return path end
   end
   error("publish/pdf/figures.lua: " .. FIGURE_DIR .. id .. ".svg is missing. Render the PDF " ..
-        "with --profile pdf, which exports the figures first (publish/pdf/print_figures.ts).")
+        "with --profile pdf, or run publish/pdf/print_figures.ts first.")
 end
 
 local function caption_typst(html)

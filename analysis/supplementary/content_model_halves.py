@@ -11,8 +11,9 @@ Output: output/content_model_halves/<half>/          for each half in HALVES:
           axes.csv          each axis: group, % of variance, matched R axis and
                             r, r with R1-R6, strongest columns and occupations
                             at each end
-          axis_<name>.png   loadings by block (above) and occupation scores by
-                            SOC major group (below)
+          axes.html         one interactive figure per axis, chosen from a menu:
+                            loadings by block (above) and occupation scores
+                            by SOC major group (below)
         output/content_model_halves/recover_axes.csv  R2 of R1-R6 from each half's axes
         output/content_model_halves/canonical.csv     canonical correlations, job axes
                                                       against worker axes
@@ -32,10 +33,11 @@ HALVES gives each half's column prefixes. For each half, in order:
    with the half's initial (J1, J2, ... and W1, W2, ...).
 3. describe() lists, for each axis, the TOP columns with the largest and the
    smallest loadings and the TOP occupations at each end.
-4. plot_axis() draws one figure per axis: each column's loading, by block
-   (block_of() from pca_rotated.py), with jitter; and each occupation's
-   score, by SOC major group (SOC_GROUPS), the groups ordered by their median,
-   which a bar marks.
+4. plot_half() writes axes.html with plotly, one figure per axis shown
+   through a menu: each column's loading, by block (block_of() from
+   pca_rotated.py), with jitter; and each occupation's score, by SOC major
+   group (SOC_GROUPS), the groups ordered by their median, which a bar marks.
+   Hovering shows the column or occupation. plotly.js is embedded in the file.
 
 After both halves: r2() gives the R2 of each of R1-R6 from each half's axes;
 canonical() the canonical correlations between the job and the worker axes;
@@ -47,9 +49,8 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
-import matplotlib
-matplotlib.use("Agg")
-import matplotlib.pyplot as plt
+import plotly.graph_objects as go
+from plotly.subplots import make_subplots
 from scipy.optimize import linear_sum_assignment
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
@@ -123,29 +124,62 @@ def describe(names, groups, L, S, C, matched, feats, titles, paper, total):
     return pd.DataFrame(rows)
 
 
-def plot_axis(path, name, loadings, feats, scores, codes, rng):
-    fig, (top, bottom) = plt.subplots(2, 1, figsize=(11, 8), gridspec_kw={"height_ratios": [1, 1.4]})
-    blocks = [BLOCK_NAMES[block_of(c)] for c in feats]
-    order = [b for b in BLOCK_NAMES.values() if b in blocks]
-    for i, b in enumerate(order):
-        y = loadings[[k for k, x in enumerate(blocks) if x == b]]
-        top.scatter(i + rng.uniform(-0.25, 0.25, len(y)), y, s=12, alpha=0.7)
-    top.axhline(0, color="grey", lw=0.8)
-    top.set_xticks(range(len(order)), order)
-    top.set_ylabel(f"loading on {name}")
+def axis_traces(loadings, feats, scores, codes, titles, rng):
+    """The traces of one axis, and the SOC groups in the order of their median."""
+    traces = []
+    blocks = np.array([BLOCK_NAMES[block_of(c)] for c in feats])
+    for i, b in enumerate([b for b in BLOCK_NAMES.values() if b in blocks]):
+        k = np.flatnonzero(blocks == b)
+        traces.append((1, go.Scatter(
+            x=i + rng.uniform(-0.3, 0.3, len(k)), y=loadings[k], mode="markers", name=b,
+            text=[short(feats[j]) for j in k], marker={"size": 6, "opacity": 0.75},
+            hovertemplate="%{text}<br>loading %{y:.2f}<extra>" + b + "</extra>")))
+    groups = np.array([SOC_GROUPS.get(c[:2], c[:2]) for c in codes])
+    medians = pd.Series(scores).groupby(groups).median().sort_values()
+    position = {g: i for i, g in enumerate(medians.index)}
+    x = np.array([position[g] for g in groups]) + rng.uniform(-0.3, 0.3, len(groups))
+    traces.append((2, go.Scatter(
+        x=x, y=scores, mode="markers", name="occupations", showlegend=False,
+        text=[f"{t}<br>{g}" for t, g in zip(titles, groups)],
+        marker={"size": 5, "opacity": 0.6, "color": "#4C72B0"},
+        hovertemplate="%{text}<br>score %{y:.2f}<extra></extra>")))
+    traces.append((2, go.Scatter(
+        x=list(range(len(medians))), y=medians.to_numpy(), mode="markers", name="median",
+        showlegend=False, text=list(medians.index),
+        marker={"symbol": "line-ew-open", "size": 22, "line": {"width": 3}, "color": "black"},
+        hovertemplate="%{text}<br>median %{y:.2f}<extra></extra>")))
+    return traces, list(medians.index)
 
-    groups = pd.Series(scores, index=[SOC_GROUPS.get(c[:2], c[:2]) for c in codes])
-    medians = groups.groupby(level=0).median().sort_values()
-    for i, g in enumerate(medians.index):
-        y = groups.loc[[g]].to_numpy()
-        bottom.scatter(i + rng.uniform(-0.25, 0.25, len(y)), y, s=8, alpha=0.6, color="#4C72B0")
-        bottom.plot([i - 0.35, i + 0.35], [medians[g]] * 2, color="black", lw=2)
-    bottom.axhline(0, color="grey", lw=0.8)
-    bottom.set_xticks(range(len(medians)), medians.index, rotation=60, ha="right", fontsize=7)
-    bottom.set_ylabel(f"score on {name}")
-    fig.tight_layout()
-    fig.savefig(path, dpi=120)
-    plt.close(fig)
+
+def plot_half(path, names, L, S, feats, codes, titles):
+    fig = make_subplots(rows=2, cols=1, row_heights=[0.4, 0.6], vertical_spacing=0.08)
+    rng = np.random.default_rng(SEED)
+    per_axis, orders = [], []
+    for j, name in enumerate(names):
+        traces, order = axis_traces(L[:, j], feats, S[:, j], codes, titles, rng)
+        for row, t in traces:
+            t.visible = j == 0
+            fig.add_trace(t, row=row, col=1)
+        per_axis.append(len(traces))
+        orders.append(order)
+    blocks = [b for b in BLOCK_NAMES.values() if b in {BLOCK_NAMES[block_of(c)] for c in feats}]
+    buttons, start = [], 0
+    for j, name in enumerate(names):
+        visible = [False] * sum(per_axis)
+        visible[start:start + per_axis[j]] = [True] * per_axis[j]
+        start += per_axis[j]
+        buttons.append({"label": name, "method": "update", "args": [
+            {"visible": visible},
+            {"yaxis.title.text": f"loading on {name}", "yaxis2.title.text": f"score on {name}",
+             "xaxis2.tickvals": list(range(len(orders[j]))), "xaxis2.ticktext": orders[j]}]})
+    fig.update_layout(updatemenus=[{"buttons": buttons, "x": 0, "xanchor": "left", "y": 1.08, "yanchor": "bottom"}],
+                      height=900, template="plotly_white", hovermode="closest",
+                      legend={"orientation": "h", "y": 1.02, "x": 1, "xanchor": "right"})
+    fig.update_xaxes(tickvals=list(range(len(blocks))), ticktext=blocks, row=1, col=1)
+    fig.update_xaxes(tickvals=list(range(len(orders[0]))), ticktext=orders[0], tickangle=-60, row=2, col=1)
+    fig.update_yaxes(title_text=f"loading on {names[0]}", zeroline=True, row=1, col=1)
+    fig.update_yaxes(title_text=f"score on {names[0]}", zeroline=True, row=2, col=1)
+    fig.write_html(path, include_plotlyjs=True)
 
 
 def r2(y, B):
@@ -192,9 +226,7 @@ def main():
         names = [n for idx in groups for n in label(idx)]
         describe(names, groups, L, S, C, matched, feats, titles, paper, s["full_ev"].sum()).to_csv(
             out / "axes.csv", index=False)
-        rng = np.random.default_rng(SEED)
-        for j, name in enumerate(names):
-            plot_axis(out / f"axis_{name}.png", name, L[:, j], feats, S[:, j], codes, rng)
+        plot_half(out / "axes.html", names, L, S, feats, codes, titles)
         found[half] = (names, S)
         recover.append({"half": half, "axes": len(names),
                         **{c: r2(paper[c].to_numpy(), S) for c in paper.columns}})

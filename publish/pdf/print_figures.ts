@@ -1,55 +1,46 @@
-// publish/pdf/print_figures.ts -- the PDF's figures, exported from the web page's own.
+// print_figures.ts -- exports each interactive figure of the paper as a static
+// image, drawn by publish/web/figures.js in headless Chrome.
 //
-// The PDF cannot show interactive figures. This script draws each one with
-// figures.js, exactly as the web page draws it when it opens, in headless
-// Chrome, and exports it to output/figures/, where publish/pdf/figures.lua
-// finds it:
+// Inputs:
+//   paper_draft.qmd   every <div class="plot ..." id="..."> is one figure
+//                     (figureDivs). Its class picks its size from SIZES.
+//   _quarto.yml       the plotly.js <script> tag (plotlyTag).
+//   PLOTLY_JS         optional environment variable: a local plotly.min.js,
+//                     used in place of the tag.
+//   CHROME            optional environment variable: the Chrome or Chromium
+//                     binary. Otherwise findChrome looks in the usual places.
 //
-//   <id>.svg   a 2-D figure, as plotly draws it. Its text is set in New
-//              Computer Modern, the paper's own font, which Typst lays out
-//              when it reads the SVG, so the PDF embeds no font for the
-//              figures and their type matches the text's.
-//   <id>.png   the 3-D figure, which is WebGL and has no vector form, at three
-//              times screen resolution.
+// Output, in output/figures/ (emptied first):
+//   <id>.svg   a 2-D figure. inPaperFont sets every font-family to FIGURE_FONT.
+//   <id>.png   a 3-D figure, at IMAGE_SCALE times its size.
 //
-// Quarto runs it before rendering the PDF (pre-render in _quarto-pdf.yml)
-// with the Deno that ships inside Quarto, so it needs no Python or Node, only
-// Chrome or Chromium. It looks for Chrome in the usual places; set CHROME to
-// its path if it is somewhere else. GitHub's Ubuntu runners have Chrome.
+// Steps: figurePage writes one HTML page per figure. serve serves these pages
+// and the project folder on a local port. launch starts headless Chrome, and
+// Browser talks to it over the DevTools Protocol. exportFigure opens each page,
+// waits for the figure (DRAWN), exports it with Plotly.toImage (EXPORT), and
+// main writes the file.
 //
-// It reads the figures from paper_draft.qmd (every <div class="plot ..." id>)
-// and the plotly.js tag from _quarto.yml, so the PDF uses what the web page
-// uses, and serves the project folder on a local port so that figures.js can
-// load its CSV files. Offline, set PLOTLY_JS to a local plotly.min.js.
-//
-// By hand, from the project root:  quarto run publish/pdf/print_figures.ts
+// Run from the project root:  quarto run publish/pdf/print_figures.ts
 
 const PAPER = "paper_draft.qmd";
 const QUARTO_YML = "_quarto.yml";
 const OUT_DIR = "output/figures";
 const FIGURE_FONT = "New Computer Modern";
 
-// The pages sit at the root of the server, like the web page, so that the
-// relative paths in figures.js (output/*.csv) resolve.
-
-// Each kind of figure is laid out at a size of its own in CSS pixels; the PDF
-// sets it 5.5 in wide, the width of its text block, so 14 px type prints at
-// about 8 pt. The axis figures keep the web page's height (theme.scss); the
-// three panels of the young-share figure need the web page's width, or their
-// axis titles run together.
+// Width and height in CSS pixels for each figure class.
 const SIZES: Record<string, [number, number]> = {
   "plot-axis": [700, 1050],
   "plot-space": [700, 560],
   "plot-young": [860, 340],
 };
-const IMAGE_SCALE = 3;          // resolution of the 3-D figure, times screen
+const IMAGE_SCALE = 3;          // PNG pixels per CSS pixel
 const TIMEOUT_MS = 60_000;
 
 // ---------------------------------------------------------------- inputs
 
 interface Figure { id: string; kind: string; tag: string; }
 
-function figures(paper: string): Figure[] {
+function figureDivs(paper: string): Figure[] {
   const out: Figure[] = [];
   for (const m of paper.matchAll(/<div class="plot ([^"]*)"[^>]*>/g)) {
     const tag = m[0];
@@ -68,7 +59,8 @@ function plotlyTag(yml: string): string {
   return tag;
 }
 
-function page(fig: Figure, plotly: string): string {
+// One HTML page that holds the figure div, plotly.js and figures.js.
+function figurePage(fig: Figure, plotly: string): string {
   const [w, h] = SIZES[fig.kind];
   return `<!doctype html>
 <html lang="en-GB">
@@ -90,6 +82,10 @@ ${plotly}
 
 // ---------------------------------------------------------------- local server
 
+// Serves the generated pages at /__figure__.<id>.html, a local plotly.js at
+// /__plotly__.js, and any other path from the project folder. Pages sit at the
+// server root, so the relative CSV paths in figures.js resolve.
+
 const TYPES: Record<string, string> = {
   ".js": "application/javascript", ".csv": "text/csv; charset=utf-8",
   ".html": "text/html; charset=utf-8", ".css": "text/css", ".png": "image/png",
@@ -105,7 +101,7 @@ function serve(pages: Map<string, string>, plotlyFile: string | undefined) {
     if (path === "/__plotly__.js" && plotlyFile) {
       return new Response(await Deno.readFile(plotlyFile), { headers: { "content-type": TYPES[".js"] } });
     }
-    // Files of the project folder only.
+    // Paths containing ".." are refused.
     const file = root + path;
     if (path.includes("..")) return new Response("forbidden", { status: 403 });
     try {
@@ -178,7 +174,7 @@ async function launch(chrome: string) {
   const args = [
     "--headless=new", "--remote-debugging-port=0", `--user-data-dir=${profile}`,
     "--no-first-run", "--no-default-browser-check", "--hide-scrollbars",
-    // The 3-D figure needs WebGL, which has no GPU on a build machine.
+    // Software WebGL, for the 3-D figure on a machine without a GPU.
     "--enable-unsafe-swiftshader",
   ];
   if (Deno.build.os === "linux" && Deno.uid() === 0) args.push("--no-sandbox");
@@ -205,7 +201,8 @@ async function launch(chrome: string) {
 
 // ---------------------------------------------------------------- export
 
-// Resolves once figures.js has drawn the figure, or rejects with its error.
+// Page script: resolves when the figure holds a .main-svg, rejects on a
+// .plot-error or after TIMEOUT_MS.
 const DRAWN = (id: string) => `new Promise((resolve, reject) => {
   const t0 = Date.now();
   (function check() {
@@ -223,7 +220,8 @@ const DRAWN = (id: string) => `new Promise((resolve, reject) => {
   })();
 })`;
 
-// The figure as plotly exports it: an SVG, or a PNG for a WebGL scene.
+// Page script: Plotly.toImage of the figure, PNG if it has a 3-D scene,
+// otherwise SVG. Returns the extension and a data URL.
 const EXPORT = (id: string, w: number, h: number) => `(async () => {
   const el = document.getElementById(${JSON.stringify(id)});
   const scene = !!(el._fullLayout && el._fullLayout.scene);
@@ -241,8 +239,8 @@ async function evaluate(b: Browser, session: string, expression: string) {
   return r.result.value;
 }
 
-// An SVG's text in the paper's font: every font-family plotly wrote, in a
-// style or as an attribute.
+// Replaces every font-family in the SVG, in style and attribute form, with
+// FIGURE_FONT.
 function inPaperFont(svg: string): string {
   return svg
     .replace(/font-family:[^;"]*/g, `font-family: '${FIGURE_FONT}'`)
@@ -258,7 +256,7 @@ async function exportFigure(b: Browser, origin: string, fig: Figure) {
                  { width: w, height: h, deviceScaleFactor: 1, mobile: false }, sessionId);
     await b.send("Page.navigate", { url: `${origin}/__figure__.${fig.id}.html` }, sessionId);
     await evaluate(b, sessionId, DRAWN(fig.id));
-    await new Promise((r) => setTimeout(r, 500));     // the 3-D scene's first frame
+    await new Promise((r) => setTimeout(r, 500));     // waits for the first WebGL frame
     const { ext, url } = await evaluate(b, sessionId, EXPORT(fig.id, w, h));
     const data = url.slice(url.indexOf(",") + 1);
     const bytes = ext === "svg"
@@ -273,18 +271,17 @@ async function exportFigure(b: Browser, origin: string, fig: Figure) {
 // ---------------------------------------------------------------- main
 
 async function main() {
-  const figs = figures(await Deno.readTextFile(PAPER));
+  const figs = figureDivs(await Deno.readTextFile(PAPER));
   const plotlyFile = Deno.env.get("PLOTLY_JS");
   const plotly = plotlyFile ? `<script src="/__plotly__.js"></script>`
                             : plotlyTag(await Deno.readTextFile(QUARTO_YML));
-  const pages = new Map(figs.map((f) => [`/__figure__.${f.id}.html`, page(f, plotly)]));
+  const pages = new Map(figs.map((f) => [`/__figure__.${f.id}.html`, figurePage(f, plotly)]));
 
   const server = serve(pages, plotlyFile);
   const origin = `http://127.0.0.1:${server.addr.port}`;
   const chrome = await launch(findChrome());
   const browser = await Browser.connect(chrome.url);
   try {
-    // Start from an empty folder, so no figure from an earlier run is left.
     await Deno.remove(OUT_DIR, { recursive: true }).catch(() => {});
     await Deno.mkdir(OUT_DIR, { recursive: true });
     for (const fig of figs) {

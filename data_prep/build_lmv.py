@@ -3,7 +3,7 @@
 """
 build_lmv.py -- assemble the raw table of labour-market variables:
 
-    data/raw/onet/db_31_0_text + the external sources  ->  data/prepared/labour.csv
+    data/raw/onet_31_0 + the external sources  ->  data/prepared/labour.csv
 
 One row per O*NET-SOC code listed in O*NET's Occupation Data, the same rows
 as data/prepared/master.csv. It holds O*NET's education, training and experience
@@ -41,11 +41,11 @@ from build_master import occupations, join_blocks
 RAW = Path("data/raw")
 OUT = Path("data/prepared/labour.csv")
 
-CROSSWALK = RAW / "nem-occcode-cps-crosswalk.xlsx"
-OEWS_FILE = RAW / "oews_national_M2024_dl.xlsx"
-UNION_FILE = RAW / "union_occ_2024.xlsx"
-PRESTIGE_FILE = RAW / "OccupationalPrestigeRatings.csv"
-BLS_FILE = RAW / "bls_projections.xlsx"
+CROSSWALK = RAW / "bls_crosswalk_cps_soc.xlsx"
+OEWS_FILE = RAW / "oews_2024.xlsx"
+UNION_FILE = RAW / "union_coverage_2024.xlsx"
+PRESTIGE_FILE = RAW / "prestige_2012.csv"
+BLS_FILE = RAW / "bls_projections_2024.xlsx"
 
 ETE_BLOCK = {"ete": ["Education", "Training and Experience"]}
 

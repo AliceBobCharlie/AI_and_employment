@@ -96,7 +96,7 @@ FALLBACK = {
     "4.C.3": "Structural job characteristics",
 }
 
-ONET_DIR = Path("data/raw/onet/db_31_0_text")   # replaced by the argument, if given
+ONET_DIR = Path("data/raw/onet_31_0")   # replaced by the argument, if given
 
 
 # --------------------------------------------------------------------------- #

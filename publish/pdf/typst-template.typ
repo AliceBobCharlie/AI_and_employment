@@ -1,13 +1,10 @@
-// pdf/typst-template.typ -- the layout of the PDF.
-//
-// Replaces Quarto's default Typst template (template-partials in _quarto.yml).
-// The layout is that of the NeurIPS preprint style, the most common layout of
-// computer-science papers on arXiv:
+// typst-template.typ -- the page layout of the PDF, in the NeurIPS preprint
+// style. It replaces Quarto's default Typst template.
 //
 //   - US Letter, a text block 5.5 in wide and 9 in long, 1.5 in from the left
-//     edge and 1 in from the top (set in _quarto.yml);
-//   - 10 pt type on 11 pt leading, in New Computer Modern, the face of LaTeX,
-//     which ships with Typst; paragraphs unindented and 5.5 pt apart;
+//     edge and 1 in from the top (margins set in _quarto-pdf.yml);
+//   - 10 pt type on 11 pt leading, in New Computer Modern; paragraphs
+//     unindented and 5.5 pt apart;
 //   - the title 17 pt bold, centred between a 4 pt and a 1 pt rule; the
 //     abstract under a centred heading, indented 0.5 in on both sides;
 //   - section headings 12 pt bold, lower ones 10 pt bold;

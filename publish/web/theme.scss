@@ -200,11 +200,7 @@ main .table-striped > tbody > tr:nth-of-type(odd) > * {
   --bs-table-accent-bg: transparent;
 }
 
-// The summary table at the end of Section 4.3 holds prose in some columns and a
-// few words in others. Left to itself the browser gives them comparable widths,
-// which wraps the prose into narrow ribbons and leaves the short columns half
-// empty.
-// variable | why | source | what the coding does | coverage and treatment
+// .lm-table: a five-column table with fixed column widths.
 .lm-table table {
   font-size: 0.78rem;
   table-layout: fixed;
@@ -260,14 +256,12 @@ main .table-striped > tbody > tr:nth-of-type(odd) > * {
   width: 100%;
 }
 
-// The occupation space (Figure 5.8). Sized to sit inside the text column
-// rather than dominate the page; the standalone figures page overrides it.
+// #plot-space. The figures page overrides this height.
 .plot-space {
   height: clamp(380px, 60vh, 580px);
 }
 
-// Three panels side by side, each about as tall as it is wide. On a narrow
-// screen figures.js stacks them and adds the second class.
+// #plot-young. figures.js adds .plot-young-stacked when it stacks the panels.
 .plot-young {
   height: 340px;
 }
@@ -276,8 +270,7 @@ main .table-striped > tbody > tr:nth-of-type(odd) > * {
   height: 1050px;
 }
 
-// What one axis is made of (Section 5.4): a short panel of the 220 loadings
-// over a tall one with a row for each of the 22 SOC major groups.
+// .plot-axis: one figure per axis, loadings above occupations.
 .plot-axis {
   height: 1050px;
 }
@@ -315,8 +308,8 @@ a.plot-fullscreen::after {
   margin-bottom: 0.5rem;
 }
 
-// The checkboxes above Figure 5.8: the axes to plot, then a smaller row for
-// the axis to colour by.
+// The checkboxes above #plot-space: #space-picker, then the smaller
+// #colour-picker.
 .plot-pickers {
   margin-bottom: 0.5rem;
 }
@@ -353,7 +346,7 @@ fieldset.plot-picker label {
   cursor: pointer;
 }
 
-// A box that cannot change: the fifth when four are ticked, the last one left.
+// A disabled checkbox: greyed out.
 fieldset.plot-picker label:has(input:disabled) {
   color: $ink-secondary;
   cursor: default;
@@ -477,65 +470,9 @@ nav#TOC .collapse:not(.show) { display: block; }
   font-family: $sans;
 }
 
-.content-model .cm-grid {
-  display: grid;
-  grid-template-columns: 1.15fr 1fr 0.85fr;
-  gap: 1.25rem;
-}
-
-.content-model h4 {
-  font-family: $sans;
-  font-size: 0.8rem;
-  font-weight: 600;
-  margin: 0 0 0.5rem;
-  padding-bottom: 0.3rem;
-  border-bottom: 1px solid $ink;
-}
-
-.content-model .cm-domain {
-  border: 1px solid $hairline;
-  border-radius: 3px;
-  padding: 0.6rem 0.7rem;
-  margin-bottom: 0.6rem;
-}
-
-.content-model .cm-domain b {
-  display: block;
-  font-size: 0.85rem;
-  font-weight: 600;
-  margin-bottom: 0.35rem;
-}
-
-.content-model span {
-  display: inline-block;
-  font-size: 0.78rem;
-  line-height: 1.3;
-  padding: 0.15rem 0.4rem;
-  margin: 0.12rem 0.2rem 0.12rem 0;
-  border: 1px solid $hairline;
-  border-radius: 2px;
-}
-
-.content-model .use  { border-color: $ink; font-weight: 600; }
-.content-model .lm   { border-color: $ink; border-style: dashed; font-weight: 600; }
-.content-model .drop { color: $ink-secondary; text-decoration: line-through; }
-.content-model .na   { color: $ink-secondary; border-style: dotted; }
-
-.content-model .cm-key {
-  margin-top: 0.9rem;
-  padding-top: 0.6rem;
-  border-top: 1px solid $hairline;
-}
-
-.content-model .cm-key span { font-size: 0.75rem; }
-
 .content-model figcaption {
   font-size: 0.85rem;
   line-height: 1.45;
   color: $ink-secondary;
   margin-top: 0.75rem;
-}
-
-@media (max-width: 700px) {
-  .content-model .cm-grid { grid-template-columns: 1fr; }
 }

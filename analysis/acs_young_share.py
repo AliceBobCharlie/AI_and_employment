@@ -37,7 +37,7 @@ value is broadcast to every code they cover and the match is flagged. Broadcast
 rows share one value across several occupations, which manufactures correlation
 structure, so results are reported on exact matches and on all matches.
 
-Inputs:  usa_00001.csv (IPUMS extract, optional if the aggregate exists),
+Inputs:  ipums_acs.csv (IPUMS extract, optional if the aggregate exists),
          output/pca_rotated/occupation_coordinates.csv, data/prepared/labour_clean.csv
 Outputs: data/prepared/young_share.csv, output/acs_young_share/acs_young_share.csv
 """
@@ -47,7 +47,7 @@ import numpy as np
 import pandas as pd
 from pathlib import Path
 
-IPUMS_CSV = Path("data/raw/ipums_usa_00001.csv")       # IPUMS ACS extract, not redistributable
+IPUMS_CSV = Path("data/raw/ipums_acs.csv")       # IPUMS ACS extract, not redistributable
 ACS = Path("data/prepared/young_share.csv")      # the aggregate this script builds
 AXES = Path("output/pca_rotated/occupation_coordinates.csv")
 LABOUR = Path("data/prepared/labour_clean.csv")

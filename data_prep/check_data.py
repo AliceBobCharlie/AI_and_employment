@@ -56,7 +56,7 @@ from sklearn.model_selection import KFold, cross_val_predict
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 
-ONET_DIR = Path("data/raw/onet/db_31_0_text")
+ONET_DIR = Path("data/raw/onet_31_0")
 RAW = Path("data/prepared/master.csv")
 CLEAN = Path("data/prepared/master_clean.csv")
 OUT = Path("output/check_data")

@@ -89,7 +89,7 @@ from resampling_stability import load_spectra                           # noqa: 
 
 OUT = OUTDIR / "residual_structure"
 N_LEAD = 6              # PC1-6
-ONET_DIR = Path("data/raw/onet/db_31_0_text")
+ONET_DIR = Path("data/raw/onet_31_0")
 CLEAN = MASTER
 RHOS = [0.0, 0.1, 0.3]  # error correlation within an error group
 MODELS = ("quadratic", "cubic", "kNN")

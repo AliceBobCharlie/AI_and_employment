@@ -23,7 +23,7 @@ Sections:
   D  the correlation of each of the six axes R1-R6 with the eight
      labour-market variables, the mean required education (ETE categories
      1-11), seven Work Context items on decisions and error, and the Eloundou
-     et al. (2024) exposure measures if data/raw/eloundou_occ_level.csv is
+     et al. (2024) exposure measures if data/raw/eloundou_2024.csv is
      present; on published values only, like A to C
 
 Run after pca_rotated.py and clean_lmv.py. Reads data/prepared/master.csv and
@@ -47,7 +47,7 @@ MASTER = Path("data/prepared/master_clean.csv")
 LABOUR_CLEAN = Path("data/prepared/labour_clean.csv")
 OUT = Path("output/labour_market_regression/orthogonality.xlsx")
 AXES = Path("output/pca_rotated/occupation_coordinates.csv")
-ELOUNDOU = Path("data/raw/eloundou_occ_level.csv")
+ELOUNDOU = Path("data/raw/eloundou_2024.csv")
 ELOUNDOU_COLUMNS = ["human_rating_alpha", "human_rating_beta",
                     "dv_rating_alpha", "dv_rating_beta"]
 WORK_CONTEXT_ITEMS = ["Consequence of Error", "Degree of Automation",

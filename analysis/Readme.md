@@ -40,7 +40,7 @@ python analysis/acs_young_share.py           # IPUMS extract or its aggregate, a
 - `check_curvature.py` and `residual_structure.py` read `k_max` (and
   `check_curvature.py` the split-halves) from `resampled_spectra.npz`.
 - `validate_axes.py` and `residual_structure.py` read the O\*NET text files,
-  from `data/raw/onet/db_31_0_text` or the folder given as the argument.
+  from `data/raw/onet_31_0` or the folder given as the argument.
   Without them, `validate_axes.py` writes only its corner table and
   `residual_structure.py` stops.
 - `validate_axes.py` also reads `output/skillscape/skill_clusters.csv` from
@@ -73,7 +73,7 @@ writes to `output/<script name>/`.
 
 | script | question |
 |---|---|
-| `content_model_halves.py` | Do the job half and the worker half of the Content Model, which share no column, find the same axes on their own? Rotates and describes each half's axes, with one figure per axis. |
+| `content_model_halves.py` | Do the job half and the worker half of the Content Model, which share no column, find the same axes on their own? Rotates and describes each half's axes, with an interactive page of figures for each half. |
 | `variants_experiment.py` | Does the resampling experiment find the same dimensions on other input matrices: Level instead of Importance, both, without Knowledge, the Work Context categories alone, reweighted blocks, all scales together, rank-normal scores? |
 | `joint_rotation.py` | What do PC1-6 look like rotated together by one varimax? |
 | `skillscape.py` | Does the skill-skill similarity of Alabdulkareem et al. (2018) split skills into two clusters, and does a plain correlation similarity do the same? |
