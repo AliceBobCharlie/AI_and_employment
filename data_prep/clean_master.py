@@ -3,8 +3,8 @@
 clean_master.py -- drop the occupations without ratings, drop one category of
 each percentage item, and fill the remaining gaps.
 
-Input:  output/master.csv
-Output: output/master_clean.csv
+Input:  data/prepared/master.csv
+Output: data/prepared/master_clean.csv
 
 keep_rated() keeps the occupations with a value in every block of ROW_PREFIXES:
 Importance for Abilities, Skills, Knowledge and Work Activities, and CX for
@@ -20,8 +20,8 @@ import sys
 import pandas as pd
 from pathlib import Path
 
-SRC = Path("output/master.csv")
-OUT = Path("output/master_clean.csv")
+SRC = Path("data/prepared/master.csv")
+OUT = Path("data/prepared/master_clean.csv")
 
 ID_COLUMNS = ["onet_soc", "title"]
 ROW_PREFIXES = ["skills_im", "abilities_im", "knowledge_im", "workact_im", "workctx_cx"]

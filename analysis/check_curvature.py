@@ -4,7 +4,7 @@ check_curvature.py -- measure how far the rotated axes and the later principal
 components are non-linear functions of the earlier ones, and what is left
 when that part is removed.
 
-Input:  output/master_clean.csv, output/resampled_spectra.npz (k_max and the
+Input:  data/prepared/master_clean.csv, output/resampling_stability/resampled_spectra.npz (k_max and the
         split-half permutations)
 Output: one CSV per table in output/check_curvature/, named by part (0a_..., 2b_...)
 

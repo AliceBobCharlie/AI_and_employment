@@ -38,8 +38,8 @@ rows share one value across several occupations, which manufactures correlation
 structure, so results are reported on exact matches and on all matches.
 
 Inputs:  usa_00001.csv (IPUMS extract, optional if the aggregate exists),
-         output/occupation_coordinates.csv, output/labour_clean.csv
-Outputs: young_share.csv, output/acs_young_share.csv
+         output/pca_rotated/occupation_coordinates.csv, data/prepared/labour_clean.csv
+Outputs: data/prepared/young_share.csv, output/acs_young_share/acs_young_share.csv
 """
 
 import re
@@ -47,11 +47,11 @@ import numpy as np
 import pandas as pd
 from pathlib import Path
 
-IPUMS_CSV = Path("data_raw/usa_00001.csv")       # IPUMS ACS extract, not redistributable
-ACS = Path("data_raw/young_share.csv")           # the aggregate this script builds
-AXES = Path("output/occupation_coordinates.csv")
-LABOUR = Path("output/labour_clean.csv")
-OUT = Path("output/acs_young_share.csv")
+IPUMS_CSV = Path("data/raw/ipums_usa_00001.csv")       # IPUMS ACS extract, not redistributable
+ACS = Path("data/prepared/young_share.csv")      # the aggregate this script builds
+AXES = Path("output/pca_rotated/occupation_coordinates.csv")
+LABOUR = Path("data/prepared/labour_clean.csv")
+OUT = Path("output/acs_young_share/acs_young_share.csv")
 CSV_FLOAT = "%.10g"     # tracked in git: 10 significant digits drop floating-point noise
 
 Y0, Y1 = 2022, 2024
@@ -112,6 +112,7 @@ def build_from_ipums():
     # the survey weights rather than from the population
     df["young_share_unwt"] = df["young_n"] / df["total_n"]
     df["small_cell"] = df["total_n"] < MIN_CELL_N
+    ACS.parent.mkdir(parents=True, exist_ok=True)
     df.to_csv(ACS, index=False)
     print(f"[build] {len(df)} occupation-years, "
           f"{df.OCCSOC.nunique()} occupations, "
@@ -250,6 +251,7 @@ def main():
               f"R1{r.get('R1', float('nan')):+.1f} R2{r.get('R2', float('nan')):+.1f} "
               f"R3{r.get('R3', float('nan')):+.1f}  {r['title'][:46]}")
 
+    OUT.parent.mkdir(parents=True, exist_ok=True)
     M.to_csv(OUT, index=False, float_format=CSV_FLOAT)
     print(f"\n[ok] wrote {OUT}")
     print("\nReminder: a negative delta means the young-worker share fell. Any")

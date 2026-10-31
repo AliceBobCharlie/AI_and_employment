@@ -1,10 +1,10 @@
 // figures.js -- draws the paper's interactive figures with plotly.js.
 //
-// Data: output/occupation_coordinates.csv, written by pca_rotated.py. One row per
+// Data: output/pca_rotated/occupation_coordinates.csv, written by pca_rotated.py. One row per
 // occupation: onet_soc, title, R1 to R6. The SOC major group is read off the
 // first two digits of the code (SOC_GROUPS below).
 //
-// The axis figures of Section 5.4 also read output/axis_loadings.csv,
+// The axis figures of Section 5.4 also read output/pca_rotated/axis_loadings.csv,
 // written by pca_rotated.py: one row per feature variable, named by its column
 // in the feature matrix (block prefix, then the O*NET element), with its
 // loading on each rotated axis. BLOCKS and CTP_NAMES below turn the column into
@@ -13,7 +13,7 @@
 // The PDF has no interactive figures; publish/pdf/print_figures.ts prints each figure,
 // as drawn here in its default view, to a static PDF for it.
 //
-// Figure 6.2 reads output/acs_young_share.csv, written by acs_young_share.py:
+// Figure 6.2 reads output/acs_young_share/acs_young_share.csv, written by acs_young_share.py:
 // one row per matched O*NET occupation, with the change in the young-worker
 // share (delta) and the occupation's axis scores. Its marker size is log
 // employment, scaled the way plotly express does it (area proportional to
@@ -25,9 +25,9 @@
 (function () {
   "use strict";
 
-  const DATA_URL = "output/occupation_coordinates.csv";
-  const LOADINGS_URL = "output/axis_loadings.csv";
-  const YOUNG_URL = "output/acs_young_share.csv";
+  const DATA_URL = "output/pca_rotated/occupation_coordinates.csv";
+  const LOADINGS_URL = "output/pca_rotated/axis_loadings.csv";
+  const YOUNG_URL = "output/acs_young_share/acs_young_share.csv";
   const SIZE_MAX = 16;
   const FONT = '"Source Sans 3", "Helvetica Neue", Arial, sans-serif';
 

@@ -6,15 +6,15 @@ ROTATION_GROUPS (PC1-3 and PC4-6) is fixed here, copied from the results of
 resampling_stability.py. check_groups() compares it with that script's
 dimensions.csv and warns if they differ or the file is missing.
 
-load_and_prep() reads output/master_clean.csv and z-scores the FEATURE_PREFIXES
+load_and_prep() reads data/prepared/master_clean.csv and z-scores the FEATURE_PREFIXES
 columns. sklearn's PCA is fitted once. For each group, rotate_group() applies
 varimax() to the loadings (eigenvectors x sqrt(eigenvalues)) and sorts the
 axes by variance; sign_by_anchors() flips each axis so its anchor in ANCHORS
 loads positive. group_scores() multiplies the standardised PC scores by the
 group's rotation matrix.
 
-Writes output/axis_loadings.csv (feature x axis) and
-output/occupation_coordinates.csv (occupation x axis, with titles).
+Writes output/pca_rotated/axis_loadings.csv (feature x axis) and
+output/pca_rotated/occupation_coordinates.csv (occupation x axis, with titles).
 """
 
 import numpy as np
@@ -24,10 +24,10 @@ from scipy.optimize import linear_sum_assignment
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
 
-MASTER = Path("output/master_clean.csv")
+MASTER = Path("data/prepared/master_clean.csv")
 OUTDIR = Path("output")
-AXES = OUTDIR / "occupation_coordinates.csv"
-LOADINGS = OUTDIR / "axis_loadings.csv"
+AXES = OUTDIR / "pca_rotated" / "occupation_coordinates.csv"
+LOADINGS = OUTDIR / "pca_rotated" / "axis_loadings.csv"
 DIMENSIONS = OUTDIR / "resampling_stability" / "dimensions.csv"
 CSV_FLOAT = "%.10g"     # 10 significant digits, so run-to-run noise does not change tracked files
 SEED = 0
@@ -138,7 +138,7 @@ def group_scores(pca, Xz, idx, R):
 
 def main():
     check_groups()
-    OUTDIR.mkdir(exist_ok=True)
+    AXES.parent.mkdir(parents=True, exist_ok=True)
     Xz, feats, title = load_and_prep()
     pca = PCA(random_state=SEED).fit(Xz)
     V, ev = pca.components_.T, pca.explained_variance_

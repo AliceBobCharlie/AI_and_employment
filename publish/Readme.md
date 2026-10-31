@@ -7,9 +7,12 @@ PDF is built only for a [release](https://github.com/AliceBobCharlie/AI_and_empl
 each release is one fixed version of the paper with its PDF attached. The
 web page is the working version; the PDF the released one.
 
-No Python runs when either is built. Both read the committed CSVs in
-`output/`, so commit them again after re-running the scripts that write
-them.
+No Python runs when either is built. Both read files committed in
+`output/`: `pca_rotated/occupation_coordinates.csv`,
+`pca_rotated/axis_loadings.csv`, `acs_young_share/acs_young_share.csv` and
+`resampling_stability/subspace_stability.png`. Commit them again after
+re-running the scripts that write them. Hand-made images are in
+`publish/assets/`.
 
 ## Files
 
@@ -19,7 +22,7 @@ them.
 | `figures.qmd` | a web page with the figures at full size |
 | `_quarto.yml` | the web page: which files are rendered, layout, fonts, the scripts and CSVs it loads |
 | `publish/web/theme.scss` | typography and colours of the web page |
-| `publish/web/figures.js` | draws the interactive figures in the browser with plotly.js, from `output/occupation_coordinates.csv`, `output/axis_loadings.csv` and `output/acs_young_share.csv` |
+| `publish/web/figures.js` | draws the interactive figures in the browser with plotly.js, from `output/pca_rotated/occupation_coordinates.csv`, `output/pca_rotated/axis_loadings.csv` and `output/acs_young_share/acs_young_share.csv` |
 | `_quarto-pdf.yml` | the PDF: page size, margins, type size, and the steps below |
 | `publish/pdf/print_figures.ts` | before rendering: opens each interactive figure in headless Chrome, drawn by `figures.js`, and exports it to `output/figures/` as SVG (PNG for the 3-D figure) |
 | `publish/pdf/figures.lua` | during rendering: puts each figure into the PDF with its print caption |

@@ -4,9 +4,9 @@
 clean_lmv.py -- the labour-market table on the rows of the feature matrix,
 with its gaps filled and variables derived:
 
-    output/labour.csv + output/master_clean.csv  ->  output/labour_clean.csv
+    data/prepared/labour.csv + data/prepared/master_clean.csv  ->  data/prepared/labour_clean.csv
 
-  ROWS. The occupations of output/master_clean.csv, in the same order. The
+  ROWS. The occupations of data/prepared/master_clean.csv, in the same order. The
   feature matrix decides which occupations are analysed; this table follows.
   All medians below are taken over these rows.
 
@@ -35,9 +35,9 @@ import numpy as np
 import pandas as pd
 from pathlib import Path
 
-SRC = Path("output/labour.csv")
-ROWS = Path("output/master_clean.csv")
-OUT = Path("output/labour_clean.csv")
+SRC = Path("data/prepared/labour.csv")
+ROWS = Path("data/prepared/master_clean.csv")
+OUT = Path("data/prepared/labour_clean.csv")
 
 ID_COLUMNS = ["onet_soc", "title"]
 ETE_PREFIXES = ["ete_rl", "ete_rw", "ete_pt", "ete_oj"]

@@ -3,7 +3,7 @@
 joint_rotation.py -- rotate PC1-6 together by one varimax and describe the six
 axes, J1-J6.
 
-Input:  output/master_clean.csv
+Input:  data/prepared/master_clean.csv
 Output: output/joint_rotation/axes.csv         each axis: variance share and the
                                                TOP strongest columns at each pole
         output/joint_rotation/loadings.csv     every column: its Content Model block

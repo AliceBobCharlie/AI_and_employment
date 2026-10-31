@@ -4,7 +4,7 @@ clustering.py -- cluster the occupations by k-means, place the SOC major
 groups in the space of the leading components, and relate the k = 2
 partition to the axes.
 
-Input:  output/master_clean.csv, and output/occupation_coordinates.csv if it
+Input:  data/prepared/master_clean.csv, and output/pca_rotated/occupation_coordinates.csv if it
         exists (for step 4)
 Output: output/clustering/silhouette.csv         silhouette by k, per matrix
         output/clustering/assignments.csv        the k = 2 labels on the z-scored matrix

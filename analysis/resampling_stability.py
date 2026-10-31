@@ -4,11 +4,11 @@ resampling_stability.py -- resample the occupations, decompose every resample,
 and tabulate how stable the components, blocks of components and rotated axes
 are.
 
-Input:  output/master_clean.csv, read by load_and_prep() from pca_rotated.py
+Input:  data/prepared/master_clean.csv, read by load_and_prep() from pca_rotated.py
         (the 220 Importance, CX and CTP columns, z-scored)
-Output: output/resampled_spectra.npz    bootstrap and split-half decompositions
-        output/resampling_stability/    seven CSV tables
-        assets/subspace_stability.png   Figure 5.1
+Output: output/resampling_stability/resampled_spectra.npz   bootstrap and split-half decompositions
+        output/resampling_stability/                         seven CSV tables
+        output/resampling_stability/subspace_stability.png   the nested-subspace figure
 
 run_experiment() runs steps 1 to 4 on a z-scored matrix; main() calls it on
 this one. Every resample and every half is z-scored on its own and decomposed
@@ -66,15 +66,14 @@ import pandas as pd
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
-from pathlib import Path
 
 from pca_rotated import (CSV_FLOAT, OUTDIR, SEED, STABLE_COMPONENTS, STABLE_SUBSPACE,
                          axis_names, congruence, eigen, load_and_prep, match_axes,
                          rotate_group, standardize, subspace_cosines)
 
-SPECTRA = OUTDIR / "resampled_spectra.npz"
 TABLES = OUTDIR / "resampling_stability"
-FIGURE = Path("assets/subspace_stability.png")
+SPECTRA = TABLES / "resampled_spectra.npz"
+FIGURE = TABLES / "subspace_stability.png"
 
 N = 200                 # resamples of each kind
 STABLE_THRESH = 0.90    # p05 a component, block or axis needs to count as stable

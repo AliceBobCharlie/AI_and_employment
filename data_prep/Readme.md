@@ -1,19 +1,24 @@
 # data_prep
 
-These scripts turn the raw downloads in `data_raw/` into the four tables
-every analysis reads, and check their quality. They make no analytic
-choices beyond which rows and columns to keep and how to fill gaps.
+These scripts turn the raw downloads in `data/raw/` into the four tables in
+`data/prepared/` that every analysis reads, and check their quality. They
+make no analytic choices beyond which rows and columns to keep and how to
+fill gaps.
 
 ## Order
 
 ```
-python data_prep/build_master.py   # data_raw/onet/            -> output/master.csv
-python data_prep/clean_master.py   # output/master.csv         -> output/master_clean.csv
-python data_prep/check_data.py     # master, master_clean, O*NET text files -> output/data_quality/
-python data_prep/build_lmv.py      # O*NET + external sources  -> output/labour.csv
-python data_prep/clean_lmv.py      # labour.csv, master_clean  -> output/labour_clean.csv
-python data_prep/check_lmv.py      # labour, labour_clean, master_clean -> output/labour_data_quality.xlsx
+python data_prep/build_master.py   # data/raw/onet/            -> master.csv
+python data_prep/clean_master.py   # master.csv                -> master_clean.csv
+python data_prep/check_data.py     # master, master_clean, O*NET text files -> output/check_data/
+python data_prep/build_lmv.py      # O*NET + external sources  -> labour.csv
+python data_prep/clean_lmv.py      # labour.csv, master_clean  -> labour_clean.csv
+python data_prep/check_lmv.py      # labour, labour_clean, master_clean
+                                   #   -> output/check_lmv/labour_data_quality.xlsx
 ```
+
+The four tables are written to and read from `data/prepared/`; the checks
+write to `output/`.
 
 `clean_lmv.py` takes its rows from `master_clean.csv`, so it runs after
 `clean_master.py`. `build_lmv.py` imports the O\*NET reading functions of

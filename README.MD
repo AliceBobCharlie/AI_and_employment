@@ -10,14 +10,14 @@ from O\*NET descriptors of US occupations and joined to labour-market data.
 ## Layout
 
 ```
-data_raw/          raw downloads (not committed; see "Data" below)
-data_prep/         build, clean and check the tables every analysis reads
+data/raw/          raw downloads (not committed; see "Data" below)
+data/prepared/     the tables data_prep/ builds, which every analysis reads (not committed)
+data_prep/         build, clean and check the prepared tables
 analysis/          the analyses; analysis/supplementary/ holds side experiments
-output/            every table, figure and intermediate file the scripts write
-assets/            images used by the paper
+output/            results, one folder per script
 paper_draft.qmd    the paper
 figures.qmd        a web page with the paper's figures at full size
-publish/           the web page and PDF build (Quarto)
+publish/           the web page and PDF build (Quarto); publish/assets/ holds hand-made images
 .github/workflows/ automatic publishing of the web page and the release PDF
 ```
 
@@ -27,10 +27,10 @@ describes how it works.
 
 ## Data
 
-Nothing in `data_raw/` is committed. All of it is publicly available; place
-the files at these paths:
+Nothing in `data/` is committed. The raw data are all publicly available;
+place the files at these paths:
 
-| source | path in `data_raw/` | used by |
+| source | path in `data/raw/` | used by |
 |---|---|---|
 | [O\*NET 31.0 database](https://www.onetcenter.org/database.html), text format | `onet/db_31_0_text/` | data_prep, analysis |
 | [OEWS national, May 2024](https://www.bls.gov/oes/) | `national_M2024_dl.xlsx` | data_prep |
@@ -41,7 +41,7 @@ the files at these paths:
 | [IPUMS USA](https://usa.ipums.org/) ACS extract (optional; not redistributable) | `usa_00001.csv` | analysis/acs_young_share.py |
 | Eloundou et al. (2024) occupation-level exposure (optional) | `eloundou_occ_level.csv` | analysis/labour_market_regression.py |
 
-`data_prep/README.md` says which columns are read from each.
+`data_prep/Readme.md` says which columns are read from each.
 
 ## Reproducing
 
@@ -53,19 +53,25 @@ pip install -r requirements.txt
 
 Run every script from the repository root, in three stages:
 
-1. **Data preparation**: `data_prep/README.md`. Builds and checks the four
-   tables in `output/` that the analyses read.
-2. **Analyses**: `analysis/README.md`. Writes its results to `output/` as CSV
-   tables and PNG figures; the console reports run status only.
-3. **Paper**: `publish/README.md`. Renders the web page and the PDF.
+1. **Data preparation**: `data_prep/Readme.md`. Builds the tables in
+   `data/prepared/` that the analyses read, and checks them.
+2. **Analyses**: `analysis/Readme.md`. Each script writes its results to its
+   own folder in `output/`, as CSV tables and PNG figures; the console
+   reports run status only.
+3. **Paper**: `publish/Readme.md`. Renders the web page and the PDF.
 
 Seeds are fixed, so every run gives the same results.
 
 ## Committed outputs
 
-Three files in `output/` are committed, because the web page and the PDF
-draw their figures from them and no Python runs when the paper is built:
-`occupation_coordinates.csv`, `axis_loadings.csv` and `acs_young_share.csv`.
+Four files in `output/` are committed, because the paper draws on them and
+no Python runs when it is built:
+
+- `output/pca_rotated/occupation_coordinates.csv` and
+  `output/pca_rotated/axis_loadings.csv`
+- `output/resampling_stability/subspace_stability.png`
+- `output/acs_young_share/acs_young_share.csv`
+
 After re-running the scripts that write them, commit them again. Everything
 else in `output/` is rebuilt by the scripts.
 

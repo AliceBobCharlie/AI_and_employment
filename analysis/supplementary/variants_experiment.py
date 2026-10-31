@@ -4,7 +4,7 @@ variants_experiment.py -- run the resampling experiment of
 resampling_stability.py on other input matrices, rotate the stable components
 and subspace each one finds, and compare the axes with R1-R6.
 
-Input:  output/master_clean.csv, output/occupation_coordinates.csv
+Input:  data/prepared/master_clean.csv, output/pca_rotated/occupation_coordinates.csv
 Output: output/variants_experiment/summary.csv   one row per variant
         output/variants_experiment/<variant>/    for each entry of VARIANTS:
           eigenvalues.csv ... dimensions.csv, resampled_spectra.npz,
@@ -55,12 +55,11 @@ from scipy.optimize import linear_sum_assignment
 from scipy.stats import norm, rankdata
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-from pca_rotated import block_of, rotate_group, standardize            # noqa: E402
+from pca_rotated import AXES, MASTER, OUTDIR, block_of, rotate_group, standardize   # noqa: E402
 from resampling_stability import found_groups, run_experiment          # noqa: E402
 
-CLEAN = Path("output/master_clean.csv")
-AXES = Path("output/occupation_coordinates.csv")
-OUT = Path("output/variants_experiment")
+CLEAN = MASTER
+OUT = OUTDIR / "variants_experiment"
 
 N_EIGEN = 60            # eigenvalues tested by the parallel analysis (at most the columns)
 

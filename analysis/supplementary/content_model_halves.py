@@ -4,7 +4,7 @@ content_model_halves.py -- find and rotate the stable dimensions of the job
 half and of the worker half of the feature matrix separately, describe their
 axes, and compare them with each other and with R1-R6.
 
-Input:  output/master_clean.csv, output/occupation_coordinates.csv
+Input:  data/prepared/master_clean.csv, output/pca_rotated/occupation_coordinates.csv
 Output: output/content_model_halves/<half>/          for each half in HALVES:
           eigenvalues.csv ... dimensions.csv, resampled_spectra.npz,
           subspace_stability.png                      as written by run_experiment()
@@ -43,6 +43,7 @@ and job_x_worker.csv the correlation of every job axis with every worker axis.
 """
 
 import sys
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -51,8 +52,9 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from scipy.optimize import linear_sum_assignment
 
-from pca_rotated import AXES, MASTER, OUTDIR, SEED, block_of, rotate_group, standardize
-from resampling_stability import found_groups, run_experiment
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from pca_rotated import AXES, MASTER, OUTDIR, SEED, block_of, rotate_group, standardize   # noqa: E402
+from resampling_stability import found_groups, run_experiment                          # noqa: E402
 
 OUT = OUTDIR / "content_model_halves"
 HALVES = {"job": ("workact_im__", "workctx_cx__", "workctx_ctp__"),

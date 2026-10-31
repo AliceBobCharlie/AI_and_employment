@@ -5,9 +5,9 @@ rated, the flags and standard errors of the ratings, Importance against
 Level, the Work Context category shares, and the missing cells of the feature
 matrix.
 
-Input:  output/master.csv, output/master_clean.csv, and the O*NET text files of
+Input:  data/prepared/master.csv, data/prepared/master_clean.csv, and the O*NET text files of
         the blocks in FEATURE_BLOCKS in ONET_DIR
-Output: one CSV per table in output/data_quality/
+Output: one CSV per table in output/check_data/
 
 main() reads RAW (every O*NET-SOC code) and CLEAN (the occupations kept), and
 read_block() reads each block's text files: the rows without a category,
@@ -56,10 +56,10 @@ from sklearn.model_selection import KFold, cross_val_predict
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 
-ONET_DIR = Path("data_raw/onet/db_31_0_text")
-RAW = Path("output/master.csv")
-CLEAN = Path("output/master_clean.csv")
-OUT = Path("output/data_quality")
+ONET_DIR = Path("data/raw/onet/db_31_0_text")
+RAW = Path("data/prepared/master.csv")
+CLEAN = Path("data/prepared/master_clean.csv")
+OUT = Path("output/check_data")
 SEED = 0
 
 # Column prefix -> O*NET files, and the scale of the analysis matrix.

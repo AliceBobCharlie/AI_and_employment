@@ -8,7 +8,7 @@ clean_lmv.py fills anything): which occupations miss which external
 variable, and each variable's distribution and skew.
 
 ete_structure() describes how far the education, training and experience
-(ETE) distributions of output/labour_clean.csv reduce to a few variables:
+(ETE) distributions of data/prepared/labour_clean.csv reduce to a few variables:
 1. The share of the variance of the z-scored ETE columns in the first
    N_PCS principal components.
 2. For each scale in ETE_SCALES, the category shares with the dropped
@@ -23,7 +23,7 @@ ete_structure() describes how far the education, training and experience
    four scale means, and from the means and their squares.
 
 wage_structure() describes how far the five wage quantiles of
-output/labour_clean.csv (WAGE_QUANTILES, logged) reduce to a few variables,
+data/prepared/labour_clean.csv (WAGE_QUANTILES, logged) reduce to a few variables,
 on all occupations and without those with a quantile at the OEWS cap
 (WAGE_CAP):
 5. The share of the variance of the log quantiles in each principal
@@ -34,19 +34,19 @@ on all occupations and without those with a quantile at the OEWS cap
    logs and the spread.
 
 Run after build_lmv.py, clean_lmv.py and clean_master.py, from the project
-root. Reads output/labour.csv, output/labour_clean.csv and
-output/master_clean.csv (for the rows). Writes
-output/labour_data_quality.xlsx and prints the tables of external().
+root. Reads data/prepared/labour.csv, data/prepared/labour_clean.csv and
+data/prepared/master_clean.csv (for the rows). Writes
+output/check_lmv/labour_data_quality.xlsx and prints the tables of external().
 """
 
 import numpy as np
 import pandas as pd
 from pathlib import Path
 
-RAW = Path("output/labour.csv")
-CLEAN = Path("output/labour_clean.csv")
-ROWS = Path("output/master_clean.csv")
-OUT = Path("output/labour_data_quality.xlsx")
+RAW = Path("data/prepared/labour.csv")
+CLEAN = Path("data/prepared/labour_clean.csv")
+ROWS = Path("data/prepared/master_clean.csv")
+OUT = Path("output/check_lmv/labour_data_quality.xlsx")
 ETE_SCALES = {"rl": "Required Level of Education", "rw": "Related Work Experience",
               "pt": "On-Site or In-Plant Training", "oj": "On-the-Job Training"}
 N_PCS = 10              # components reported
@@ -190,7 +190,7 @@ def main():
     print(f"[ok] ETE structure: {', '.join(t for t in sheets if t.startswith('ete_'))}")
     sheets.update(wage_structure(clean))
     print("[ok] wage structure: wage_pca, wage_models")
-    OUT.parent.mkdir(exist_ok=True)
+    OUT.parent.mkdir(parents=True, exist_ok=True)
     with pd.ExcelWriter(OUT) as writer:
         for name, df in sheets.items():
             df.to_excel(writer, sheet_name=name[:31], index=False)

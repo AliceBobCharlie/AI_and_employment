@@ -3,10 +3,10 @@
 """
 build_lmv.py -- assemble the raw table of labour-market variables:
 
-    data_raw/onet/db_31_0_text + the external sources  ->  output/labour.csv
+    data/raw/onet/db_31_0_text + the external sources  ->  data/prepared/labour.csv
 
 One row per O*NET-SOC code listed in O*NET's Occupation Data, the same rows
-as output/master.csv. It holds O*NET's education, training and experience
+as data/prepared/master.csv. It holds O*NET's education, training and experience
 distributions (every category of every scale, required education on both the
 RL and the RQ scale), followed by the external variables joined on the
 six-digit SOC code (column soc6).
@@ -38,12 +38,12 @@ from pathlib import Path
 
 from build_master import occupations, join_blocks
 
-RAW = Path("data_raw")
-OUT = Path("output/labour.csv")
+RAW = Path("data/raw")
+OUT = Path("data/prepared/labour.csv")
 
 CROSSWALK = RAW / "nem-occcode-cps-crosswalk.xlsx"
-OEWS_FILE = RAW / "national_M2024_dl.xlsx"
-UNION_FILE = RAW / "occ_2024.xlsx"
+OEWS_FILE = RAW / "oews_national_M2024_dl.xlsx"
+UNION_FILE = RAW / "union_occ_2024.xlsx"
 PRESTIGE_FILE = RAW / "OccupationalPrestigeRatings.csv"
 BLS_FILE = RAW / "bls_projections.xlsx"
 
@@ -174,7 +174,7 @@ def join_external(table):
 
 
 def main():
-    OUT.parent.mkdir(exist_ok=True)
+    OUT.parent.mkdir(parents=True, exist_ok=True)
     L = join_blocks(occupations(), ETE_BLOCK)
     L["soc6"] = L["onet_soc"].map(soc6)
     L = join_external(L)

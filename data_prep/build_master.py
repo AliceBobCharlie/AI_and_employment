@@ -5,8 +5,8 @@ build_master.py -- join five O*NET blocks (Abilities, Skills, Knowledge, Work
 Activities, Work Context) into one table: one row per occupation, one column
 per feature.
 
-Input:  O*NET 31.0 text files in data_raw/onet/db_31_0_text (download first)
-Output: output/master.csv
+Input:  O*NET 31.0 text files in data/raw/onet/db_31_0_text (download first)
+Output: data/prepared/master.csv
 
 Blocks are read one at a time; each is joined and released before the next.
 
@@ -21,8 +21,8 @@ import numpy as np
 import pandas as pd
 from pathlib import Path
 
-ONET_DIR = Path("data_raw") / "onet" / "db_31_0_text"
-OUT = Path("output/master.csv")
+ONET_DIR = Path("data/raw/onet/db_31_0_text")
+OUT = Path("data/prepared/master.csv")
 
 # Column prefix -> the O*NET files that hold the block.
 BLOCKS = {
@@ -90,7 +90,7 @@ def join_blocks(wide, blocks):
 
 
 def main():
-    OUT.parent.mkdir(exist_ok=True)
+    OUT.parent.mkdir(parents=True, exist_ok=True)
     M = join_blocks(occupations(), BLOCKS)
     M.to_csv(OUT, index=False, encoding="utf-8")
     print(f"[ok] wrote {OUT}: {M.shape[0]} rows x {M.shape[1]} columns")

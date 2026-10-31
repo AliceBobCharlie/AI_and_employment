@@ -134,7 +134,7 @@ that O\*NET publishes (Figure 1).
 
 ```{=html}
 <figure class="content-model">
-  <img src="assets/CM_high_res.png" style="width: 100%; height: auto;"
+  <img src="publish/assets/CM_high_res.png" style="width: 100%; height: auto;"
        alt="The O*NET Content Model: three parts, Worker, Job and Market. Worker comprises Worker Characteristics (Career Interests, with Career Types and Specific Areas; Abilities; Work Styles), Worker Requirements (Skills, with Software, Essential and Transferable; Knowledge; Education) and Experience Requirements (Experience and Training; Licensing). Job comprises Occupational Requirements (Work Activities at general, intermediate and detailed levels; Work Context) and Occupation-Specific Info (Occupation Title, Description, Job Titles, Tasks). Market comprises Workforce Characteristics (Labor Market Information; Occupational Outlook).">
   <figcaption>Figure 1: the O*NET® Content Model. Source: National Center
   for O*NET Development, O*NET Resource Center. Used under the CC BY 4.0
@@ -833,7 +833,7 @@ the angles, the worst-aligned direction.
 
 ```{=html}
 <figure class="plot-figure">
-  <img src="assets/subspace_stability.png" style="width: 100%; height: auto;"
+  <img src="output/resampling_stability/subspace_stability.png" style="width: 100%; height: auto;"
        alt="Line chart over k from 1 to 15 of the split-half stability of the leading-k subspace. It is about 0.97 to 0.99 for k from 1 to 3, falls to 0.87 at k = 4 and 0.23 at k = 5, recovers to 0.88 at k = 6, and stays at or below 0.66 from k = 7 to 15, with deep dips to 0.04 at k = 8, 0.04 at k = 10 and 0.05 at k = 11. The same measure on column-permuted data stays between 0.03 and 0.13.">
   <figcaption>Figure 5.1: split-half stability of nested subspaces. For
   each k, the 5th percentile over 200 random half-splits of the smallest
@@ -1688,7 +1688,7 @@ contractual and reputational rather than technical.
 <!-- TODO (31.0): the figures in this paragraph and Figure 6.2 were computed
 against the release 30.2 axes. Rerun acs_young_share.py with the IPUMS extract
 and update the variance share, the correlations and the extreme occupations;
-output/acs_young_share.csv also needs regenerating and committing. -->
+output/acs_young_share/acs_young_share.csv also needs regenerating and committing. -->
 Following that logic, we examined the change in the share of workers aged 22 to
 25 within occupations in the American Community Survey between 2022 and 2024.
 About 60 percent of the cross-occupational variance in that change is real

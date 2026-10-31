@@ -4,7 +4,7 @@ residual_structure.py -- split the variance of the feature matrix beyond PC6
 into rating error, curvature of PC1-6, local signal and the remainder, and
 search it for heavy-tailed directions.
 
-Input:  output/master_clean.csv, output/resampled_spectra.npz (for k_max), and
+Input:  data/prepared/master_clean.csv, output/resampling_stability/resampled_spectra.npz (for k_max), and
         the O*NET text files in the folder given as the first argument
         (default ONET_DIR)
 Output: one CSV per table in output/residual_structure/:
@@ -84,13 +84,13 @@ from sklearn.preprocessing import PolynomialFeatures, StandardScaler
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from check_curvature import block_r2, oof_predictions                   # noqa: E402
-from pca_rotated import FEATURE_PREFIXES, OUTDIR, SEED                  # noqa: E402
+from pca_rotated import FEATURE_PREFIXES, MASTER, OUTDIR, SEED          # noqa: E402
 from resampling_stability import load_spectra                           # noqa: E402
 
 OUT = OUTDIR / "residual_structure"
 N_LEAD = 6              # PC1-6
-ONET_DIR = Path("data_raw/onet/db_31_0_text")
-CLEAN = Path("output/master_clean.csv")
+ONET_DIR = Path("data/raw/onet/db_31_0_text")
+CLEAN = MASTER
 RHOS = [0.0, 0.1, 0.3]  # error correlation within an error group
 MODELS = ("quadratic", "cubic", "kNN")
 N_SIM = 20              # samples per baseline of the cluster share

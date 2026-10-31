@@ -4,7 +4,7 @@ skillscape.py -- rebuild the skill-skill similarity of Alabdulkareem et al.
 (Sci. Adv. 2018) and a correlation-based similarity from the same ratings, and
 compare how bimodal each is and how well each splits into two skill clusters.
 
-Input:  output/master_clean.csv
+Input:  data/prepared/master_clean.csv
 Output: output/skillscape/similarity.csv    one row per similarity
         output/skillscape/skill_clusters.csv
         output/skillscape/edge_weights.png
@@ -40,8 +40,11 @@ from sklearn.cluster import AgglomerativeClustering
 from sklearn.metrics import silhouette_score
 from sklearn.preprocessing import StandardScaler
 
-CLEAN = Path("output/master_clean.csv")
-OUT = Path("output/skillscape")
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from pca_rotated import MASTER, OUTDIR   # noqa: E402
+
+CLEAN = MASTER
+OUT = OUTDIR / "skillscape"
 
 SKILL_PREFIXES = ("skills_im__", "abilities_im__", "knowledge_im__", "workact_im__")
 THETA_CUT = 0.6          # threshold on theta

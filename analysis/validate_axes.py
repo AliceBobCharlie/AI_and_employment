@@ -6,7 +6,7 @@ space, and correlate the six rotated axes with O*NET descriptors that are
 not in the feature matrix and with O*NET's own categories of the feature
 columns.
 
-Input:  output/occupation_coordinates.csv, output/axis_loadings.csv,
+Input:  output/pca_rotated/occupation_coordinates.csv, output/pca_rotated/axis_loadings.csv,
         output/skillscape/skill_clusters.csv (optional), and the O*NET text
         files in the folder given as the first argument (default ONET_DIR)
 Output: one CSV per table in output/validate_axes/
@@ -96,7 +96,7 @@ FALLBACK = {
     "4.C.3": "Structural job characteristics",
 }
 
-ONET_DIR = Path("data_raw/onet/db_31_0_text")   # replaced by the argument, if given
+ONET_DIR = Path("data/raw/onet/db_31_0_text")   # replaced by the argument, if given
 
 
 # --------------------------------------------------------------------------- #

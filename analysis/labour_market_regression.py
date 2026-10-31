@@ -23,14 +23,14 @@ Sections:
   D  the correlation of each of the six axes R1-R6 with the eight
      labour-market variables, the mean required education (ETE categories
      1-11), seven Work Context items on decisions and error, and the Eloundou
-     et al. (2024) exposure measures if data_raw/eloundou_occ_level.csv is
+     et al. (2024) exposure measures if data/raw/eloundou_occ_level.csv is
      present; on published values only, like A to C
 
-Run after pca_rotated.py and clean_lmv.py. Reads output/master.csv and
-output/labour.csv (to tell published values from filled ones),
-output/master_clean.csv, output/labour_clean.csv and
-output/occupation_coordinates.csv. Writes
-output/orthogonality.xlsx and prints every sheet.
+Run after pca_rotated.py and clean_lmv.py. Reads data/prepared/master.csv and
+data/prepared/labour.csv (to tell published values from filled ones),
+data/prepared/master_clean.csv, data/prepared/labour_clean.csv and
+output/pca_rotated/occupation_coordinates.csv. Writes
+output/labour_market_regression/orthogonality.xlsx and prints every sheet.
 """
 
 import numpy as np
@@ -41,13 +41,13 @@ from sklearn.model_selection import KFold
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 
-RAW = Path("output/master.csv")
-RAW_LABOUR = Path("output/labour.csv")
-MASTER = Path("output/master_clean.csv")
-LABOUR_CLEAN = Path("output/labour_clean.csv")
-OUT = Path("output/orthogonality.xlsx")
-AXES = Path("output/occupation_coordinates.csv")
-ELOUNDOU = Path("data_raw/eloundou_occ_level.csv")
+RAW = Path("data/prepared/master.csv")
+RAW_LABOUR = Path("data/prepared/labour.csv")
+MASTER = Path("data/prepared/master_clean.csv")
+LABOUR_CLEAN = Path("data/prepared/labour_clean.csv")
+OUT = Path("output/labour_market_regression/orthogonality.xlsx")
+AXES = Path("output/pca_rotated/occupation_coordinates.csv")
+ELOUNDOU = Path("data/raw/eloundou_occ_level.csv")
 ELOUNDOU_COLUMNS = ["human_rating_alpha", "human_rating_beta",
                     "dv_rating_alpha", "dv_rating_beta"]
 WORK_CONTEXT_ITEMS = ["Consequence of Error", "Degree of Automation",
@@ -263,6 +263,7 @@ def main():
               "ete_by_column": ete.sort_values("R2"),
               "descriptives": descriptives(clean, raw),
               "axes_correlations": axes_correlations(clean, raw)}
+    OUT.parent.mkdir(parents=True, exist_ok=True)
     with pd.ExcelWriter(OUT) as writer:
         for name, frame in sheets.items():
             frame.to_excel(writer, sheet_name=name, index=False)

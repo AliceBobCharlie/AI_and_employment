@@ -15,7 +15,7 @@ page-layout: custom
 # Figures {.figure-page-title}
 
 The 910 occupations of the paper, on the six axes recovered from O\*NET.
-The coordinates are in [`output/occupation_coordinates.csv`](output/occupation_coordinates.csv), one row
+The coordinates are in [`output/pca_rotated/occupation_coordinates.csv`](output/pca_rotated/occupation_coordinates.csv), one row
 per occupation.
 
 ## The occupation space {#space}
