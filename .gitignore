@@ -18,6 +18,8 @@
 !*.scss
 !*.js
 !publish/**
+!requirements.txt
+!LICENSE
 
 # 4. raw data: never committed -- large, and all of it is publicly downloadable.
 #    Ship the download instructions instead.
