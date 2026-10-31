@@ -22,8 +22,9 @@ are left out); step 5 uses all FEATURE_PREFIXES columns. Both are
 z-scored. Each step draws from its own generator seeded with SEED.
 
 Steps 1 to 4 split the principal components into segments by segments():
-PC1-6, the band PC7 to PC k_max, the tail after PC k_max, and all components
-after PC6. A segment's variance is the sum of its eigenvalues. Each segment
+PC1-3, PC4-6, PC1-6, the band PC7 to PC k_max, the tail after PC k_max, and
+all components after PC6. Step 1 covers every segment; steps 2 to 4 the
+last three. A segment's variance is the sum of its eigenvalues. Each segment
 is described by its raw scores, the z-scored matrix projected onto its
 eigenvectors.
 
@@ -155,9 +156,10 @@ def error_covariance(S, groups, rho):
 
 
 def segments(k_max, p):
-    """Label -> component indices."""
-    return {"PC1-6": range(0, N_LEAD), f"PC7-{k_max}": range(N_LEAD, k_max),
-            f"PC{k_max + 1}-{p}": range(k_max, p), f"PC7-{p}": range(N_LEAD, p)}
+    """Label -> component indices. The last three are the segments beyond PC6."""
+    return {"PC1-3": range(0, 3), "PC4-6": range(3, N_LEAD), "PC1-6": range(0, N_LEAD),
+            f"PC7-{k_max}": range(N_LEAD, k_max), f"PC{k_max + 1}-{p}": range(k_max, p),
+            f"PC7-{p}": range(N_LEAD, p)}
 
 
 def simulate_error(sigma, groups, rho, rng):
@@ -342,7 +344,8 @@ def main():
     raw = Z @ V
     T6 = raw[:, :N_LEAD] / np.sqrt(ev[:N_LEAD])
     segs = segments(k_max, p)
-    band = list(segs)[1]
+    band = f"PC7-{k_max}"
+    beyond = list(segs)[3:]
     rng = np.random.default_rng(SEED)
     OUT.mkdir(parents=True, exist_ok=True)
 
@@ -358,7 +361,8 @@ def main():
     # 2. curvature
     sims = [simulate_error(sigma, groups, 0.0, rng) for _ in range(N_CHECK)]
     rows = []
-    for name, idx in list(segs.items())[1:]:
+    for name in beyond:
+        idx = segs[name]
         idx = list(idx)
         row = {"segment": name, "components": len(idx), "variance": ev[idx].sum()}
         for kind in MODELS:
@@ -404,7 +408,7 @@ def main():
     curv = curvature.set_index("segment")["R2 quadratic"]
     rows = []
     for _, e in error.iterrows():
-        if e["segment"] == "PC1-6":
+        if e["segment"] not in beyond:
             continue
         row = {"segment": e["segment"], "components": e["components"], "variance": e["variance"],
                "rho": e["rho"], "error share": e["error share"],

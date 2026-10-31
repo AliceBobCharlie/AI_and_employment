@@ -202,15 +202,5 @@ def block_of(col):
     return "workctx_cx" if block == "workctx_ctp" else block
 
 
-def banner(text):
-    print("\n" + "=" * 66)
-    print(text)
-    print("=" * 66)
-
-
-rotate_tier = rotate_group
-tier_scores = group_scores
-
-
 if __name__ == "__main__":
     main()
